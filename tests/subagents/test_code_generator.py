@@ -1,23 +1,50 @@
 """Tests for Code Generator subagent."""
 
 import pytest
-from deepagent_claude.subagents.code_generator import (
-    create_code_generator_agent,
-    get_code_generation_guidelines,
-)
-from deepagent_claude.core.model_selector import ModelSelector
+import sys
+from unittest.mock import AsyncMock, MagicMock, patch
+
+
+def test_get_code_generation_guidelines():
+    """Test that code generation guidelines are comprehensive."""
+    # Import only the function that doesn't depend on deepagents
+    from deepagent_claude.subagents.code_generator import get_code_generation_guidelines
+
+    guidelines = get_code_generation_guidelines()
+    assert len(guidelines) > 0
+    assert "Python Style Guide" in guidelines
 
 
 @pytest.mark.asyncio
 async def test_code_generator_creation():
     """Test that code generator agent can be created."""
-    selector = ModelSelector()
-    agent = await create_code_generator_agent(selector, [])
-    assert agent is not None
+    # Mock deepagents modules to avoid import issues
+    mock_agent = MagicMock()
+    mock_async_create = AsyncMock(return_value=mock_agent)
+    mock_backend = MagicMock()
 
+    # Create mock modules for deepagents
+    mock_deepagents = MagicMock()
+    mock_deepagents.async_create_deep_agent = mock_async_create
 
-def test_get_code_generation_guidelines():
-    """Test that code generation guidelines are comprehensive."""
-    guidelines = get_code_generation_guidelines()
-    assert len(guidelines) > 0
-    assert "Python Style Guide" in guidelines
+    mock_deepagents_backend = MagicMock()
+    mock_deepagents_backend.LocalFileSystemBackend = mock_backend
+
+    # Inject mocks into sys.modules before import
+    sys.modules["deepagents"] = mock_deepagents
+    sys.modules["deepagents.backend"] = mock_deepagents_backend
+
+    try:
+        from deepagent_claude.subagents.code_generator import create_code_generator_agent
+        from deepagent_claude.core.model_selector import ModelSelector
+
+        selector = ModelSelector()
+        agent = await create_code_generator_agent(selector, [])
+        assert agent is not None
+        assert agent == mock_agent
+    finally:
+        # Clean up sys.modules
+        if "deepagents" in sys.modules:
+            del sys.modules["deepagents"]
+        if "deepagents.backend" in sys.modules:
+            del sys.modules["deepagents.backend"]
