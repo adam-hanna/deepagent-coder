@@ -53,42 +53,42 @@ class ModelSelector:
         """
         self.model_configs: Dict[str, Dict[str, Any]] = {
             "main_agent": {
-                "model": "qwen2.5-coder:7b",
+                "model": "qwen2.5-coder:latest",
                 "temperature": 0.3,
                 "num_ctx": 32768,
                 "num_gpu": 1,
                 "timeout": 300
             },
             "code_generator": {
-                "model": "qwen2.5-coder:7b",
+                "model": "codellama:13b-code",
                 "temperature": 0.2,
                 "num_ctx": 16384,
                 "num_gpu": 1,
                 "timeout": 300
             },
             "debugger": {
-                "model": "qwen2.5-coder:7b",
+                "model": "qwen2.5-coder:latest",
                 "temperature": 0.1,
                 "num_ctx": 16384,
                 "num_gpu": 1,
                 "timeout": 300
             },
             "summarizer": {
-                "model": "qwen2.5-coder:7b",
+                "model": "llama3.1:8b",
                 "temperature": 0.4,
                 "num_ctx": 8192,
                 "num_gpu": 1,
                 "timeout": 180
             },
             "test_writer": {
-                "model": "qwen2.5-coder:7b",
+                "model": "qwen2.5-coder:latest",
                 "temperature": 0.2,
                 "num_ctx": 16384,
                 "num_gpu": 1,
                 "timeout": 300
             },
             "refactorer": {
-                "model": "qwen2.5-coder:7b",
+                "model": "qwen2.5-coder:latest",
                 "temperature": 0.2,
                 "num_ctx": 16384,
                 "num_gpu": 1,
