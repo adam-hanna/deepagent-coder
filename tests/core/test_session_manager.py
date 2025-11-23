@@ -1,6 +1,6 @@
 # tests/core/test_session_manager.py
 import pytest
-from deepagent_claude.core.session_manager import SessionManager
+from deepagent_claude.utils.session_manager import SessionManager
 from pathlib import Path
 
 def test_session_manager_creates_session(tmp_path):
