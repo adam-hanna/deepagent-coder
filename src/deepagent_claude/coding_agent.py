@@ -98,7 +98,7 @@ class CodingDeepAgent:
             }
         }
 
-        await self.mcp_client.initialize(config)
+        await self.mcp_client.initialize()
         logger.info("MCP tools initialized")
 
     async def _create_subagents(self) -> None:
