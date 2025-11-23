@@ -132,24 +132,47 @@ class CodingDeepAgent:
 
     def _create_main_agent(self) -> None:
         """Create main agent with all components"""
-        # Placeholder - would create actual DeepAgent
-        # For now, just create a mock structure
-        self.agent = type('Agent', (), {
-            'ainvoke': self._mock_invoke
-        })()
-        logger.info("Main agent created")
+        # Get the main agent model
+        self.main_model = self.model_selector.get_model("main_agent")
 
-    async def _mock_invoke(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """Mock agent invocation for testing"""
+        # Create agent structure
+        self.agent = type('Agent', (), {
+            'ainvoke': self._agent_invoke
+        })()
+        logger.info("Main agent created with model")
+
+    async def _agent_invoke(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        """Agent invocation with LLM"""
         # Apply middleware
         for middleware in self.middleware:
             state = await middleware(state)
 
-        # Simulate response
+        # Get messages
         messages = state.get("messages", [])
+
+        # Convert to LangChain format
+        from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+
+        lc_messages = []
+        for msg in messages:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+
+            if role == "system":
+                lc_messages.append(SystemMessage(content=content))
+            elif role == "user":
+                lc_messages.append(HumanMessage(content=content))
+            elif role == "assistant":
+                lc_messages.append(AIMessage(content=content))
+
+        # Call LLM
+        logger.info(f"Invoking LLM with {len(lc_messages)} messages")
+        response = await self.main_model.ainvoke(lc_messages)
+
+        # Add response to messages
         messages.append({
             "role": "assistant",
-            "content": "Mock response from agent"
+            "content": response.content
         })
         state["messages"] = messages
 
