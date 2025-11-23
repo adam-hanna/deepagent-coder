@@ -15,8 +15,14 @@ async def test_compact_conversation():
     messages = [
         {"role": "user", "content": "Hello"},
         {"role": "assistant", "content": "Hi there"},
+        {"role": "user", "content": "How are you?"},
+        {"role": "assistant", "content": "I'm doing well, thanks!"},
+        {"role": "user", "content": "What can you help me with?"},
+        {"role": "assistant", "content": "I can help with many things"},
+        {"role": "user", "content": "That's great"},
+        {"role": "assistant", "content": "Let me know how I can assist"},
     ]
-    summary = await compactor.compact_conversation(messages)
+    summary = await compactor.compact_conversation(messages, keep_recent=2)
     assert isinstance(summary, str)
     assert len(summary) > 0
 
