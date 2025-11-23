@@ -196,7 +196,7 @@ class CodingDeepAgent:
     async def cleanup(self) -> None:
         """Cleanup resources"""
         if self.mcp_client:
-            await self.mcp_client.cleanup()
+            await self.mcp_client.close()
 
         self.session_manager.close_session()
         logger.info("Agent cleanup complete")
