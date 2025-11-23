@@ -2,7 +2,9 @@
 import pytest
 from pathlib import Path
 from deepagent_claude.mcp_servers.python_server import (
-    run_python, analyze_code, profile_code
+    _run_python_impl as run_python,
+    _analyze_code_impl as analyze_code,
+    _profile_code_impl as profile_code
 )
 
 
