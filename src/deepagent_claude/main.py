@@ -13,7 +13,7 @@ from deepagent_claude.cli.chat_mode import ChatMode
 console = DeepAgentConsole()
 
 
-async def create_app(model: str = "qwen2.5-coder:7b", workspace: Optional[str] = None) -> CodingDeepAgent:
+async def create_app(model: str = "qwen2.5-coder:latest", workspace: Optional[str] = None) -> CodingDeepAgent:
     """
     Create and initialize the coding agent
 
@@ -37,18 +37,19 @@ async def create_app(model: str = "qwen2.5-coder:7b", workspace: Optional[str] =
     return agent
 
 
-async def run_single_request(request: str, model: str = "qwen2.5-coder:7b") -> dict:
+async def run_single_request(request: str, model: str = "qwen2.5-coder:latest", workspace: Optional[str] = None) -> dict:
     """
     Run a single request and return result
 
     Args:
         request: User request
         model: Model name
+        workspace: Workspace directory
 
     Returns:
         Processing result
     """
-    agent = await create_app(model=model)
+    agent = await create_app(model=model, workspace=workspace)
 
     try:
         result = await agent.process_request(request)
@@ -57,7 +58,7 @@ async def run_single_request(request: str, model: str = "qwen2.5-coder:7b") -> d
         await agent.cleanup()
 
 
-async def run_interactive_chat(model: str = "qwen2.5-coder:7b", workspace: Optional[str] = None):
+async def run_interactive_chat(model: str = "qwen2.5-coder:latest", workspace: Optional[str] = None):
     """
     Run interactive chat mode
 
@@ -117,10 +118,11 @@ def cli():
 
 @cli.command()
 @click.argument('request')
-@click.option('--model', default="qwen2.5-coder:7b", help="Ollama model to use")
-def run(request: str, model: str):
+@click.option('--model', default="qwen2.5-coder:latest", help="Ollama model to use")
+@click.option('--workspace', default=None, help="Workspace directory")
+def run(request: str, model: str, workspace: Optional[str]):
     """Execute a single request"""
-    result = asyncio.run(run_single_request(request, model=model))
+    result = asyncio.run(run_single_request(request, model=model, workspace=workspace))
 
     # Display result
     if "messages" in result:
@@ -132,7 +134,7 @@ def run(request: str, model: str):
 
 
 @cli.command()
-@click.option('--model', default="qwen2.5-coder:7b", help="Ollama model to use")
+@click.option('--model', default="qwen2.5-coder:latest", help="Ollama model to use")
 @click.option('--workspace', default=None, help="Workspace directory")
 def chat(model: str, workspace: Optional[str]):
     """Start interactive chat mode"""
