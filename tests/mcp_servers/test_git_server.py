@@ -3,8 +3,14 @@ import pytest
 from pathlib import Path
 import subprocess
 from deepagent_claude.mcp_servers.git_server import (
-    git_status, git_diff, git_log, git_commit,
-    git_add, git_branch, git_checkout, git_create_branch
+    _git_status_impl as git_status,
+    _git_diff_impl as git_diff,
+    _git_log_impl as git_log,
+    _git_commit_impl as git_commit,
+    _git_add_impl as git_add,
+    _git_branch_impl as git_branch,
+    _git_checkout_impl as git_checkout,
+    _git_create_branch_impl as git_create_branch
 )
 
 @pytest.fixture
