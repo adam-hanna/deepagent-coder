@@ -7,11 +7,12 @@ from deepagent_claude.cli.chat_mode import ChatMode
 from deepagent_claude.coding_agent import CodingDeepAgent
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_full_workflow(tmp_path):
     """Test complete workflow from initialization to request processing"""
     with (
-        patch("deepagent_claude.coding_agent.ChatOllama"),
+        patch("langchain_ollama.ChatOllama"),
         patch(
             "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
@@ -40,11 +41,12 @@ async def test_full_workflow(tmp_path):
         await agent.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_middleware_integration(tmp_path):
     """Test middleware stack integration"""
     with (
-        patch("deepagent_claude.coding_agent.ChatOllama"),
+        patch("langchain_ollama.ChatOllama"),
         patch(
             "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
@@ -67,11 +69,12 @@ async def test_middleware_integration(tmp_path):
         await agent.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_session_persistence(tmp_path):
     """Test session data persistence"""
     with (
-        patch("deepagent_claude.coding_agent.ChatOllama"),
+        patch("langchain_ollama.ChatOllama"),
         patch(
             "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
@@ -94,11 +97,12 @@ async def test_session_persistence(tmp_path):
         await agent.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_chat_mode_integration():
     """Test chat mode with agent integration"""
     with (
-        patch("deepagent_claude.coding_agent.ChatOllama"),
+        patch("langchain_ollama.ChatOllama"),
         patch(
             "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),

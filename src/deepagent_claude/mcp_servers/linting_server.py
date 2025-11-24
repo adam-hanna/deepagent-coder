@@ -87,10 +87,7 @@ async def run_ruff_impl(path: str, fix: bool = False, config: str | None = None)
 
     try:
         # Parse JSON output
-        if stdout.strip():
-            issues = json.loads(stdout)
-        else:
-            issues = []
+        issues = json.loads(stdout) if stdout.strip() else []
 
         result = {
             "path": str(path_obj),

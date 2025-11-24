@@ -9,7 +9,7 @@ from deepagent_claude.coding_agent import CodingDeepAgent
 @pytest.mark.asyncio
 async def test_coding_agent_creation():
     """Test creating coding agent"""
-    with patch("deepagent_claude.coding_agent.ChatOllama"):
+    with patch("langchain_ollama.ChatOllama"):
         agent = CodingDeepAgent()
         assert agent is not None
 
@@ -18,7 +18,7 @@ async def test_coding_agent_creation():
 async def test_coding_agent_initialization():
     """Test agent initialization"""
     with (
-        patch("deepagent_claude.coding_agent.ChatOllama"),
+        patch("langchain_ollama.ChatOllama"),
         patch(
             "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
@@ -36,7 +36,7 @@ async def test_coding_agent_initialization():
 async def test_coding_agent_process_request():
     """Test processing user request"""
     with (
-        patch("deepagent_claude.coding_agent.ChatOllama"),
+        patch("langchain_ollama.ChatOllama"),
         patch(
             "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
