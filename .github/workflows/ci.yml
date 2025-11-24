@@ -97,13 +97,13 @@ jobs:
 
       - name: Run safety check
         run: |
-          uv pip install safety
-          uv run safety check --json || true
+          uv tool install safety
+          uv tool run safety check --json || true
 
       - name: Run bandit security linter
         run: |
-          uv pip install bandit
-          uv run bandit -r src/ -f json || true
+          uv tool install bandit
+          uv tool run bandit -r src/ -f json || true
 
   build:
     name: Build Package
@@ -126,8 +126,8 @@ jobs:
 
       - name: Check package
         run: |
-          uv pip install twine
-          uv run twine check dist/*
+          uv tool install twine
+          uv tool run twine check dist/*
 
   pr-validation:
     name: PR Validation
