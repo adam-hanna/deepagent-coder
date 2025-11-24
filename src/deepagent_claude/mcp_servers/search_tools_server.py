@@ -153,9 +153,74 @@ def find(
 mcp.tool()(find)
 
 
-def ls(*args, **kwargs):
-    """Placeholder for ls tool"""
-    raise NotImplementedError("ls tool not yet implemented")
+def ls(
+    path: str = ".",
+    all_files: bool = False,
+    long_format: bool = False,
+) -> list[dict[str, Any]] | list[str]:
+    """
+    List directory contents.
+
+    Args:
+        path: Directory to list
+        all_files: Include hidden files (starting with .)
+        long_format: Show detailed information (permissions, size, date)
+
+    Returns:
+        List of files/directories (strings or dicts if long_format)
+    """
+    cmd = ["ls"]
+
+    if all_files:
+        cmd.append("-a")
+    if long_format:
+        cmd.append("-l")
+
+    cmd.append(path)
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
+        if long_format:
+            # Parse ls -l output
+            files = []
+            lines = result.stdout.strip().split("\n")
+
+            # Skip first line if it's "total XXX"
+            start_idx = 1 if lines and lines[0].startswith("total") else 0
+
+            for line in lines[start_idx:]:
+                if line:
+                    parts = line.split(None, 8)
+                    if len(parts) >= 9:
+                        files.append({
+                            "permissions": parts[0],
+                            "links": parts[1],
+                            "owner": parts[2],
+                            "group": parts[3],
+                            "size": parts[4],
+                            "date": f"{parts[5]} {parts[6]} {parts[7]}",
+                            "name": parts[8],
+                        })
+                    elif len(parts) >= 1:
+                        # Simpler format for some systems
+                        files.append({"name": " ".join(parts)})
+            return files
+        else:
+            files = result.stdout.strip().split("\n")
+            return [f for f in files if f]
+
+    except Exception as e:
+        return [{"error": str(e)}]
+
+
+# Register the ls function as an MCP tool
+mcp.tool()(ls)
 
 
 def head(*args, **kwargs):

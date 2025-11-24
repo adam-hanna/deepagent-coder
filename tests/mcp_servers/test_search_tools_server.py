@@ -1,6 +1,6 @@
 import pytest
 
-from deepagent_claude.mcp_servers.search_tools_server import grep, find
+from deepagent_claude.mcp_servers.search_tools_server import grep, find, ls
 
 
 @pytest.fixture
@@ -140,3 +140,33 @@ def test_find_with_max_depth(temp_project):
 
     # Should only find top-level directories
     assert len(results) >= 2  # src and tests
+
+
+def test_ls_basic(temp_project):
+    """Test basic directory listing"""
+    results = ls(path=str(temp_project))
+
+    assert len(results) > 0
+    assert "src" in results or any("src" in str(r) for r in results)
+    assert "tests" in results or any("tests" in str(r) for r in results)
+
+
+def test_ls_long_format(temp_project):
+    """Test ls with detailed information"""
+    results = ls(path=str(temp_project), long_format=True)
+
+    assert len(results) > 0
+    # Long format returns dicts with permissions, size, etc.
+    if isinstance(results[0], dict):
+        assert "name" in results[0]
+        assert "permissions" in results[0] or "size" in results[0]
+
+
+def test_ls_all_files(temp_project):
+    """Test ls including hidden files"""
+    # Create a hidden file
+    (temp_project / ".hidden").write_text("hidden content")
+
+    results = ls(path=str(temp_project), all_files=True)
+
+    assert any(".hidden" in str(r) for r in results)
