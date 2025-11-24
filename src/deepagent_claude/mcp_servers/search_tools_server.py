@@ -1,5 +1,7 @@
 """Search Tools MCP Server - filesystem search and navigation tools"""
 
+import json
+import shutil
 import subprocess
 from typing import Any
 
@@ -315,9 +317,79 @@ def wc(
 mcp.tool()(wc)
 
 
-def ripgrep(*args, **kwargs):
-    """Placeholder for ripgrep tool"""
-    raise NotImplementedError("ripgrep tool not yet implemented")
+def ripgrep(
+    pattern: str,
+    path: str = ".",
+    file_type: str | None = None,
+    context: int = 0,
+    multiline: bool = False,
+) -> list[dict[str, Any]]:
+    """
+    Fast search using ripgrep (if available), falls back to grep.
+
+    Args:
+        pattern: Pattern to search for
+        path: Directory or file path to search
+        file_type: Language/file type to filter (e.g., "py", "js")
+        context: Number of context lines before and after match
+        multiline: Enable multiline search
+
+    Returns:
+        List of matches with file, line number, and text
+    """
+    # Check if ripgrep is available
+    if not shutil.which("rg"):
+        # Fallback to grep
+        return grep(pattern=pattern, path=path, recursive=True, regex=True)
+
+    cmd = ["rg", "--json", "-n"]
+
+    if file_type:
+        cmd.extend(["-t", file_type])
+
+    if context > 0:
+        cmd.extend(["-C", str(context)])
+
+    if multiline:
+        cmd.append("--multiline")
+
+    cmd.extend([pattern, path])
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+
+        matches = []
+        for line in result.stdout.strip().split("\n"):
+            if line:
+                try:
+                    data = json.loads(line)
+                    if data.get("type") == "match":
+                        match_data = data["data"]
+                        matches.append({
+                            "file": match_data["path"]["text"],
+                            "line": match_data["line_number"],
+                            "text": match_data["lines"]["text"].strip(),
+                            "column": match_data.get("submatches", [{}])[0].get("start", 0),
+                        })
+                except json.JSONDecodeError:
+                    # Skip malformed JSON lines
+                    pass
+
+        return matches if matches else []
+    except subprocess.TimeoutExpired:
+        return [{"error": "Ripgrep timed out after 60 seconds"}]
+    except Exception as e:
+        # Fallback to grep on any error
+        return grep(pattern=pattern, path=path, recursive=True, regex=True)
+
+
+# Register the ripgrep function as an MCP tool
+mcp.tool()(ripgrep)
 
 
 def run_server():

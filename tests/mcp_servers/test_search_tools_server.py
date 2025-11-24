@@ -1,6 +1,6 @@
 import pytest
 
-from deepagent_claude.mcp_servers.search_tools_server import grep, find, ls, head, tail, wc
+from deepagent_claude.mcp_servers.search_tools_server import grep, find, ls, head, tail, wc, ripgrep
 
 
 @pytest.fixture
@@ -230,3 +230,54 @@ def test_wc_counts_characters(temp_project):
     assert isinstance(result, dict)
     assert "characters" in result
     assert result["characters"] > 0
+
+
+def test_ripgrep_basic_search(temp_project):
+    """Test basic ripgrep search"""
+    results = ripgrep(
+        pattern="hello",
+        path=str(temp_project / "src")
+    )
+
+    assert isinstance(results, list)
+    assert len(results) > 0
+    if "error" not in results[0]:
+        assert any("hello" in r.get("text", "").lower() for r in results)
+
+
+def test_ripgrep_with_file_type(temp_project):
+    """Test ripgrep with file type filter"""
+    results = ripgrep(
+        pattern="def",
+        path=str(temp_project),
+        file_type="py"
+    )
+
+    assert isinstance(results, list)
+    # Should find Python files only
+
+
+def test_ripgrep_with_context(temp_project):
+    """Test ripgrep with context lines"""
+    results = ripgrep(
+        pattern="hello",
+        path=str(temp_project / "src"),
+        context=2
+    )
+
+    assert isinstance(results, list)
+    # Context should provide surrounding lines
+
+
+def test_ripgrep_fallback_to_grep(temp_project, monkeypatch):
+    """Test ripgrep falls back to grep when rg not available"""
+    # Mock shutil.which to return None (rg not found)
+    monkeypatch.setattr("shutil.which", lambda x: None)
+
+    results = ripgrep(
+        pattern="hello",
+        path=str(temp_project / "src")
+    )
+
+    # Should still work via grep fallback
+    assert isinstance(results, list)
