@@ -223,19 +223,96 @@ def ls(
 mcp.tool()(ls)
 
 
-def head(*args, **kwargs):
-    """Placeholder for head tool"""
-    raise NotImplementedError("head tool not yet implemented")
+def head(file_path: str, lines: int = 10) -> str:
+    """
+    Show first N lines of a file.
+
+    Args:
+        file_path: Path to file
+        lines: Number of lines to show (default: 10)
+
+    Returns:
+        First N lines of file as string
+    """
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            head_lines = []
+            for i, line in enumerate(f):
+                if i >= lines:
+                    break
+                head_lines.append(line.rstrip())
+        return "\n".join(head_lines)
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 
-def tail(*args, **kwargs):
-    """Placeholder for tail tool"""
-    raise NotImplementedError("tail tool not yet implemented")
+# Register the head function as an MCP tool
+mcp.tool()(head)
 
 
-def wc(*args, **kwargs):
-    """Placeholder for wc tool"""
-    raise NotImplementedError("wc tool not yet implemented")
+def tail(file_path: str, lines: int = 10) -> str:
+    """
+    Show last N lines of a file.
+
+    Args:
+        file_path: Path to file
+        lines: Number of lines to show (default: 10)
+
+    Returns:
+        Last N lines of file as string
+    """
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            all_lines = f.readlines()
+            tail_lines = all_lines[-lines:] if len(all_lines) > lines else all_lines
+        return "".join(tail_lines).rstrip()
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
+# Register the tail function as an MCP tool
+mcp.tool()(tail)
+
+
+def wc(
+    file_path: str,
+    lines: bool = True,
+    words: bool = False,
+    chars: bool = False,
+) -> dict[str, Any]:
+    """
+    Count lines, words, or characters in file.
+
+    Args:
+        file_path: Path to file
+        lines: Count lines (default: True)
+        words: Count words
+        chars: Count characters
+
+    Returns:
+        Dictionary with requested counts
+    """
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        result = {}
+        if lines:
+            result["lines"] = content.count("\n") + (
+                1 if content and not content.endswith("\n") else 0
+            )
+        if words:
+            result["words"] = len(content.split())
+        if chars:
+            result["characters"] = len(content)
+
+        return result
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# Register the wc function as an MCP tool
+mcp.tool()(wc)
 
 
 def ripgrep(*args, **kwargs):

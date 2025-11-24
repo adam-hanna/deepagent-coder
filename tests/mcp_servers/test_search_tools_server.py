@@ -1,6 +1,6 @@
 import pytest
 
-from deepagent_claude.mcp_servers.search_tools_server import grep, find, ls
+from deepagent_claude.mcp_servers.search_tools_server import grep, find, ls, head, tail, wc
 
 
 @pytest.fixture
@@ -170,3 +170,63 @@ def test_ls_all_files(temp_project):
     results = ls(path=str(temp_project), all_files=True)
 
     assert any(".hidden" in str(r) for r in results)
+
+
+def test_head_reads_first_lines(temp_project):
+    """Test reading first N lines of file"""
+    content = head(file_path=str(temp_project / "src" / "main.py"), lines=2)
+
+    assert isinstance(content, str)
+    assert len(content) > 0
+    # Should contain first lines (def hello)
+
+
+def test_head_default_lines(temp_project):
+    """Test head with default line count"""
+    content = head(file_path=str(temp_project / "src" / "main.py"))
+
+    assert isinstance(content, str)
+    assert len(content) > 0
+
+
+def test_tail_reads_last_lines(temp_project):
+    """Test reading last N lines of file"""
+    content = tail(file_path=str(temp_project / "src" / "main.py"), lines=2)
+
+    assert isinstance(content, str)
+    assert len(content) > 0
+
+
+def test_wc_counts_lines(temp_project):
+    """Test counting lines in file"""
+    result = wc(file_path=str(temp_project / "src" / "main.py"), lines=True)
+
+    assert isinstance(result, dict)
+    assert "lines" in result
+    assert result["lines"] > 0
+
+
+def test_wc_counts_words(temp_project):
+    """Test counting words in file"""
+    result = wc(
+        file_path=str(temp_project / "src" / "main.py"),
+        lines=False,
+        words=True
+    )
+
+    assert isinstance(result, dict)
+    assert "words" in result
+    assert result["words"] > 0
+
+
+def test_wc_counts_characters(temp_project):
+    """Test counting characters in file"""
+    result = wc(
+        file_path=str(temp_project / "src" / "main.py"),
+        lines=False,
+        chars=True
+    )
+
+    assert isinstance(result, dict)
+    assert "characters" in result
+    assert result["characters"] > 0
