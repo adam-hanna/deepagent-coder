@@ -97,7 +97,8 @@ class CodingDeepAgent:
             }
         }
 
-        self.mcp_client = MCPClientManager(custom_configs=custom_config)
+        # Only use custom config, no defaults (to avoid loading broken custom servers)
+        self.mcp_client = MCPClientManager(custom_configs=custom_config, use_defaults=False)
         await self.mcp_client.initialize()
         logger.info("MCP tools initialized")
 

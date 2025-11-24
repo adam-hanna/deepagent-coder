@@ -18,17 +18,24 @@ class MCPClientManager:
     for filesystem, git, python, testing, and linting operations.
     """
 
-    def __init__(self, custom_configs: Optional[Dict[str, Dict[str, Any]]] = None):
+    def __init__(self, custom_configs: Optional[Dict[str, Dict[str, Any]]] = None, use_defaults: bool = True):
         """
         Initialize MCP client manager
 
         Args:
             custom_configs: Optional custom server configurations
+            use_defaults: Whether to load default server configs (default: True)
         """
-        self.server_configs = self._get_default_configs()
-
-        if custom_configs:
+        if custom_configs and not use_defaults:
+            # Only use custom configs, no defaults
+            self.server_configs = custom_configs
+        elif custom_configs:
+            # Merge custom with defaults
+            self.server_configs = self._get_default_configs()
             self.server_configs.update(custom_configs)
+        else:
+            # Use defaults only
+            self.server_configs = self._get_default_configs()
 
         self.client: Optional[MultiServerMCPClient] = None
         self._tools_cache: Optional[List[Any]] = None
