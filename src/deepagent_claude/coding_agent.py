@@ -88,16 +88,16 @@ class CodingDeepAgent:
 
     async def _setup_mcp_tools(self) -> None:
         """Setup MCP client and tools"""
-        self.mcp_client = MCPClientManager()
-
-        # Configure MCP servers (simplified for now)
-        config = {
+        # Use standard MCP servers that work reliably
+        custom_config = {
             "filesystem": {
+                "transport": "stdio",
                 "command": "npx",
                 "args": ["-y", "@modelcontextprotocol/server-filesystem", str(self.workspace)]
             }
         }
 
+        self.mcp_client = MCPClientManager(custom_configs=custom_config)
         await self.mcp_client.initialize()
         logger.info("MCP tools initialized")
 
