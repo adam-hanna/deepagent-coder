@@ -195,7 +195,7 @@ class ModelSelector:
             depending on the number of models and system resources.
         """
         logger.info("Preloading models for all roles...")
-        for role in self.model_configs.keys():
+        for role in self.model_configs:
             try:
                 model = self.get_model(role)
                 # Simple warmup invocation

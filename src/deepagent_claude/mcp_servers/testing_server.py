@@ -70,10 +70,10 @@ async def _run_pytest_impl(
         # Execute pytest
         result = await _run_command(cmd, cwd=path, timeout=timeout)
 
-        if result["returncode"] not in [0, 1]:  # 0=pass, 1=some failed
-            # Check if it's an error vs test failures
-            if "ERROR" in result["stderr"] or "error" in result["stderr"].lower():
-                return {"error": result["stderr"] or result["stdout"]}
+        if result["returncode"] not in [0, 1] and (
+            "ERROR" in result["stderr"] or "error" in result["stderr"].lower()
+        ):  # 0=pass, 1=some failed
+            return {"error": result["stderr"] or result["stdout"]}
 
         # Parse output
         output = result["stdout"] + result["stderr"]
@@ -168,7 +168,6 @@ async def _run_unittest_impl(
         total = int(ran_match.group(1)) if ran_match else 0
 
         # Check for failures/errors
-        ok_match = re.search(r"OK", output)
         failed_match = re.search(r"FAILED.*failures=(\d+)", output)
         error_match = re.search(r"errors=(\d+)", output)
 
@@ -234,7 +233,7 @@ async def _get_coverage_impl(
                 cmd.extend(["--source", src_dir])
 
         # Run tests with coverage
-        result = await _run_command(cmd, cwd=path, timeout=timeout)
+        await _run_command(cmd, cwd=path, timeout=timeout)
 
         # Generate report
         report_result = await _run_command(["coverage", "report"], cwd=path, timeout=30)

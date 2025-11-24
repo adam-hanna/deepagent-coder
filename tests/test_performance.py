@@ -13,7 +13,7 @@ from deepagent_claude.utils.memory_compactor import MemoryCompactor
 async def test_initialization_time(tmp_path):
     """Test agent initialization completes within time limit"""
     with (
-        patch("deepagent_claude.coding_agent.ChatOllama"),
+        patch("langchain_ollama.ChatOllama"),
         patch(
             "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),

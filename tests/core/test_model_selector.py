@@ -69,4 +69,4 @@ def test_list_roles():
 
     assert isinstance(roles, dict)
     assert "main_agent" in roles
-    assert roles["main_agent"] == "qwen2.5-coder:7b"
+    assert roles["main_agent"] == "qwen2.5-coder:latest"

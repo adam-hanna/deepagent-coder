@@ -75,7 +75,7 @@ async def _analyze_code_impl(file_path: str) -> dict[str, Any]:
         if not path.exists():
             return {"error": f"File not found: {file_path}"}
 
-        if not path.suffix == ".py":
+        if path.suffix != ".py":
             return {"error": f"Not a Python file: {file_path}"}
 
         with open(path, encoding="utf-8") as f:
@@ -230,10 +230,9 @@ class CodeAnalyzer(ast.NodeVisitor):
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if (
-                isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor))
-                or isinstance(child, ast.ExceptHandler)
-                or isinstance(child, (ast.And, ast.Or))
+            if isinstance(
+                child,
+                (ast.If, ast.While, ast.For, ast.AsyncFor, ast.ExceptHandler, ast.And, ast.Or),
             ):
                 complexity += 1
 

@@ -206,7 +206,7 @@ async def git_diff(
 
 
 async def _git_log_impl(
-    repo_path: str, max_count: int = 10, format: str = "oneline"
+    repo_path: str, max_count: int = 10, _format: str = "oneline"
 ) -> dict[str, Any]:
     """
     Get git commit history
@@ -214,7 +214,7 @@ async def _git_log_impl(
     Args:
         repo_path: Path to git repository
         max_count: Maximum number of commits to return
-        format: Log format (oneline, short, full)
+        _format: Log format (oneline, short, full) - reserved for future use
 
     Returns:
         List of commits
