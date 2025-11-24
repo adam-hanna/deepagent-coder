@@ -1,11 +1,7 @@
 """Search Tools MCP Server - filesystem search and navigation tools"""
 
-import asyncio
-import json
-import shutil
 import subprocess
-from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -15,7 +11,7 @@ mcp = FastMCP("Search Tools")
 def grep(
     pattern: str,
     path: str = ".",
-    file_pattern: Optional[str] = None,
+    file_pattern: str | None = None,
     recursive: bool = True,
     context_before: int = 0,
     context_after: int = 0,

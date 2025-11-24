@@ -1,9 +1,6 @@
 import pytest
-import tempfile
-from pathlib import Path
-from deepagent_claude.mcp_servers.search_tools_server import (
-    grep, find, ls, head, tail, wc, ripgrep
-)
+
+from deepagent_claude.mcp_servers.search_tools_server import grep
 
 
 @pytest.fixture
