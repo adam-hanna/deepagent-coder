@@ -181,28 +181,34 @@ Your workspace directory is: {self.workspace}
 
 When creating files:
 1. ALWAYS use the write_file tool to save code to disk
-2. File paths must be relative to workspace root (e.g., "./file.txt", "./src/app.js")
-3. Start all paths with "./" to indicate they are relative to the workspace
-4. Create all necessary files (package.json, source files, README, etc.)
+2. Output ALL tool calls at once as a JSON array (multiple files in ONE response)
+3. File paths must be relative to workspace root (e.g., "./file.txt", "./src/app.js")
+4. Create ALL necessary files (package.json, source files, README, etc.) in a SINGLE response
 
-CRITICAL: Output your tool calls as VALID JSON on a SINGLE LINE.
-Use \\n for newlines in content, NOT actual newlines.
+CRITICAL FORMAT: Output a JSON array of tool calls (one per line):
+[
+{{"name": "write_file", "arguments": {{"path": "./package.json", "content": "..."}}}},
+{{"name": "write_file", "arguments": {{"path": "./server.js", "content": "..."}}}},
+{{"name": "write_file", "arguments": {{"path": "./README.md", "content": "..."}}}}
+]
 
-Format (all on one line):
-{{"name": "tool_name", "arguments": {{"arg1": "value1"}}}}
+IMPORTANT:
+- Use \\n for newlines in content, NOT actual newlines
+- All JSON must be valid (escape quotes, etc.)
+- Output ALL files the user requested in ONE response
 
-Example write_file call (one line):
-{{"name": "write_file", "arguments": {{"path": "./file.txt", "content": "line1\\nline2\\nline3"}}}}
-
-Example creating a subdirectory file (one line):
-{{"name": "write_file", "arguments": {{"path": "./src/server.js", "content": "const express = require('express');\\nconst app = express();"}}}}
+Example for "Create package.json and server.js":
+[
+{{"name": "write_file", "arguments": {{"path": "./package.json", "content": "{{\\"name\\":\\"my-app\\",\\"version\\":\\"1.0.0\\"}}"}}}}
+{{"name": "write_file", "arguments": {{"path": "./server.js", "content": "const express = require('express');\\nconst app = express();\\napp.listen(3000);"}}}}
+]
 
 Available tools:
-- write_file: Create or overwrite a file (path must start with "./"
+- write_file: Create or overwrite a file
 - read_file: Read a file
 - list_directory: List directory contents
 
-Be proactive - create the files the user requests!"""
+Be proactive and efficient - create ALL files at once!"""
 
         lc_messages = [SystemMessage(content=system_prompt)]
 
@@ -291,51 +297,70 @@ Be proactive - create the files the user requests!"""
                 print(f"DEBUG: Content length: {len(content)}")
                 print(f"DEBUG: Content preview: {content[:500]}")
 
-                # Try to find JSON blocks with balanced braces
                 tool_calls = []
-                i = 0
-                while i < len(content):
-                    # Find start of JSON object
-                    if content[i] == '{':
-                        # Try to extract a complete JSON object
-                        brace_count = 0
-                        start = i
-                        in_string = False
-                        escape_next = False
 
-                        for j in range(i, len(content)):
-                            char = content[j]
+                # Strategy 1: Try to parse entire content as JSON array
+                try:
+                    parsed = json.loads(content.strip())
+                    if isinstance(parsed, list):
+                        # It's an array of tool calls
+                        for item in parsed:
+                            if isinstance(item, dict) and "name" in item and "arguments" in item:
+                                tool_calls.append(item)
+                                print(f"DEBUG: Found tool call from array: {item.get('name')}")
+                    elif isinstance(parsed, dict) and "name" in parsed and "arguments" in parsed:
+                        # It's a single tool call object
+                        tool_calls.append(parsed)
+                        print(f"DEBUG: Found single tool call: {parsed.get('name')}")
+                except json.JSONDecodeError:
+                    print("DEBUG: Content is not valid JSON, trying individual object extraction")
+                    pass
 
-                            if escape_next:
-                                escape_next = False
-                                continue
+                # Strategy 2: If Strategy 1 failed, find individual JSON objects with balanced braces
+                if not tool_calls:
+                    i = 0
+                    while i < len(content):
+                        # Find start of JSON object
+                        if content[i] == '{':
+                            # Try to extract a complete JSON object
+                            brace_count = 0
+                            start = i
+                            in_string = False
+                            escape_next = False
 
-                            if char == '\\':
-                                escape_next = True
-                                continue
+                            for j in range(i, len(content)):
+                                char = content[j]
 
-                            if char == '"' and not escape_next:
-                                in_string = not in_string
+                                if escape_next:
+                                    escape_next = False
+                                    continue
 
-                            if not in_string:
-                                if char == '{':
-                                    brace_count += 1
-                                elif char == '}':
-                                    brace_count -= 1
+                                if char == '\\':
+                                    escape_next = True
+                                    continue
 
-                                    if brace_count == 0:
-                                        # Found complete JSON object
-                                        json_str = content[start:j+1]
-                                        try:
-                                            obj = json.loads(json_str)
-                                            if "name" in obj and "arguments" in obj:
-                                                tool_calls.append(obj)
-                                                print(f"DEBUG: Found tool call: {obj.get('name')}")
-                                        except:
-                                            pass
-                                        i = j
-                                        break
-                    i += 1
+                                if char == '"' and not escape_next:
+                                    in_string = not in_string
+
+                                if not in_string:
+                                    if char == '{':
+                                        brace_count += 1
+                                    elif char == '}':
+                                        brace_count -= 1
+
+                                        if brace_count == 0:
+                                            # Found complete JSON object
+                                            json_str = content[start:j+1]
+                                            try:
+                                                obj = json.loads(json_str)
+                                                if "name" in obj and "arguments" in obj:
+                                                    tool_calls.append(obj)
+                                                    print(f"DEBUG: Found tool call: {obj.get('name')}")
+                                            except:
+                                                pass
+                                            i = j
+                                            break
+                        i += 1
 
                 if not tool_calls:
                     # No tool calls found, we're done
