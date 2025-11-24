@@ -135,14 +135,28 @@ class CodingDeepAgent:
         # Get the main agent model
         self.main_model = self.model_selector.get_model("main_agent")
 
+        # Store tools reference (will be populated after MCP init)
+        self.tools = []
+
         # Create agent structure
         self.agent = type('Agent', (), {
             'ainvoke': self._agent_invoke
         })()
         logger.info("Main agent created with model")
 
+    async def _get_tools(self):
+        """Get tools from MCP client"""
+        if not self.tools and self.mcp_client:
+            try:
+                self.tools = await self.mcp_client.get_all_tools()
+                logger.info(f"Retrieved {len(self.tools)} MCP tools")
+            except Exception as e:
+                logger.warning(f"Failed to get MCP tools: {e}")
+                self.tools = []
+        return self.tools
+
     async def _agent_invoke(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """Agent invocation with LLM"""
+        """Agent invocation with LLM and tool calling"""
         # Apply middleware
         for middleware in self.middleware:
             state = await middleware(state)
@@ -151,9 +165,26 @@ class CodingDeepAgent:
         messages = state.get("messages", [])
 
         # Convert to LangChain format
-        from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+        from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage
 
-        lc_messages = []
+        # Add system prompt
+        system_prompt = """You are a coding assistant with access to filesystem and command-line tools.
+
+When creating code:
+1. ALWAYS use the write_file or create_file tool to save code to disk
+2. Create all necessary files (package.json, source files, README, etc.)
+3. Use proper file paths relative to the workspace
+4. After creating files, you can run commands using bash/shell tools
+
+Available tools allow you to:
+- Create, read, update, and delete files
+- Run shell commands (npm install, npm test, git, etc.)
+- List directory contents
+
+Be proactive - create the files the user requests!"""
+
+        lc_messages = [SystemMessage(content=system_prompt)]
+
         for msg in messages:
             role = msg.get("role", "user")
             content = msg.get("content", "")
@@ -165,17 +196,73 @@ class CodingDeepAgent:
             elif role == "assistant":
                 lc_messages.append(AIMessage(content=content))
 
-        # Call LLM
-        logger.info(f"Invoking LLM with {len(lc_messages)} messages")
-        response = await self.main_model.ainvoke(lc_messages)
+        # Get tools and bind to model
+        tools = await self._get_tools()
+        if tools:
+            model_with_tools = self.main_model.bind_tools(tools)
+            logger.info(f"Bound {len(tools)} tools to model")
+        else:
+            model_with_tools = self.main_model
+            logger.warning("No tools available, using model without tools")
 
-        # Add response to messages
-        messages.append({
-            "role": "assistant",
-            "content": response.content
-        })
+        # Agent loop - handle tool calling
+        max_iterations = 10
+        for iteration in range(max_iterations):
+            logger.info(f"Agent iteration {iteration + 1}/{max_iterations}")
+
+            # Call LLM
+            response = await model_with_tools.ainvoke(lc_messages)
+            lc_messages.append(response)
+
+            # Check if there are tool calls
+            if not response.tool_calls:
+                # No more tool calls, we're done
+                logger.info("No tool calls, agent finished")
+                break
+
+            # Execute tool calls
+            for tool_call in response.tool_calls:
+                tool_name = tool_call.get("name")
+                tool_args = tool_call.get("args", {})
+                tool_id = tool_call.get("id")
+
+                logger.info(f"Executing tool: {tool_name} with args: {tool_args}")
+
+                try:
+                    # Find and execute the tool
+                    tool_result = None
+                    for tool in tools:
+                        if tool.name == tool_name:
+                            tool_result = await tool.ainvoke(tool_args)
+                            break
+
+                    if tool_result is None:
+                        tool_result = f"Error: Tool {tool_name} not found"
+
+                    logger.info(f"Tool result: {str(tool_result)[:200]}")
+
+                    # Add tool result to messages
+                    lc_messages.append(ToolMessage(
+                        content=str(tool_result),
+                        tool_call_id=tool_id
+                    ))
+
+                except Exception as e:
+                    logger.error(f"Tool execution error: {e}")
+                    lc_messages.append(ToolMessage(
+                        content=f"Error executing tool: {str(e)}",
+                        tool_call_id=tool_id
+                    ))
+
+        # Convert final response back to dict format
+        final_response = lc_messages[-1]
+        if hasattr(final_response, 'content'):
+            messages.append({
+                "role": "assistant",
+                "content": final_response.content
+            })
+
         state["messages"] = messages
-
         return state
 
     async def process_request(self, request: str) -> Dict[str, Any]:
