@@ -88,19 +88,22 @@ class CodingDeepAgent:
 
     async def _setup_mcp_tools(self) -> None:
         """Setup MCP client and tools"""
+        # Resolve workspace path to handle symlinks (e.g., /tmp -> /private/tmp on macOS)
+        resolved_workspace = self.workspace.resolve()
+
         # Use standard MCP servers that work reliably
         custom_config = {
             "filesystem": {
                 "transport": "stdio",
                 "command": "npx",
-                "args": ["-y", "@modelcontextprotocol/server-filesystem", str(self.workspace)]
+                "args": ["-y", "@modelcontextprotocol/server-filesystem", str(resolved_workspace)]
             }
         }
 
         # Only use custom config, no defaults (to avoid loading broken custom servers)
         self.mcp_client = MCPClientManager(custom_configs=custom_config, use_defaults=False)
         await self.mcp_client.initialize()
-        logger.info("MCP tools initialized")
+        logger.info(f"MCP tools initialized for workspace: {resolved_workspace}")
 
     async def _create_subagents(self) -> None:
         """Create specialized subagents"""
@@ -199,27 +202,36 @@ Be proactive - create the files the user requests!"""
 
         # Get tools and bind to model
         tools = await self._get_tools()
+        logger.info(f"Retrieved {len(tools) if tools else 0} tools from MCP")
         if tools:
+            logger.info(f"Available tool names: {[t.name for t in tools[:5]]}")  # Show first 5
             model_with_tools = self.main_model.bind_tools(tools)
-            logger.info(f"Bound {len(tools)} tools to model")
+            logger.info(f"✓ Successfully bound {len(tools)} tools to model")
         else:
             model_with_tools = self.main_model
-            logger.warning("No tools available, using model without tools")
+            logger.warning("⚠ No tools available, using model without tools")
 
         # Agent loop - handle tool calling
         max_iterations = 10
         for iteration in range(max_iterations):
-            logger.info(f"Agent iteration {iteration + 1}/{max_iterations}")
+            logger.info(f"═══ Agent iteration {iteration + 1}/{max_iterations} ═══")
 
             # Call LLM
+            logger.info("Calling LLM...")
             response = await model_with_tools.ainvoke(lc_messages)
+            logger.info(f"LLM response type: {type(response)}")
+            logger.info(f"LLM response has tool_calls: {hasattr(response, 'tool_calls')}")
+            if hasattr(response, 'tool_calls'):
+                logger.info(f"Number of tool calls: {len(response.tool_calls) if response.tool_calls else 0}")
             lc_messages.append(response)
 
             # Check if there are tool calls
             if not response.tool_calls:
                 # No more tool calls, we're done
-                logger.info("No tool calls, agent finished")
+                logger.info("✓ No tool calls in response, agent finished")
                 break
+
+            logger.info(f"🔧 Processing {len(response.tool_calls)} tool call(s)")
 
             # Execute tool calls
             for tool_call in response.tool_calls:
