@@ -11,15 +11,12 @@ Provides tools for code quality and linting operations:
 
 import asyncio
 import json
-import re
 from pathlib import Path
-from typing import Optional
+import re
 
 
 async def _run_command(
-    cmd: list[str],
-    cwd: Optional[str] = None,
-    timeout: int = 300
+    cmd: list[str], cwd: str | None = None, timeout: int = 300
 ) -> tuple[str, str, int]:
     """
     Helper to run a command and return stdout, stderr, returncode.
@@ -34,24 +31,20 @@ async def _run_command(
     """
     try:
         process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=cwd
+            *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=cwd
         )
 
         try:
             stdout_bytes, stderr_bytes = await asyncio.wait_for(
-                process.communicate(),
-                timeout=timeout
+                process.communicate(), timeout=timeout
             )
-            stdout = stdout_bytes.decode('utf-8', errors='replace')
-            stderr = stderr_bytes.decode('utf-8', errors='replace')
+            stdout = stdout_bytes.decode("utf-8", errors="replace")
+            stderr = stderr_bytes.decode("utf-8", errors="replace")
             returncode = process.returncode or 0
 
             return stdout, stderr, returncode
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             process.kill()
             await process.communicate()
             return "", f"Command timed out after {timeout}s", 1
@@ -62,11 +55,7 @@ async def _run_command(
         return "", f"Error running command: {str(e)}", 1
 
 
-async def run_ruff_impl(
-    path: str,
-    fix: bool = False,
-    config: Optional[str] = None
-) -> dict:
+async def run_ruff_impl(path: str, fix: bool = False, config: str | None = None) -> dict:
     """
     Implementation for run_ruff tool.
 
@@ -107,7 +96,7 @@ async def run_ruff_impl(
             "path": str(path_obj),
             "total_issues": len(issues),
             "issues": issues,
-            "fixed": fix
+            "fixed": fix,
         }
 
         if fix:
@@ -124,15 +113,11 @@ async def run_ruff_impl(
             "total_issues": 0,
             "raw_output": stdout,
             "fixed": fix,
-            "message": "Could not parse ruff output"
+            "message": "Could not parse ruff output",
         }
 
 
-async def run_mypy_impl(
-    path: str,
-    strict: bool = False,
-    config: Optional[str] = None
-) -> dict:
+async def run_mypy_impl(path: str, strict: bool = False, config: str | None = None) -> dict:
     """
     Implementation for run_mypy tool.
 
@@ -165,21 +150,23 @@ async def run_mypy_impl(
     issues = []
     for line in stdout.splitlines():
         # Match pattern: path:line: error_type: message
-        match = re.match(r'^(.+?):(\d+):(?:\s+(\w+):)?\s*(.+)$', line)
+        match = re.match(r"^(.+?):(\d+):(?:\s+(\w+):)?\s*(.+)$", line)
         if match:
             file_path, line_num, error_type, message = match.groups()
-            issues.append({
-                "file": file_path,
-                "line": int(line_num),
-                "type": error_type or "error",
-                "message": message.strip()
-            })
+            issues.append(
+                {
+                    "file": file_path,
+                    "line": int(line_num),
+                    "type": error_type or "error",
+                    "message": message.strip(),
+                }
+            )
 
     result = {
         "path": str(path_obj),
         "total_issues": len(issues),
         "issues": issues,
-        "strict_mode": strict
+        "strict_mode": strict,
     }
 
     if returncode == 0:
@@ -190,11 +177,7 @@ async def run_mypy_impl(
     return result
 
 
-async def run_black_impl(
-    path: str,
-    check: bool = False,
-    line_length: Optional[int] = None
-) -> dict:
+async def run_black_impl(path: str, check: bool = False, line_length: int | None = None) -> dict:
     """
     Implementation for run_black tool.
 
@@ -234,11 +217,11 @@ async def run_black_impl(
     for line in combined_output.splitlines():
         if "reformatted" in line.lower():
             # Extract number from "X file(s) reformatted"
-            match = re.search(r'(\d+)\s+file', line)
+            match = re.search(r"(\d+)\s+file", line)
             if match:
                 reformatted = int(match.group(1))
         elif "left unchanged" in line.lower():
-            match = re.search(r'(\d+)\s+file', line)
+            match = re.search(r"(\d+)\s+file", line)
             if match:
                 unchanged = int(match.group(1))
 
@@ -247,7 +230,7 @@ async def run_black_impl(
         "check_only": check,
         "reformatted": reformatted,
         "unchanged": unchanged,
-        "total_files": reformatted + unchanged
+        "total_files": reformatted + unchanged,
     }
 
     if check:
@@ -264,11 +247,7 @@ async def run_black_impl(
     return result
 
 
-async def format_code_impl(
-    path: str,
-    formatter: str = "black",
-    **kwargs
-) -> dict:
+async def format_code_impl(path: str, formatter: str = "black", **kwargs) -> dict:
     """
     Implementation for format_code tool (generic formatter wrapper).
 
@@ -289,11 +268,7 @@ async def format_code_impl(
         return {"error": f"Unsupported formatter: {formatter}"}
 
 
-async def lint_project_impl(
-    path: str,
-    fix: bool = False,
-    strict_mypy: bool = False
-) -> dict:
+async def lint_project_impl(path: str, fix: bool = False, strict_mypy: bool = False) -> dict:
     """
     Implementation for lint_project tool.
     Runs all linting tools on a project.
@@ -334,11 +309,7 @@ async def lint_project_impl(
     result = {
         "path": str(path_obj),
         "total_issues": total_issues,
-        "results": {
-            "ruff": ruff_result,
-            "mypy": mypy_result,
-            "black": black_result
-        }
+        "results": {"ruff": ruff_result, "mypy": mypy_result, "black": black_result},
     }
 
     if total_issues == 0:
@@ -350,7 +321,7 @@ async def lint_project_impl(
 
 
 # MCP Tool Functions (exported)
-async def run_ruff(path: str, fix: bool = False, config: Optional[str] = None) -> dict:
+async def run_ruff(path: str, fix: bool = False, config: str | None = None) -> dict:
     """
     Run ruff linter with auto-fix support.
 
@@ -365,7 +336,7 @@ async def run_ruff(path: str, fix: bool = False, config: Optional[str] = None) -
     return await run_ruff_impl(path, fix, config)
 
 
-async def run_mypy(path: str, strict: bool = False, config: Optional[str] = None) -> dict:
+async def run_mypy(path: str, strict: bool = False, config: str | None = None) -> dict:
     """
     Run mypy type checker.
 
@@ -380,7 +351,7 @@ async def run_mypy(path: str, strict: bool = False, config: Optional[str] = None
     return await run_mypy_impl(path, strict, config)
 
 
-async def run_black(path: str, check: bool = False, line_length: Optional[int] = None) -> dict:
+async def run_black(path: str, check: bool = False, line_length: int | None = None) -> dict:
     """
     Run black code formatter.
 

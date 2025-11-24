@@ -1,7 +1,6 @@
 # tests/core/test_session_manager.py
-import pytest
 from deepagent_claude.utils.session_manager import SessionManager
-from pathlib import Path
+
 
 def test_session_manager_creates_session(tmp_path):
     """Test creating new session"""
@@ -12,6 +11,7 @@ def test_session_manager_creates_session(tmp_path):
     assert len(session_id) > 0
     assert manager.current_session_id == session_id
 
+
 def test_session_manager_stores_session_data(tmp_path):
     """Test storing session data"""
     manager = SessionManager(str(tmp_path))
@@ -21,6 +21,7 @@ def test_session_manager_stores_session_data(tmp_path):
 
     data = manager.get_session_data("test_key")
     assert data == {"value": "test"}
+
 
 def test_session_manager_lists_sessions(tmp_path):
     """Test listing all sessions"""

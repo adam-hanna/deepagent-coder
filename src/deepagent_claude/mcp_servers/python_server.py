@@ -1,17 +1,17 @@
 """Python tools MCP server - code execution, analysis, profiling"""
 
-from fastmcp import FastMCP
-import subprocess
 import ast
 import asyncio
-from typing import Dict, Any, Optional
-from pathlib import Path
 import json
+from pathlib import Path
+from typing import Any
+
+from fastmcp import FastMCP
 
 mcp = FastMCP("Python Tools")
 
 
-async def _run_python_impl(code: str, timeout: int = 30) -> Dict[str, Any]:
+async def _run_python_impl(code: str, timeout: int = 30) -> dict[str, Any]:
     """
     Execute Python code safely with timeout
 
@@ -28,49 +28,39 @@ async def _run_python_impl(code: str, timeout: int = 30) -> Dict[str, Any]:
 
         # Execute with timeout
         process = await asyncio.create_subprocess_exec(
-            "python", "-c", code,
+            "python",
+            "-c",
+            code,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
 
         try:
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(),
-                timeout=timeout
-            )
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
 
             return {
                 "stdout": stdout.decode("utf-8"),
                 "stderr": stderr.decode("utf-8"),
-                "returncode": process.returncode
+                "returncode": process.returncode,
             }
-        except asyncio.TimeoutError:
+        except TimeoutError:
             process.kill()
             await process.wait()
-            return {
-                "error": f"Execution timed out after {timeout} seconds",
-                "returncode": -1
-            }
+            return {"error": f"Execution timed out after {timeout} seconds", "returncode": -1}
 
     except SyntaxError as e:
-        return {
-            "error": f"SyntaxError: {e.msg} at line {e.lineno}",
-            "returncode": 1
-        }
+        return {"error": f"SyntaxError: {e.msg} at line {e.lineno}", "returncode": 1}
     except Exception as e:
-        return {
-            "error": f"Unexpected error: {str(e)}",
-            "returncode": 1
-        }
+        return {"error": f"Unexpected error: {str(e)}", "returncode": 1}
 
 
 @mcp.tool()
-async def run_python(code: str, timeout: int = 30) -> Dict[str, Any]:
+async def run_python(code: str, timeout: int = 30) -> dict[str, Any]:
     """MCP tool wrapper for run_python"""
     return await _run_python_impl(code, timeout)
 
 
-async def _analyze_code_impl(file_path: str) -> Dict[str, Any]:
+async def _analyze_code_impl(file_path: str) -> dict[str, Any]:
     """
     Perform static analysis on Python file using AST
 
@@ -88,7 +78,7 @@ async def _analyze_code_impl(file_path: str) -> Dict[str, Any]:
         if not path.suffix == ".py":
             return {"error": f"Not a Python file: {file_path}"}
 
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             source = f.read()
 
         tree = ast.parse(source, filename=file_path)
@@ -105,15 +95,13 @@ async def _analyze_code_impl(file_path: str) -> Dict[str, Any]:
         }
 
     except SyntaxError as e:
-        return {
-            "error": f"SyntaxError in {file_path}: {e.msg} at line {e.lineno}"
-        }
+        return {"error": f"SyntaxError in {file_path}: {e.msg} at line {e.lineno}"}
     except Exception as e:
         return {"error": f"Analysis failed: {str(e)}"}
 
 
 @mcp.tool()
-async def analyze_code(file_path: str) -> Dict[str, Any]:
+async def analyze_code(file_path: str) -> dict[str, Any]:
     """MCP tool wrapper for analyze_code"""
     return await _analyze_code_impl(file_path)
 
@@ -190,25 +178,29 @@ class CodeAnalyzer(ast.NodeVisitor):
     def visit_Import(self, node: ast.Import):
         """Extract import statements"""
         for alias in node.names:
-            self.imports.append({
-                "module": alias.name,
-                "alias": alias.asname,
-                "type": "import",
-                "lineno": node.lineno,
-            })
+            self.imports.append(
+                {
+                    "module": alias.name,
+                    "alias": alias.asname,
+                    "type": "import",
+                    "lineno": node.lineno,
+                }
+            )
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node: ast.ImportFrom):
         """Extract from...import statements"""
         module = node.module or ""
         for alias in node.names:
-            self.imports.append({
-                "module": f"{module}.{alias.name}" if module else alias.name,
-                "alias": alias.asname,
-                "type": "from_import",
-                "from_module": module,
-                "lineno": node.lineno,
-            })
+            self.imports.append(
+                {
+                    "module": f"{module}.{alias.name}" if module else alias.name,
+                    "alias": alias.asname,
+                    "type": "from_import",
+                    "from_module": module,
+                    "lineno": node.lineno,
+                }
+            )
         self.generic_visit(node)
 
     def _get_decorator_name(self, decorator: ast.expr) -> str:
@@ -238,11 +230,11 @@ class CodeAnalyzer(ast.NodeVisitor):
         complexity = 1  # Base complexity
 
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor)):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler):
-                complexity += 1
-            elif isinstance(child, (ast.And, ast.Or)):
+            if (
+                isinstance(child, (ast.If, ast.While, ast.For, ast.AsyncFor))
+                or isinstance(child, ast.ExceptHandler)
+                or isinstance(child, (ast.And, ast.Or))
+            ):
                 complexity += 1
 
         return complexity
@@ -253,10 +245,8 @@ class CodeAnalyzer(ast.NodeVisitor):
 
 
 async def _profile_code_impl(
-    file_path: str,
-    function_name: str = "main",
-    args: Optional[str] = None
-) -> Dict[str, Any]:
+    file_path: str, function_name: str = "main", args: str | None = None
+) -> dict[str, Any]:
     """
     Profile Python code performance
 
@@ -270,9 +260,9 @@ async def _profile_code_impl(
     """
     try:
         import cProfile
-        import pstats
-        from io import StringIO
         import importlib.util
+        from io import StringIO
+        import pstats
 
         path = Path(file_path)
         if not path.exists():
@@ -317,7 +307,7 @@ async def _profile_code_impl(
         # Get statistics
         stream = StringIO()
         stats = pstats.Stats(profiler, stream=stream)
-        stats.sort_stats('cumulative')
+        stats.sort_stats("cumulative")
         stats.print_stats(20)
 
         return {
@@ -335,10 +325,8 @@ async def _profile_code_impl(
 
 @mcp.tool()
 async def profile_code(
-    file_path: str,
-    function_name: str = "main",
-    args: Optional[str] = None
-) -> Dict[str, Any]:
+    file_path: str, function_name: str = "main", args: str | None = None
+) -> dict[str, Any]:
     """MCP tool wrapper for profile_code"""
     return await _profile_code_impl(file_path, function_name, args)
 

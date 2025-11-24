@@ -1,16 +1,16 @@
 """Memory compaction middleware for DeepAgent"""
 
-from typing import Dict, Any, Callable
-from deepagent_claude.utils.memory_compactor import MemoryCompactor
+from collections.abc import Callable
 import logging
+from typing import Any
+
+from deepagent_claude.utils.memory_compactor import MemoryCompactor
 
 logger = logging.getLogger(__name__)
 
 
 def create_memory_middleware(
-    model_selector,
-    threshold: int = 6000,
-    keep_recent: int = 10
+    model_selector, threshold: int = 6000, keep_recent: int = 10
 ) -> Callable:
     """
     Create memory compaction middleware
@@ -23,12 +23,9 @@ def create_memory_middleware(
     Returns:
         Middleware function
     """
-    compactor = MemoryCompactor(
-        model_selector=model_selector,
-        threshold=threshold
-    )
+    compactor = MemoryCompactor(model_selector=model_selector, threshold=threshold)
 
-    async def memory_middleware(state: Dict[str, Any]) -> Dict[str, Any]:
+    async def memory_middleware(state: dict[str, Any]) -> dict[str, Any]:
         """
         Middleware that compacts messages when threshold reached
 
@@ -53,9 +50,7 @@ def create_memory_middleware(
 
                 # Replace old messages with summary + recent
                 compacted_messages = compactor.compact_with_summary(
-                    messages,
-                    summary,
-                    keep_recent=keep_recent
+                    messages, summary, keep_recent=keep_recent
                 )
 
                 original_count = len(messages)
@@ -66,7 +61,7 @@ def create_memory_middleware(
                     "compacted_count": original_count - keep_recent,
                     "kept_count": keep_recent,
                     "original_count": original_count,
-                    "new_count": new_count
+                    "new_count": new_count,
                 }
 
                 logger.info(

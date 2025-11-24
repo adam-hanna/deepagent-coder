@@ -22,9 +22,9 @@ Example:
     response = await agent.invoke("Debug this TypeError...")
 """
 
-from typing import List, Any, Optional
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -111,9 +111,9 @@ to understand and prevent similar problems."""
 
 async def create_debugger_agent(
     model_selector,
-    tools: List[Any],
-    backend: Optional[Any] = None,
-    workspace_path: Optional[str] = None,
+    tools: list[Any],
+    backend: Any | None = None,
+    workspace_path: str | None = None,
 ) -> Any:
     """
     Create a debugger specialist subagent.

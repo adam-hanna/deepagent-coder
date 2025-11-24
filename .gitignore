@@ -8,3 +8,26 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Pre-commit
+.pre-commit-cache/
+
+# Temporary files
+*.log
+*.tmp
+.agent_cache/

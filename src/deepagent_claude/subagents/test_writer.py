@@ -22,9 +22,9 @@ Example:
     response = await agent.invoke("Write tests for this function...")
 """
 
-from typing import List, Any, Optional
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -186,9 +186,9 @@ confidence in code changes. Write tests that help, not hinder, development."""
 
 async def create_test_writer_agent(
     model_selector,
-    tools: List[Any],
-    backend: Optional[Any] = None,
-    workspace_path: Optional[str] = None,
+    tools: list[Any],
+    backend: Any | None = None,
+    workspace_path: str | None = None,
 ) -> Any:
     """
     Create a test writer specialist subagent.

@@ -1,8 +1,10 @@
 # tests/middleware/test_audit_middleware.py
-import pytest
-from pathlib import Path
 import json
+
+import pytest
+
 from deepagent_claude.middleware.audit_middleware import create_audit_middleware
+
 
 @pytest.mark.asyncio
 async def test_audit_middleware_creation():
@@ -10,17 +12,14 @@ async def test_audit_middleware_creation():
     middleware = create_audit_middleware()
     assert middleware is not None
 
+
 @pytest.mark.asyncio
 async def test_audit_middleware_creates_audit_log(tmp_path):
     """Test middleware creates audit log file"""
     audit_file = tmp_path / "audit.jsonl"
     middleware = create_audit_middleware(audit_file=str(audit_file))
 
-    state = {
-        "messages": [
-            {"role": "user", "content": "Test command"}
-        ]
-    }
+    state = {"messages": [{"role": "user", "content": "Test command"}]}
 
     await middleware(state)
 
@@ -29,18 +28,14 @@ async def test_audit_middleware_creates_audit_log(tmp_path):
     content = audit_file.read_text()
     assert len(content) > 0
 
+
 @pytest.mark.asyncio
 async def test_audit_middleware_logs_actions(tmp_path):
     """Test middleware logs actions to audit trail"""
     audit_file = tmp_path / "audit.jsonl"
     middleware = create_audit_middleware(audit_file=str(audit_file))
 
-    state = {
-        "messages": [
-            {"role": "user", "content": "Execute action"}
-        ],
-        "action": "test_action"
-    }
+    state = {"messages": [{"role": "user", "content": "Execute action"}], "action": "test_action"}
 
     await middleware(state)
 
@@ -51,6 +46,7 @@ async def test_audit_middleware_logs_actions(tmp_path):
     assert "timestamp" in entry
     assert "action" in entry or "messages" in entry
 
+
 @pytest.mark.asyncio
 async def test_audit_middleware_tracks_user_context(tmp_path):
     """Test middleware tracks user context in audit"""
@@ -60,7 +56,7 @@ async def test_audit_middleware_tracks_user_context(tmp_path):
     state = {
         "messages": [{"role": "user", "content": "Command"}],
         "user_id": "test_user_123",
-        "session_id": "session_456"
+        "session_id": "session_456",
     }
 
     await middleware(state)
@@ -71,20 +67,14 @@ async def test_audit_middleware_tracks_user_context(tmp_path):
 
     assert "user_id" in entry or "session_id" in entry
 
+
 @pytest.mark.asyncio
 async def test_audit_middleware_handles_sensitive_data(tmp_path):
     """Test middleware handles sensitive data appropriately"""
     audit_file = tmp_path / "audit.jsonl"
-    middleware = create_audit_middleware(
-        audit_file=str(audit_file),
-        redact_sensitive=True
-    )
+    middleware = create_audit_middleware(audit_file=str(audit_file), redact_sensitive=True)
 
-    state = {
-        "messages": [
-            {"role": "user", "content": "My password is secret123"}
-        ]
-    }
+    state = {"messages": [{"role": "user", "content": "My password is secret123"}]}
 
     await middleware(state)
 
@@ -97,15 +87,14 @@ async def test_audit_middleware_handles_sensitive_data(tmp_path):
     # We're not checking for the actual password, just that auditing works
     assert "timestamp" in entry
 
+
 @pytest.mark.asyncio
 async def test_audit_middleware_continues_on_error(tmp_path):
     """Test middleware continues even if audit fails"""
     # Use invalid path to cause write error
     middleware = create_audit_middleware(audit_file="/invalid/path/audit.jsonl")
 
-    state = {
-        "messages": [{"role": "user", "content": "Test"}]
-    }
+    state = {"messages": [{"role": "user", "content": "Test"}]}
 
     # Should not raise exception
     result = await middleware(state)

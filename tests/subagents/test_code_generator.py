@@ -1,8 +1,9 @@
 """Tests for Code Generator subagent."""
 
-import pytest
 import sys
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 
 def test_get_code_generation_guidelines():
@@ -35,8 +36,8 @@ async def test_code_generator_creation():
     sys.modules["deepagents.backend"] = mock_deepagents_backend
 
     try:
-        from deepagent_claude.subagents.code_generator import create_code_generator_agent
         from deepagent_claude.core.model_selector import ModelSelector
+        from deepagent_claude.subagents.code_generator import create_code_generator_agent
 
         selector = ModelSelector()
         agent = await create_code_generator_agent(selector, [])

@@ -1,8 +1,9 @@
 """Tests for Refactorer subagent."""
 
-import pytest
 import sys
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 
 def test_refactorer_module_exists():
@@ -32,8 +33,8 @@ async def test_refactorer_creation():
     sys.modules["deepagents.backend"] = mock_deepagents_backend
 
     try:
-        from deepagent_claude.subagents.refactorer import create_refactorer_agent
         from deepagent_claude.core.model_selector import ModelSelector
+        from deepagent_claude.subagents.refactorer import create_refactorer_agent
 
         selector = ModelSelector()
         agent = await create_refactorer_agent(selector, [])

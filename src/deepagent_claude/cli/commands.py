@@ -1,7 +1,8 @@
 """Command handlers for CLI"""
 
-from typing import Dict, Any, Optional, Callable
+from collections.abc import Callable
 import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ class CommandHandler:
 
     def __init__(self):
         """Initialize command handler"""
-        self.commands: Dict[str, Callable] = {
+        self.commands: dict[str, Callable] = {
             "/help": self._help,
             "/exit": self._exit,
             "/quit": self._exit,
@@ -25,7 +26,7 @@ class CommandHandler:
             "/history": self._history,
         }
 
-    async def execute(self, command: str) -> Dict[str, Any]:
+    async def execute(self, command: str) -> dict[str, Any]:
         """
         Execute a command
 
@@ -48,18 +49,15 @@ class CommandHandler:
                 return await handler(args)
             except Exception as e:
                 logger.error(f"Error executing command {cmd}: {e}")
-                return {
-                    "success": False,
-                    "error": str(e)
-                }
+                return {"success": False, "error": str(e)}
         else:
             return {
                 "success": False,
                 "error": f"Unknown command: {cmd}",
-                "help": "Type /help for available commands"
+                "help": "Type /help for available commands",
             }
 
-    async def _help(self, args: list) -> Dict[str, Any]:
+    async def _help(self, args: list) -> dict[str, Any]:
         """Show help information"""
         help_text = """
 Available Commands:
@@ -76,38 +74,21 @@ Usage Tips:
 - Use commands for special operations
 - Press Ctrl+C to exit
 """
-        return {
-            "success": True,
-            "help": help_text
-        }
+        return {"success": True, "help": help_text}
 
-    async def _exit(self, args: list) -> Dict[str, Any]:
+    async def _exit(self, args: list) -> dict[str, Any]:
         """Exit command"""
-        return {
-            "success": True,
-            "exit": True,
-            "message": "Goodbye!"
-        }
+        return {"success": True, "exit": True, "message": "Goodbye!"}
 
-    async def _workspace(self, args: list) -> Dict[str, Any]:
+    async def _workspace(self, args: list) -> dict[str, Any]:
         """Show workspace path"""
         # This would get the actual workspace path from configuration
-        return {
-            "success": True,
-            "workspace": "~/.deepagents/workspace"
-        }
+        return {"success": True, "workspace": "~/.deepagents/workspace"}
 
-    async def _clear(self, args: list) -> Dict[str, Any]:
+    async def _clear(self, args: list) -> dict[str, Any]:
         """Clear conversation history"""
-        return {
-            "success": True,
-            "cleared": True,
-            "message": "Conversation history cleared"
-        }
+        return {"success": True, "cleared": True, "message": "Conversation history cleared"}
 
-    async def _history(self, args: list) -> Dict[str, Any]:
+    async def _history(self, args: list) -> dict[str, Any]:
         """Show conversation history"""
-        return {
-            "success": True,
-            "history": []
-        }
+        return {"success": True, "history": []}

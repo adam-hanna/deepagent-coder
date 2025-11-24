@@ -1,23 +1,24 @@
 # src/deepagent_claude/mcp_servers/testing_server.py
 """Testing tools MCP server - test execution and coverage"""
 
-from fastmcp import FastMCP
 import asyncio
-import re
-import json
-from typing import Dict, Any, Optional, List
 from pathlib import Path
+import re
+from typing import Any
+
+from fastmcp import FastMCP
 
 mcp = FastMCP("Testing Tools")
+
 
 @mcp.tool()
 async def run_pytest(
     project_path: str,
-    test_path: Optional[str] = None,
-    markers: Optional[str] = None,
+    test_path: str | None = None,
+    markers: str | None = None,
     verbose: bool = True,
-    timeout: int = 120
-) -> Dict[str, Any]:
+    timeout: int = 120,
+) -> dict[str, Any]:
     """
     Run pytest on project or specific tests
 
@@ -33,13 +34,14 @@ async def run_pytest(
     """
     return await _run_pytest_impl(project_path, test_path, markers, verbose, timeout)
 
+
 async def _run_pytest_impl(
     project_path: str,
-    test_path: Optional[str] = None,
-    markers: Optional[str] = None,
+    test_path: str | None = None,
+    markers: str | None = None,
     verbose: bool = True,
-    timeout: int = 120
-) -> Dict[str, Any]:
+    timeout: int = 120,
+) -> dict[str, Any]:
     """Implementation of run_pytest"""
     try:
         path = Path(project_path)
@@ -83,7 +85,7 @@ async def _run_pytest_impl(
         total = 0
 
         # Look for summary line like "3 passed, 1 failed in 0.05s"
-        summary_pattern = r'(\d+)\s+passed|(\d+)\s+failed|(\d+)\s+skipped'
+        summary_pattern = r"(\d+)\s+passed|(\d+)\s+failed|(\d+)\s+skipped"
         for match in re.finditer(summary_pattern, output):
             if match.group(1):
                 passed = int(match.group(1))
@@ -100,20 +102,21 @@ async def _run_pytest_impl(
             "failed": failed,
             "skipped": skipped,
             "output": output,
-            "success": failed == 0
+            "success": failed == 0,
         }
 
     except Exception as e:
         return {"error": f"Pytest execution failed: {str(e)}"}
 
+
 @mcp.tool()
 async def run_unittest(
     project_path: str,
-    test_path: Optional[str] = None,
+    test_path: str | None = None,
     pattern: str = "test*.py",
     verbose: bool = True,
-    timeout: int = 120
-) -> Dict[str, Any]:
+    timeout: int = 120,
+) -> dict[str, Any]:
     """
     Run unittest on project
 
@@ -129,13 +132,14 @@ async def run_unittest(
     """
     return await _run_unittest_impl(project_path, test_path, pattern, verbose, timeout)
 
+
 async def _run_unittest_impl(
     project_path: str,
-    test_path: Optional[str] = None,
+    test_path: str | None = None,
     pattern: str = "test*.py",
     verbose: bool = True,
-    timeout: int = 120
-) -> Dict[str, Any]:
+    timeout: int = 120,
+) -> dict[str, Any]:
     """Implementation of run_unittest"""
     try:
         path = Path(project_path)
@@ -160,13 +164,13 @@ async def _run_unittest_impl(
         output = result["stdout"] + result["stderr"]
 
         # Extract test counts from output like "Ran 5 tests in 0.001s"
-        ran_match = re.search(r'Ran (\d+) test', output)
+        ran_match = re.search(r"Ran (\d+) test", output)
         total = int(ran_match.group(1)) if ran_match else 0
 
         # Check for failures/errors
-        ok_match = re.search(r'OK', output)
-        failed_match = re.search(r'FAILED.*failures=(\d+)', output)
-        error_match = re.search(r'errors=(\d+)', output)
+        ok_match = re.search(r"OK", output)
+        failed_match = re.search(r"FAILED.*failures=(\d+)", output)
+        error_match = re.search(r"errors=(\d+)", output)
 
         failed = int(failed_match.group(1)) if failed_match else 0
         errors = int(error_match.group(1)) if error_match else 0
@@ -178,19 +182,20 @@ async def _run_unittest_impl(
             "failed": failed,
             "errors": errors,
             "output": output,
-            "success": result["returncode"] == 0
+            "success": result["returncode"] == 0,
         }
 
     except Exception as e:
         return {"error": f"Unittest execution failed: {str(e)}"}
 
+
 @mcp.tool()
 async def get_coverage(
     project_path: str,
-    source_dirs: Optional[List[str]] = None,
-    test_path: Optional[str] = None,
-    timeout: int = 180
-) -> Dict[str, Any]:
+    source_dirs: list[str] | None = None,
+    test_path: str | None = None,
+    timeout: int = 180,
+) -> dict[str, Any]:
     """
     Run tests with coverage reporting
 
@@ -205,12 +210,13 @@ async def get_coverage(
     """
     return await _get_coverage_impl(project_path, source_dirs, test_path, timeout)
 
+
 async def _get_coverage_impl(
     project_path: str,
-    source_dirs: Optional[List[str]] = None,
-    test_path: Optional[str] = None,
-    timeout: int = 180
-) -> Dict[str, Any]:
+    source_dirs: list[str] | None = None,
+    test_path: str | None = None,
+    timeout: int = 180,
+) -> dict[str, Any]:
     """Implementation of get_coverage"""
     try:
         path = Path(project_path)
@@ -231,48 +237,42 @@ async def _get_coverage_impl(
         result = await _run_command(cmd, cwd=path, timeout=timeout)
 
         # Generate report
-        report_result = await _run_command(
-            ["coverage", "report"],
-            cwd=path,
-            timeout=30
-        )
+        report_result = await _run_command(["coverage", "report"], cwd=path, timeout=30)
 
         # Parse coverage percentage
         output = report_result["stdout"]
 
         # Look for "TOTAL ... XX%"
-        total_match = re.search(r'TOTAL\s+\d+\s+\d+\s+(\d+)%', output)
+        total_match = re.search(r"TOTAL\s+\d+\s+\d+\s+(\d+)%", output)
         coverage_percent = int(total_match.group(1)) if total_match else 0
 
         # Parse individual file coverage
         files = []
         for line in output.splitlines():
             # Match lines like "src/calculator.py    10    2    80%"
-            file_match = re.match(r'(.+?)\s+(\d+)\s+(\d+)\s+(\d+)%', line)
-            if file_match and not line.startswith('TOTAL'):
-                files.append({
-                    "file": file_match.group(1).strip(),
-                    "statements": int(file_match.group(2)),
-                    "missing": int(file_match.group(3)),
-                    "coverage": int(file_match.group(4))
-                })
+            file_match = re.match(r"(.+?)\s+(\d+)\s+(\d+)\s+(\d+)%", line)
+            if file_match and not line.startswith("TOTAL"):
+                files.append(
+                    {
+                        "file": file_match.group(1).strip(),
+                        "statements": int(file_match.group(2)),
+                        "missing": int(file_match.group(3)),
+                        "coverage": int(file_match.group(4)),
+                    }
+                )
 
         return {
             "coverage_percent": coverage_percent,
             "files": files,
             "report": output,
-            "success": True
+            "success": True,
         }
 
     except Exception as e:
         return {"error": f"Coverage execution failed: {str(e)}"}
 
 
-async def _run_command(
-    cmd: List[str],
-    cwd: Path,
-    timeout: int = 120
-) -> Dict[str, Any]:
+async def _run_command(cmd: list[str], cwd: Path, timeout: int = 120) -> dict[str, Any]:
     """Execute command and return result"""
     try:
         process = await asyncio.create_subprocess_exec(
@@ -282,24 +282,21 @@ async def _run_command(
             stderr=asyncio.subprocess.PIPE,
         )
 
-        stdout, stderr = await asyncio.wait_for(
-            process.communicate(),
-            timeout=timeout
-        )
+        stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
 
         return {
             "stdout": stdout.decode("utf-8"),
             "stderr": stderr.decode("utf-8"),
-            "returncode": process.returncode
+            "returncode": process.returncode,
         }
 
-    except asyncio.TimeoutError:
+    except TimeoutError:
         process.kill()
         await process.wait()
         return {
             "stdout": "",
             "stderr": f"Command timed out after {timeout} seconds",
-            "returncode": -1
+            "returncode": -1,
         }
 
 

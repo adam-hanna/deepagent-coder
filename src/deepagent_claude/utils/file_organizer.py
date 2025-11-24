@@ -23,11 +23,11 @@ Example:
     data = organizer.load_session_data("session_123")
 """
 
-from typing import Dict, Any, Optional, List
-from pathlib import Path
+from datetime import datetime
 import json
 import logging
-from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class FileOrganizer:
         base_path: Base directory for all organized files
     """
 
-    def __init__(self, base_path: Optional[str] = None):
+    def __init__(self, base_path: str | None = None):
         """
         Initialize FileOrganizer with base directory.
 
@@ -78,7 +78,7 @@ class FileOrganizer:
 
         logger.info("Standard directory structure created")
 
-    def save_session_data(self, session_id: str, data: Dict[str, Any]) -> Path:
+    def save_session_data(self, session_id: str, data: dict[str, Any]) -> Path:
         """
         Save session data to JSON file.
 
@@ -99,13 +99,13 @@ class FileOrganizer:
         path = self.base_path / "sessions" / f"{session_id}.json"
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(data, f, indent=2)
 
         logger.info(f"Saved session data to: {path}")
         return path
 
-    def load_session_data(self, session_id: str) -> Optional[Dict[str, Any]]:
+    def load_session_data(self, session_id: str) -> dict[str, Any] | None:
         """
         Load session data from JSON file.
 
@@ -132,11 +132,7 @@ class FileOrganizer:
         logger.info(f"Loaded session data from: {path}")
         return data
 
-    def save_decision_log(
-        self,
-        decision_id: str,
-        decision_data: Dict[str, Any]
-    ) -> Path:
+    def save_decision_log(self, decision_id: str, decision_data: dict[str, Any]) -> Path:
         """
         Save decision log to JSON file.
 
@@ -154,13 +150,13 @@ class FileOrganizer:
         if "timestamp" not in decision_data:
             decision_data["timestamp"] = datetime.now().isoformat()
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(decision_data, f, indent=2)
 
         logger.info(f"Saved decision log to: {path}")
         return path
 
-    def load_decision_log(self, decision_id: str) -> Optional[Dict[str, Any]]:
+    def load_decision_log(self, decision_id: str) -> dict[str, Any] | None:
         """
         Load decision log from JSON file.
 
@@ -183,10 +179,7 @@ class FileOrganizer:
         return data
 
     def save_summary(
-        self,
-        summary_id: str,
-        summary_text: str,
-        metadata: Optional[Dict[str, Any]] = None
+        self, summary_id: str, summary_text: str, metadata: dict[str, Any] | None = None
     ) -> Path:
         """
         Save conversation summary to file.
@@ -206,16 +199,16 @@ class FileOrganizer:
             "summary_id": summary_id,
             "text": summary_text,
             "created_at": datetime.now().isoformat(),
-            "metadata": metadata or {}
+            "metadata": metadata or {},
         }
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(summary_data, f, indent=2)
 
         logger.info(f"Saved summary to: {path}")
         return path
 
-    def load_summary(self, summary_id: str) -> Optional[Dict[str, Any]]:
+    def load_summary(self, summary_id: str) -> dict[str, Any] | None:
         """
         Load conversation summary from file.
 
@@ -238,10 +231,7 @@ class FileOrganizer:
         return data
 
     def save_generated_file(
-        self,
-        filename: str,
-        content: str,
-        subdirectory: Optional[str] = None
+        self, filename: str, content: str, subdirectory: str | None = None
     ) -> Path:
         """
         Save generated content to file.
@@ -261,13 +251,13 @@ class FileOrganizer:
 
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             f.write(content)
 
         logger.info(f"Saved generated file to: {path}")
         return path
 
-    def list_sessions(self) -> List[str]:
+    def list_sessions(self) -> list[str]:
         """
         List all saved session IDs.
 
@@ -284,7 +274,7 @@ class FileOrganizer:
         logger.debug(f"Found {len(session_ids)} sessions")
         return sorted(session_ids)
 
-    def list_decisions(self) -> List[str]:
+    def list_decisions(self) -> list[str]:
         """
         List all saved decision IDs.
 
@@ -330,17 +320,14 @@ class FileOrganizer:
         logger.info(f"Cleaned up {deleted_count} files older than {days} days")
         return deleted_count
 
-    def get_storage_stats(self) -> Dict[str, Any]:
+    def get_storage_stats(self) -> dict[str, Any]:
         """
         Get storage statistics for organized files.
 
         Returns:
             Dict[str, Any]: Statistics including file counts and sizes
         """
-        stats = {
-            "base_path": str(self.base_path),
-            "directories": {}
-        }
+        stats = {"base_path": str(self.base_path), "directories": {}}
 
         for dir_name in ["sessions", "decisions", "summaries", "generated", "logs"]:
             dir_path = self.base_path / dir_name
@@ -352,10 +339,7 @@ class FileOrganizer:
             file_count = sum(1 for f in files if f.is_file())
             total_size = sum(f.stat().st_size for f in files if f.is_file())
 
-            stats["directories"][dir_name] = {
-                "count": file_count,
-                "size_bytes": total_size
-            }
+            stats["directories"][dir_name] = {"count": file_count, "size_bytes": total_size}
 
         logger.debug(f"Storage stats: {stats}")
         return stats

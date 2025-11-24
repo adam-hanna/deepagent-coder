@@ -1,19 +1,27 @@
 # tests/test_performance.py
-import pytest
 import time
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
+
+import pytest
 
 from deepagent_claude.coding_agent import CodingDeepAgent
-from deepagent_claude.utils.memory_compactor import MemoryCompactor
 from deepagent_claude.core.model_selector import ModelSelector
+from deepagent_claude.utils.memory_compactor import MemoryCompactor
 
 
 @pytest.mark.asyncio
 async def test_initialization_time(tmp_path):
     """Test agent initialization completes within time limit"""
-    with patch('deepagent_claude.coding_agent.ChatOllama'), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools', new_callable=AsyncMock), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._create_subagents', new_callable=AsyncMock):
+    with (
+        patch("deepagent_claude.coding_agent.ChatOllama"),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+        ),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            new_callable=AsyncMock,
+        ),
+    ):
 
         agent = CodingDeepAgent(workspace=str(tmp_path))
 
@@ -33,10 +41,7 @@ async def test_memory_compaction_performance():
     compactor = MemoryCompactor(selector, threshold=1000)
 
     # Create large message list
-    messages = [
-        {"role": "user", "content": "Message " * 100}
-        for _ in range(100)
-    ]
+    messages = [{"role": "user", "content": "Message " * 100} for _ in range(100)]
 
     # Test that compaction doesn't take too long
     start = time.time()

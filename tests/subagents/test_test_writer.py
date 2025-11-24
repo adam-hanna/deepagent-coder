@@ -1,8 +1,9 @@
 """Tests for Test Writer subagent."""
 
-import pytest
 import sys
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 
 def test_test_writer_module_exists():
@@ -32,8 +33,8 @@ async def test_test_writer_creation():
     sys.modules["deepagents.backend"] = mock_deepagents_backend
 
     try:
-        from deepagent_claude.subagents.test_writer import create_test_writer_agent
         from deepagent_claude.core.model_selector import ModelSelector
+        from deepagent_claude.subagents.test_writer import create_test_writer_agent
 
         selector = ModelSelector()
         agent = await create_test_writer_agent(selector, [])

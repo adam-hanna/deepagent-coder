@@ -1,12 +1,12 @@
 """Rich-based console interface for DeepAgent"""
 
+from contextlib import contextmanager
+
 from rich.console import Console
+from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.syntax import Syntax
-from rich.markdown import Markdown
-from rich.status import Status
-from typing import Optional
-from contextlib import contextmanager
+
 
 class DeepAgentConsole:
     """
@@ -16,7 +16,7 @@ class DeepAgentConsole:
     and code highlighting.
     """
 
-    def __init__(self, width: Optional[int] = None):
+    def __init__(self, width: int | None = None):
         """
         Initialize console
 
@@ -83,7 +83,7 @@ class DeepAgentConsole:
         md = Markdown(markdown)
         self.console.print(md)
 
-    def print_panel(self, content: str, title: Optional[str] = None) -> None:
+    def print_panel(self, content: str, title: str | None = None) -> None:
         """
         Print content in a panel
 
@@ -112,7 +112,7 @@ class DeepAgentConsole:
         """Clear the console"""
         self.console.clear()
 
-    def rule(self, title: Optional[str] = None) -> None:
+    def rule(self, title: str | None = None) -> None:
         """
         Print a horizontal rule
 

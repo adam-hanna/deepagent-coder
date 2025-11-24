@@ -1,11 +1,11 @@
 # tests/mcp_servers/test_python_server.py
-import pytest
 from pathlib import Path
-from deepagent_claude.mcp_servers.python_server import (
-    _run_python_impl as run_python,
-    _analyze_code_impl as analyze_code,
-    _profile_code_impl as profile_code
-)
+
+import pytest
+
+from deepagent_claude.mcp_servers.python_server import _analyze_code_impl as analyze_code
+from deepagent_claude.mcp_servers.python_server import _profile_code_impl as profile_code
+from deepagent_claude.mcp_servers.python_server import _run_python_impl as run_python
 
 
 @pytest.mark.asyncio
@@ -43,7 +43,8 @@ async def test_analyze_code_extracts_functions():
     """Test function extraction from Python file"""
     # Create test file
     test_file = Path("test_temp_analysis.py")
-    test_file.write_text("""
+    test_file.write_text(
+        """
 def hello(name: str) -> str:
     '''Say hello'''
     return f"Hello {name}"
@@ -51,7 +52,8 @@ def hello(name: str) -> str:
 async def async_hello(name: str) -> str:
     '''Async hello'''
     return f"Async Hello {name}"
-""")
+"""
+    )
 
     try:
         result = await analyze_code(str(test_file))
@@ -70,7 +72,8 @@ async def async_hello(name: str) -> str:
 async def test_analyze_code_extracts_classes():
     """Test class extraction from Python file"""
     test_file = Path("test_temp_class.py")
-    test_file.write_text("""
+    test_file.write_text(
+        """
 class MyClass:
     '''A test class'''
 
@@ -79,7 +82,8 @@ class MyClass:
 
     def method_two(self) -> str:
         return "test"
-""")
+"""
+    )
 
     try:
         result = await analyze_code(str(test_file))
@@ -96,12 +100,14 @@ class MyClass:
 async def test_analyze_code_extracts_imports():
     """Test import extraction"""
     test_file = Path("test_temp_imports.py")
-    test_file.write_text("""
+    test_file.write_text(
+        """
 import os
 import sys as system
 from pathlib import Path
 from typing import Dict, List
-""")
+"""
+    )
 
     try:
         result = await analyze_code(str(test_file))
@@ -128,7 +134,8 @@ from typing import Dict, List
 async def test_profile_code_measures_performance():
     """Test code profiling"""
     test_file = Path("test_temp_profile.py")
-    test_file.write_text("""
+    test_file.write_text(
+        """
 def fibonacci(n: int) -> int:
     if n <= 1:
         return n
@@ -136,7 +143,8 @@ def fibonacci(n: int) -> int:
 
 def main():
     return fibonacci(10)
-""")
+"""
+    )
 
     try:
         result = await profile_code(str(test_file), "main")

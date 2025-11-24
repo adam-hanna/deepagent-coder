@@ -1,21 +1,18 @@
 """Main CodingDeepAgent orchestration class"""
 
-import os
-from typing import Dict, Any, List, Optional
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Any
 
-from langchain_ollama import ChatOllama
-
-from deepagent_claude.core.model_selector import ModelSelector
 from deepagent_claude.core.mcp_client import MCPClientManager
-from deepagent_claude.utils.file_organizer import FileOrganizer
-from deepagent_claude.utils.session_manager import SessionManager
-from deepagent_claude.middleware.memory_middleware import create_memory_middleware
+from deepagent_claude.core.model_selector import ModelSelector
+from deepagent_claude.middleware.audit_middleware import create_audit_middleware
+from deepagent_claude.middleware.error_recovery_middleware import create_error_recovery_middleware
 from deepagent_claude.middleware.git_safety_middleware import create_git_safety_middleware
 from deepagent_claude.middleware.logging_middleware import create_logging_middleware
-from deepagent_claude.middleware.error_recovery_middleware import create_error_recovery_middleware
-from deepagent_claude.middleware.audit_middleware import create_audit_middleware
+from deepagent_claude.middleware.memory_middleware import create_memory_middleware
+from deepagent_claude.utils.file_organizer import FileOrganizer
+from deepagent_claude.utils.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +25,7 @@ class CodingDeepAgent:
     and file organization for a complete AI coding assistant.
     """
 
-    def __init__(self, model: str = "qwen2.5-coder:7b", workspace: Optional[str] = None):
+    def __init__(self, model: str = "qwen2.5-coder:7b", workspace: str | None = None):
         """
         Initialize coding agent
 
@@ -48,7 +45,7 @@ class CodingDeepAgent:
 
         # Agent and subagents
         self.agent = None
-        self.subagents: Dict[str, Any] = {}
+        self.subagents: dict[str, Any] = {}
 
         # Middleware
         self.middleware = []
@@ -96,7 +93,7 @@ class CodingDeepAgent:
             "filesystem": {
                 "transport": "stdio",
                 "command": "npx",
-                "args": ["-y", "@modelcontextprotocol/server-filesystem", str(resolved_workspace)]
+                "args": ["-y", "@modelcontextprotocol/server-filesystem", str(resolved_workspace)],
             }
         }
 
@@ -112,25 +109,18 @@ class CodingDeepAgent:
             "code_generator": None,
             "debugger": None,
             "test_writer": None,
-            "refactorer": None
+            "refactorer": None,
         }
         logger.info("Subagents created")
 
     def _setup_middleware(self) -> None:
         """Setup middleware stack"""
         self.middleware = [
-            create_logging_middleware(
-                log_file=str(self.workspace / "agent.log")
-            ),
-            create_memory_middleware(
-                self.model_selector,
-                threshold=6000
-            ),
+            create_logging_middleware(log_file=str(self.workspace / "agent.log")),
+            create_memory_middleware(self.model_selector, threshold=6000),
             create_git_safety_middleware(enforce=False),
             create_error_recovery_middleware(max_retries=3),
-            create_audit_middleware(
-                audit_file=str(self.workspace / "audit.jsonl")
-            ),
+            create_audit_middleware(audit_file=str(self.workspace / "audit.jsonl")),
         ]
         logger.info(f"Middleware stack configured with {len(self.middleware)} components")
 
@@ -143,9 +133,7 @@ class CodingDeepAgent:
         self.tools = []
 
         # Create agent structure
-        self.agent = type('Agent', (), {
-            'ainvoke': self._agent_invoke
-        })()
+        self.agent = type("Agent", (), {"ainvoke": self._agent_invoke})()
         logger.info("Main agent created with model")
 
     async def _get_tools(self):
@@ -159,10 +147,9 @@ class CodingDeepAgent:
                 self.tools = []
         return self.tools
 
-    async def _agent_invoke(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    async def _agent_invoke(self, state: dict[str, Any]) -> dict[str, Any]:
         """Agent invocation with LLM and tool calling"""
         import json
-        import re
 
         # Apply middleware
         for middleware in self.middleware:
@@ -172,7 +159,7 @@ class CodingDeepAgent:
         messages = state.get("messages", [])
 
         # Convert to LangChain format
-        from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, ToolMessage
+        from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
         # Add system prompt
         system_prompt = f"""You are a coding assistant with access to filesystem and command-line tools.
@@ -246,7 +233,7 @@ Be proactive and efficient - create ALL files at once!"""
             logger.info(f"LLM response has tool_calls: {hasattr(response, 'tool_calls')}")
 
             # Check if there are structured tool calls (OpenAI-style)
-            has_tool_calls = hasattr(response, 'tool_calls') and response.tool_calls
+            has_tool_calls = hasattr(response, "tool_calls") and response.tool_calls
 
             if has_tool_calls:
                 logger.info(f"Number of tool calls: {len(response.tool_calls)}")
@@ -276,24 +263,24 @@ Be proactive and efficient - create ALL files at once!"""
                         logger.info(f"Tool result: {str(tool_result)[:200]}")
 
                         # Add tool result to messages
-                        lc_messages.append(ToolMessage(
-                            content=str(tool_result),
-                            tool_call_id=tool_id
-                        ))
+                        lc_messages.append(
+                            ToolMessage(content=str(tool_result), tool_call_id=tool_id)
+                        )
 
                     except Exception as e:
                         logger.error(f"Tool execution error: {e}")
-                        lc_messages.append(ToolMessage(
-                            content=f"Error executing tool: {str(e)}",
-                            tool_call_id=tool_id
-                        ))
+                        lc_messages.append(
+                            ToolMessage(
+                                content=f"Error executing tool: {str(e)}", tool_call_id=tool_id
+                            )
+                        )
             else:
                 # Ollama models don't support tool_calls, parse JSON from content
                 print("DEBUG: No structured tool_calls, parsing JSON from content")
                 lc_messages.append(response)
 
                 # Try to extract JSON tool calls from content
-                content = response.content if hasattr(response, 'content') else ""
+                content = response.content if hasattr(response, "content") else ""
                 print(f"DEBUG: Content length: {len(content)}")
                 print(f"DEBUG: Content preview: {content[:500]}")
 
@@ -321,7 +308,7 @@ Be proactive and efficient - create ALL files at once!"""
                     i = 0
                     while i < len(content):
                         # Find start of JSON object
-                        if content[i] == '{':
+                        if content[i] == "{":
                             # Try to extract a complete JSON object
                             brace_count = 0
                             start = i
@@ -335,7 +322,7 @@ Be proactive and efficient - create ALL files at once!"""
                                     escape_next = False
                                     continue
 
-                                if char == '\\':
+                                if char == "\\":
                                     escape_next = True
                                     continue
 
@@ -343,19 +330,21 @@ Be proactive and efficient - create ALL files at once!"""
                                     in_string = not in_string
 
                                 if not in_string:
-                                    if char == '{':
+                                    if char == "{":
                                         brace_count += 1
-                                    elif char == '}':
+                                    elif char == "}":
                                         brace_count -= 1
 
                                         if brace_count == 0:
                                             # Found complete JSON object
-                                            json_str = content[start:j+1]
+                                            json_str = content[start : j + 1]
                                             try:
                                                 obj = json.loads(json_str)
                                                 if "name" in obj and "arguments" in obj:
                                                     tool_calls.append(obj)
-                                                    print(f"DEBUG: Found tool call: {obj.get('name')}")
+                                                    print(
+                                                        f"DEBUG: Found tool call: {obj.get('name')}"
+                                                    )
                                             except:
                                                 pass
                                             i = j
@@ -380,19 +369,25 @@ Be proactive and efficient - create ALL files at once!"""
 
                     try:
                         # Fix paths for filesystem operations - convert to absolute workspace paths
-                        if tool_name in ['write_file', 'read_file', 'read_text_file'] and 'path' in tool_args:
+                        if (
+                            tool_name in ["write_file", "read_file", "read_text_file"]
+                            and "path" in tool_args
+                        ):
                             from pathlib import Path
-                            original_path = tool_args['path']
+
+                            original_path = tool_args["path"]
 
                             # Convert to absolute path within workspace
                             if not Path(original_path).is_absolute():
                                 # Remove ./ prefix if present
-                                if original_path.startswith('./'):
+                                if original_path.startswith("./"):
                                     original_path = original_path[2:]
                                 # Join with workspace and resolve to absolute path
                                 abs_path = (self.workspace / original_path).resolve()
-                                tool_args['path'] = str(abs_path)
-                                print(f"DEBUG: Fixed path: '{tool_args['path']}'  (was: '{original_path}')")
+                                tool_args["path"] = str(abs_path)
+                                print(
+                                    f"DEBUG: Fixed path: '{tool_args['path']}'  (was: '{original_path}')"
+                                )
 
                         # Find and execute the tool
                         tool_result = None
@@ -412,6 +407,7 @@ Be proactive and efficient - create ALL files at once!"""
                     except Exception as e:
                         print(f"DEBUG: Tool execution error: {e}")
                         import traceback
+
                         traceback.print_exc()
                         tool_results.append(f"Error: {e}")
 
@@ -423,16 +419,13 @@ Be proactive and efficient - create ALL files at once!"""
 
         # Convert final response back to dict format
         final_response = lc_messages[-1]
-        if hasattr(final_response, 'content'):
-            messages.append({
-                "role": "assistant",
-                "content": final_response.content
-            })
+        if hasattr(final_response, "content"):
+            messages.append({"role": "assistant", "content": final_response.content})
 
         state["messages"] = messages
         return state
 
-    async def process_request(self, request: str) -> Dict[str, Any]:
+    async def process_request(self, request: str) -> dict[str, Any]:
         """
         Process user request
 
@@ -449,20 +442,17 @@ Be proactive and efficient - create ALL files at once!"""
 
         # Create state
         state = {
-            "messages": [
-                {"role": "user", "content": request}
-            ],
-            "session_id": self.session_manager.current_session_id
+            "messages": [{"role": "user", "content": request}],
+            "session_id": self.session_manager.current_session_id,
         }
 
         # Process through agent
         result = await self.agent.ainvoke(state)
 
         # Store in session
-        self.session_manager.store_session_data("last_request", {
-            "request": request,
-            "response": result
-        })
+        self.session_manager.store_session_data(
+            "last_request", {"request": request, "response": result}
+        )
 
         return result
 
