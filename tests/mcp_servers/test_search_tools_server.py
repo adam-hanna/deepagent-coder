@@ -1,6 +1,6 @@
 import pytest
 
-from deepagent_claude.mcp_servers.search_tools_server import grep
+from deepagent_claude.mcp_servers.search_tools_server import grep, find
 
 
 @pytest.fixture
@@ -92,3 +92,51 @@ def test_grep_regex_mode(temp_project):
     )
 
     assert len(results) > 0
+
+
+def test_find_files_by_name(temp_project):
+    """Test finding files by name"""
+    results = find(
+        path=str(temp_project),
+        name="main.py",
+        type="f"
+    )
+
+    assert len(results) > 0
+    assert any("main.py" in r for r in results)
+
+
+def test_find_by_extension(temp_project):
+    """Test finding files by extension"""
+    results = find(
+        path=str(temp_project),
+        extension="py",
+        type="f"
+    )
+
+    assert len(results) >= 3  # main.py, utils.py, test_main.py
+    assert all(r.endswith(".py") for r in results)
+
+
+def test_find_directories(temp_project):
+    """Test finding directories"""
+    results = find(
+        path=str(temp_project),
+        type="d"
+    )
+
+    assert len(results) > 0
+    assert any("src" in r for r in results)
+    assert any("tests" in r for r in results)
+
+
+def test_find_with_max_depth(temp_project):
+    """Test find with depth limit"""
+    results = find(
+        path=str(temp_project),
+        max_depth=1,
+        type="d"
+    )
+
+    # Should only find top-level directories
+    assert len(results) >= 2  # src and tests

@@ -100,10 +100,57 @@ def grep(
 mcp.tool()(grep)
 
 
-# Placeholder functions for other tools (to satisfy imports in tests)
-def find(*args, **kwargs):
-    """Placeholder for find tool"""
-    raise NotImplementedError("find tool not yet implemented")
+def find(
+    path: str = ".",
+    name: str | None = None,
+    type: str | None = None,  # "f" for file, "d" for directory
+    extension: str | None = None,
+    max_depth: int | None = None,
+) -> list[str]:
+    """
+    Find files and directories by name, type, or extension.
+
+    Args:
+        path: Starting directory for search
+        name: Exact filename to match
+        type: "f" for files only, "d" for directories only
+        extension: File extension to match (without dot)
+        max_depth: Maximum depth to search
+
+    Returns:
+        List of file/directory paths
+    """
+    cmd = ["find", path]
+
+    if max_depth is not None:
+        cmd.extend(["-maxdepth", str(max_depth)])
+
+    if type:
+        cmd.extend(["-type", type])
+
+    if name:
+        cmd.extend(["-name", name])
+    elif extension:
+        cmd.extend(["-name", f"*.{extension}"])
+
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        files = [f for f in result.stdout.strip().split("\n") if f]
+        return files
+    except subprocess.TimeoutExpired:
+        return ["Error: Find timed out after 30 seconds"]
+    except Exception as e:
+        return [f"Error: {str(e)}"]
+
+
+# Register the find function as an MCP tool
+mcp.tool()(find)
 
 
 def ls(*args, **kwargs):
