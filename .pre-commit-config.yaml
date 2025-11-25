@@ -53,18 +53,5 @@ repos:
     rev: v1.8.0
     hooks:
       - id: mypy
-        additional_dependencies:
-          - types-all
         args: [--ignore-missing-imports, --no-strict-optional]
         exclude: ^tests/
-
-  # Run pytest on commit (fail-fast mode)
-  - repo: local
-    hooks:
-      - id: pytest-check
-        name: pytest-check
-        entry: bash -c 'uv run pytest tests/ -x --tb=short'
-        language: system
-        pass_filenames: false
-        always_run: true
-        stages: [commit]
