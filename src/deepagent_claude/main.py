@@ -1,19 +1,19 @@
 """Main entry point for DeepAgent coding assistant"""
 
 import asyncio
+
 import click
-from pathlib import Path
-from typing import Optional
 
-from deepagent_claude.coding_agent import CodingDeepAgent
-from deepagent_claude.cli.console import DeepAgentConsole
 from deepagent_claude.cli.chat_mode import ChatMode
-
+from deepagent_claude.cli.console import DeepAgentConsole
+from deepagent_claude.coding_agent import CodingDeepAgent
 
 console = DeepAgentConsole()
 
 
-async def create_app(model: str = "qwen2.5-coder:latest", workspace: Optional[str] = None) -> CodingDeepAgent:
+async def create_app(
+    model: str = "qwen2.5-coder:latest", workspace: str | None = None
+) -> CodingDeepAgent:
     """
     Create and initialize the coding agent
 
@@ -37,7 +37,9 @@ async def create_app(model: str = "qwen2.5-coder:latest", workspace: Optional[st
     return agent
 
 
-async def run_single_request(request: str, model: str = "qwen2.5-coder:latest", workspace: Optional[str] = None) -> dict:
+async def run_single_request(
+    request: str, model: str = "qwen2.5-coder:latest", workspace: str | None = None
+) -> dict:
     """
     Run a single request and return result
 
@@ -58,7 +60,7 @@ async def run_single_request(request: str, model: str = "qwen2.5-coder:latest", 
         await agent.cleanup()
 
 
-async def run_interactive_chat(model: str = "qwen2.5-coder:latest", workspace: Optional[str] = None):
+async def run_interactive_chat(model: str = "qwen2.5-coder:latest", workspace: str | None = None):
     """
     Run interactive chat mode
 
@@ -117,10 +119,10 @@ def cli():
 
 
 @cli.command()
-@click.argument('request')
-@click.option('--model', default="qwen2.5-coder:latest", help="Ollama model to use")
-@click.option('--workspace', default=None, help="Workspace directory")
-def run(request: str, model: str, workspace: Optional[str]):
+@click.argument("request")
+@click.option("--model", default="qwen2.5-coder:latest", help="Ollama model to use")
+@click.option("--workspace", default=None, help="Workspace directory")
+def run(request: str, model: str, workspace: str | None):
     """Execute a single request"""
     result = asyncio.run(run_single_request(request, model=model, workspace=workspace))
 
@@ -134,9 +136,9 @@ def run(request: str, model: str, workspace: Optional[str]):
 
 
 @cli.command()
-@click.option('--model', default="qwen2.5-coder:latest", help="Ollama model to use")
-@click.option('--workspace', default=None, help="Workspace directory")
-def chat(model: str, workspace: Optional[str]):
+@click.option("--model", default="qwen2.5-coder:latest", help="Ollama model to use")
+@click.option("--workspace", default=None, help="Workspace directory")
+def chat(model: str, workspace: str | None):
     """Start interactive chat mode"""
     asyncio.run(run_interactive_chat(model=model, workspace=workspace))
 

@@ -22,9 +22,9 @@ Example:
     response = await agent.invoke("Implement a binary search function")
 """
 
-from typing import List, Any, Optional
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -230,9 +230,9 @@ def my_function(arg: int) -> bool:
 
 async def create_code_generator_agent(
     model_selector,
-    tools: List[Any],
-    backend: Optional[Any] = None,
-    workspace_path: Optional[str] = None,
+    tools: list[Any],
+    backend: Any | None = None,
+    workspace_path: str | None = None,
 ) -> Any:
     """
     Create a code generator specialist subagent.

@@ -1,7 +1,8 @@
 """Streaming output handler for real-time token display"""
 
 import asyncio
-from typing import Optional, Callable, List
+from collections.abc import Callable
+
 
 class StreamingHandler:
     """
@@ -11,11 +12,7 @@ class StreamingHandler:
     Supports rate limiting to prevent overwhelming the display.
     """
 
-    def __init__(
-        self,
-        callback: Optional[Callable[[str], None]] = None,
-        rate_limit: float = 0.0
-    ):
+    def __init__(self, callback: Callable[[str], None] | None = None, rate_limit: float = 0.0):
         """
         Initialize streaming handler
 
@@ -25,7 +22,7 @@ class StreamingHandler:
         """
         self.callback = callback
         self.rate_limit = rate_limit
-        self._accumulated: List[str] = []
+        self._accumulated: list[str] = []
         self._last_call_time: float = 0.0
 
     async def on_token(self, token: str) -> None:

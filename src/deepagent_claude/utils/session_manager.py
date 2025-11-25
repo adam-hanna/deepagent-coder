@@ -1,11 +1,11 @@
 """Session management for persistent state"""
 
-from pathlib import Path
-from typing import Optional, Dict, Any
-import json
 from datetime import datetime
-import uuid
+import json
 import logging
+from pathlib import Path
+from typing import Any
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class SessionManager:
     Auto-creates a session on initialization if none provided.
     """
 
-    def __init__(self, base_path: Optional[str] = None):
+    def __init__(self, base_path: str | None = None):
         """
         Initialize session manager
 
@@ -37,15 +37,15 @@ class SessionManager:
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)
 
-        self.current_session_id: Optional[str] = None
-        self._current_session_path: Optional[Path] = None
+        self.current_session_id: str | None = None
+        self._current_session_path: Path | None = None
 
         # Auto-create initial session
         self.create_session()
 
         logger.info(f"Session manager initialized at {self.base_path}")
 
-    def create_session(self, session_id: Optional[str] = None) -> str:
+    def create_session(self, session_id: str | None = None) -> str:
         """
         Create new session
 
@@ -67,7 +67,7 @@ class SessionManager:
         metadata = {
             "session_id": session_id,
             "created_at": datetime.now().isoformat(),
-            "status": "active"
+            "status": "active",
         }
 
         metadata_path = session_path / "metadata.json"
@@ -80,7 +80,7 @@ class SessionManager:
 
         return session_id
 
-    def get_current_session(self) -> Dict[str, Any]:
+    def get_current_session(self) -> dict[str, Any]:
         """
         Get current session metadata
 
@@ -98,7 +98,7 @@ class SessionManager:
         if not metadata_path.exists():
             raise RuntimeError("Session metadata not found")
 
-        with open(metadata_path, 'r', encoding="utf-8") as f:
+        with open(metadata_path, encoding="utf-8") as f:
             return json.load(f)
 
     def load_session(self, session_id: str) -> bool:
@@ -130,11 +130,7 @@ class SessionManager:
 
         return True
 
-    def store_session_data(
-        self,
-        key: str,
-        data: Any
-    ) -> None:
+    def store_session_data(self, key: str, data: Any) -> None:
         """
         Store data in current session
 
@@ -150,15 +146,12 @@ class SessionManager:
 
         data_path = self._current_session_path / f"{key}.json"
 
-        with open(data_path, 'w', encoding="utf-8") as f:
+        with open(data_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
 
         logger.debug(f"Stored session data: {key}")
 
-    def get_session_data(
-        self,
-        key: str
-    ) -> Optional[Any]:
+    def get_session_data(self, key: str) -> Any | None:
         """
         Retrieve data from current session
 
@@ -179,10 +172,10 @@ class SessionManager:
         if not data_path.exists():
             return None
 
-        with open(data_path, 'r', encoding="utf-8") as f:
+        with open(data_path, encoding="utf-8") as f:
             return json.load(f)
 
-    def list_sessions(self) -> list[Dict[str, Any]]:
+    def list_sessions(self) -> list[dict[str, Any]]:
         """
         List all sessions
 
@@ -201,7 +194,7 @@ class SessionManager:
                 continue
 
             try:
-                with open(metadata_path, 'r', encoding="utf-8") as f:
+                with open(metadata_path, encoding="utf-8") as f:
                     metadata = json.load(f)
                     sessions.append(metadata)
             except Exception as e:
@@ -217,13 +210,13 @@ class SessionManager:
         metadata_path = self._current_session_path / "metadata.json"
 
         if metadata_path.exists():
-            with open(metadata_path, 'r', encoding="utf-8") as f:
+            with open(metadata_path, encoding="utf-8") as f:
                 metadata = json.load(f)
 
             metadata["status"] = "closed"
             metadata["closed_at"] = datetime.now().isoformat()
 
-            with open(metadata_path, 'w', encoding="utf-8") as f:
+            with open(metadata_path, "w", encoding="utf-8") as f:
                 json.dump(metadata, f, indent=2)
 
         logger.info(f"Closed session: {self.current_session_id}")
@@ -248,13 +241,14 @@ class SessionManager:
 
         # Delete all files in session
         import shutil
+
         shutil.rmtree(session_path)
 
         logger.info(f"Deleted session: {session_id}")
 
         return True
 
-    def get_session_path(self, subdir: Optional[str] = None) -> Optional[Path]:
+    def get_session_path(self, subdir: str | None = None) -> Path | None:
         """
         Get path to current session directory or subdirectory
 

@@ -1,18 +1,17 @@
 """Logging middleware for comprehensive agent activity tracking"""
 
-from typing import Dict, Any, Callable, Optional
-import logging
-from pathlib import Path
+from collections.abc import Callable
 from datetime import datetime
 import json
+import logging
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 def create_logging_middleware(
-    log_file: Optional[str] = None,
-    log_level: int = logging.INFO,
-    include_state: bool = False
+    log_file: str | None = None, log_level: int = logging.INFO, include_state: bool = False
 ) -> Callable:
     """
     Create logging middleware for agent activity tracking
@@ -33,14 +32,12 @@ def create_logging_middleware(
         file_handler = logging.FileHandler(log_path)
         file_handler.setLevel(log_level)
         file_handler.setFormatter(
-            logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         )
         logger.addHandler(file_handler)
         logger.setLevel(log_level)
 
-    async def logging_middleware(state: Dict[str, Any]) -> Dict[str, Any]:
+    async def logging_middleware(state: dict[str, Any]) -> dict[str, Any]:
         """
         Log agent state and activity
 
@@ -79,8 +76,7 @@ def create_logging_middleware(
             if state.get("compaction_metadata"):
                 metadata = state["compaction_metadata"]
                 logger.info(
-                    f"Memory compaction: {metadata.get('compacted_count')} "
-                    f"messages compacted"
+                    f"Memory compaction: {metadata.get('compacted_count')} " f"messages compacted"
                 )
 
             # Write structured log to file if configured
@@ -96,7 +92,7 @@ def create_logging_middleware(
     return logging_middleware
 
 
-def _write_structured_log(log_file: str, state: Dict[str, Any]) -> None:
+def _write_structured_log(log_file: str, state: dict[str, Any]) -> None:
     """
     Write structured JSON log entry
 
@@ -112,13 +108,14 @@ def _write_structured_log(log_file: str, state: Dict[str, Any]) -> None:
             "message_count": len(state.get("messages", [])),
             "state_keys": list(state.keys()),
             "flags": {
-                k: v for k, v in state.items()
+                k: v
+                for k, v in state.items()
                 if k not in ["messages"] and isinstance(v, (bool, str, int, float))
-            }
+            },
         }
 
-        with open(log_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(entry) + '\n')
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
 
     except Exception as e:
         logger.debug(f"Could not write structured log: {e}")

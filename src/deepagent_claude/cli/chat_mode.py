@@ -1,9 +1,10 @@
 """Interactive chat mode for DeepAgent"""
 
-from typing import Optional, Any, Dict
 import logging
-from deepagent_claude.cli.console import DeepAgentConsole
+from typing import Any
+
 from deepagent_claude.cli.commands import CommandHandler
+from deepagent_claude.cli.console import DeepAgentConsole
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ class ChatMode:
     conversation management.
     """
 
-    def __init__(self, agent: Optional[Any] = None):
+    def __init__(self, agent: Any | None = None):
         """
         Initialize chat mode
 
@@ -29,7 +30,7 @@ class ChatMode:
         self._exit = False
         self.conversation_history = []
 
-    async def process_input(self, user_input: str) -> Optional[Dict[str, Any]]:
+    async def process_input(self, user_input: str) -> dict[str, Any] | None:
         """
         Process user input (command or message)
 
@@ -45,7 +46,7 @@ class ChatMode:
         else:
             return await self._process_message(user_input)
 
-    async def _process_command(self, command: str) -> Optional[Dict[str, Any]]:
+    async def _process_command(self, command: str) -> dict[str, Any] | None:
         """
         Process a command
 
@@ -63,7 +64,7 @@ class ChatMode:
 
         return result
 
-    async def _process_message(self, message: str) -> Optional[Dict[str, Any]]:
+    async def _process_message(self, message: str) -> dict[str, Any] | None:
         """
         Process a regular message
 
@@ -78,16 +79,11 @@ class ChatMode:
             return None
 
         # Add to conversation history
-        self.conversation_history.append({
-            "role": "user",
-            "content": message
-        })
+        self.conversation_history.append({"role": "user", "content": message})
 
         try:
             # Invoke agent
-            result = await self.agent.ainvoke({
-                "messages": self.conversation_history
-            })
+            result = await self.agent.ainvoke({"messages": self.conversation_history})
 
             # Extract response
             if "messages" in result:

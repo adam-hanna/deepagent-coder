@@ -1,13 +1,17 @@
 # tests/cli/test_streaming.py
-import pytest
 import asyncio
+
+import pytest
+
 from deepagent_claude.cli.streaming import StreamingHandler
+
 
 @pytest.mark.asyncio
 async def test_streaming_handler_creation():
     """Test creating streaming handler"""
     handler = StreamingHandler()
     assert handler is not None
+
 
 @pytest.mark.asyncio
 async def test_streaming_handler_processes_tokens():
@@ -20,6 +24,7 @@ async def test_streaming_handler_processes_tokens():
 
     result = handler.get_accumulated()
     assert result == "Hello World"
+
 
 @pytest.mark.asyncio
 async def test_streaming_handler_with_callback():
@@ -34,6 +39,7 @@ async def test_streaming_handler_with_callback():
     await handler.on_token("Test")
     assert "Test" in received
 
+
 @pytest.mark.asyncio
 async def test_streaming_handler_reset():
     """Test resetting handler state"""
@@ -43,6 +49,7 @@ async def test_streaming_handler_reset():
     handler.reset()
 
     assert handler.get_accumulated() == ""
+
 
 @pytest.mark.asyncio
 async def test_streaming_handler_with_rate_limit():

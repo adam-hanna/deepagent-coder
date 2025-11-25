@@ -1,18 +1,26 @@
 # tests/integration/test_e2e.py
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from pathlib import Path
-from unittest.mock import patch, AsyncMock
 
-from deepagent_claude.coding_agent import CodingDeepAgent
 from deepagent_claude.cli.chat_mode import ChatMode
+from deepagent_claude.coding_agent import CodingDeepAgent
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_full_workflow(tmp_path):
     """Test complete workflow from initialization to request processing"""
-    with patch('deepagent_claude.coding_agent.ChatOllama'), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools', new_callable=AsyncMock), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._create_subagents', new_callable=AsyncMock):
+    with (
+        patch("langchain_ollama.ChatOllama"),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+        ),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            new_callable=AsyncMock,
+        ),
+    ):
 
         # Create agent
         agent = CodingDeepAgent(workspace=str(tmp_path))
@@ -33,12 +41,20 @@ async def test_full_workflow(tmp_path):
         await agent.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_middleware_integration(tmp_path):
     """Test middleware stack integration"""
-    with patch('deepagent_claude.coding_agent.ChatOllama'), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools', new_callable=AsyncMock), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._create_subagents', new_callable=AsyncMock):
+    with (
+        patch("langchain_ollama.ChatOllama"),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+        ),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            new_callable=AsyncMock,
+        ),
+    ):
 
         agent = CodingDeepAgent(workspace=str(tmp_path))
         await agent.initialize()
@@ -53,12 +69,20 @@ async def test_middleware_integration(tmp_path):
         await agent.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_session_persistence(tmp_path):
     """Test session data persistence"""
-    with patch('deepagent_claude.coding_agent.ChatOllama'), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools', new_callable=AsyncMock), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._create_subagents', new_callable=AsyncMock):
+    with (
+        patch("langchain_ollama.ChatOllama"),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+        ),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            new_callable=AsyncMock,
+        ),
+    ):
 
         agent = CodingDeepAgent(workspace=str(tmp_path))
         await agent.initialize()
@@ -73,12 +97,20 @@ async def test_session_persistence(tmp_path):
         await agent.cleanup()
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_chat_mode_integration():
     """Test chat mode with agent integration"""
-    with patch('deepagent_claude.coding_agent.ChatOllama'), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools', new_callable=AsyncMock), \
-         patch('deepagent_claude.coding_agent.CodingDeepAgent._create_subagents', new_callable=AsyncMock):
+    with (
+        patch("langchain_ollama.ChatOllama"),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+        ),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            new_callable=AsyncMock,
+        ),
+    ):
 
         mock_agent = AsyncMock()
         mock_agent.ainvoke.return_value = {

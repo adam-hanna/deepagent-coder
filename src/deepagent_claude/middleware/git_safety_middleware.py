@@ -1,8 +1,9 @@
 """Git safety middleware to prevent dangerous operations"""
 
-from typing import Dict, Any, Callable
-import re
+from collections.abc import Callable
 import logging
+import re
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +17,7 @@ DANGEROUS_PATTERNS = [
 ]
 
 
-def create_git_safety_middleware(
-    enforce: bool = False
-) -> Callable:
+def create_git_safety_middleware(enforce: bool = False) -> Callable:
     """
     Create git safety middleware
 
@@ -29,7 +28,7 @@ def create_git_safety_middleware(
         Middleware function
     """
 
-    async def git_safety_middleware(state: Dict[str, Any]) -> Dict[str, Any]:
+    async def git_safety_middleware(state: dict[str, Any]) -> dict[str, Any]:
         """
         Check for dangerous git operations and warn/block
 
@@ -57,10 +56,7 @@ def create_git_safety_middleware(
                     logger.warning(f"Blocked dangerous operation: {description}")
 
                     # Add blocking message
-                    state["messages"].append({
-                        "role": "system",
-                        "content": warning_msg
-                    })
+                    state["messages"].append({"role": "system", "content": warning_msg})
 
                     # Set flag to prevent execution
                     state["git_operation_blocked"] = True
@@ -69,10 +65,7 @@ def create_git_safety_middleware(
                     warning_msg += "Please confirm this is intentional."
                     logger.info(f"Warning about operation: {description}")
 
-                    state["messages"].append({
-                        "role": "system",
-                        "content": warning_msg
-                    })
+                    state["messages"].append({"role": "system", "content": warning_msg})
 
                 break
 

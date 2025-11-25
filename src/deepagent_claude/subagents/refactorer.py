@@ -22,9 +22,9 @@ Example:
     response = await agent.invoke("Refactor this function to reduce complexity...")
 """
 
-from typing import List, Any, Optional
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -268,9 +268,9 @@ Perfect is the enemy of good. Make pragmatic improvements, not theoretical ones.
 
 async def create_refactorer_agent(
     model_selector,
-    tools: List[Any],
-    backend: Optional[Any] = None,
-    workspace_path: Optional[str] = None,
+    tools: list[Any],
+    backend: Any | None = None,
+    workspace_path: str | None = None,
 ) -> Any:
     """
     Create a refactorer specialist subagent.

@@ -20,8 +20,8 @@ Example:
         # Replace old messages with summary
 """
 
-from typing import List, Dict, Any, Optional
 import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class MemoryCompactor:
         self.threshold = threshold
         logger.debug(f"MemoryCompactor initialized with threshold={threshold}")
 
-    def should_compact(self, messages: List[Dict[str, Any]]) -> bool:
+    def should_compact(self, messages: list[dict[str, Any]]) -> bool:
         """
         Check if conversation should be compacted based on token count.
 
@@ -73,9 +73,7 @@ class MemoryCompactor:
         return should_compact
 
     async def compact_conversation(
-        self,
-        messages: List[Dict[str, Any]],
-        keep_recent: int = 5
+        self, messages: list[dict[str, Any]], keep_recent: int = 5
     ) -> str:
         """
         Compact conversation by summarizing older messages.
@@ -116,7 +114,7 @@ class MemoryCompactor:
         logger.info(f"Compacting {len(messages_to_summarize)} messages into summary")
         try:
             response = await summarizer.ainvoke(prompt)
-            summary = response.content if hasattr(response, 'content') else str(response)
+            summary = response.content if hasattr(response, "content") else str(response)
             logger.debug(f"Generated summary of length {len(summary)}")
             return summary
         except Exception as e:
@@ -124,7 +122,7 @@ class MemoryCompactor:
             # Fallback to simple truncation if summarization fails
             return self._create_fallback_summary(messages_to_summarize)
 
-    def _format_messages_for_summary(self, messages: List[Dict[str, Any]]) -> str:
+    def _format_messages_for_summary(self, messages: list[dict[str, Any]]) -> str:
         """
         Format messages into readable text for summarization.
 
@@ -166,7 +164,7 @@ CONVERSATION:
 
 SUMMARY:"""
 
-    def _create_fallback_summary(self, messages: List[Dict[str, Any]]) -> str:
+    def _create_fallback_summary(self, messages: list[dict[str, Any]]) -> str:
         """
         Create simple fallback summary when LLM summarization fails.
 
@@ -204,11 +202,8 @@ SUMMARY:"""
         return len(text) // 4
 
     def compact_with_summary(
-        self,
-        messages: List[Dict[str, Any]],
-        summary: str,
-        keep_recent: int = 5
-    ) -> List[Dict[str, Any]]:
+        self, messages: list[dict[str, Any]], summary: str, keep_recent: int = 5
+    ) -> list[dict[str, Any]]:
         """
         Replace old messages with summary message.
 
@@ -224,10 +219,7 @@ SUMMARY:"""
             return messages
 
         # Create summary message
-        summary_message = {
-            "role": "system",
-            "content": f"[Conversation Summary]\n\n{summary}"
-        }
+        summary_message = {"role": "system", "content": f"[Conversation Summary]\n\n{summary}"}
 
         # Keep recent messages
         recent_messages = messages[-keep_recent:]

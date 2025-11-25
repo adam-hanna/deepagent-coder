@@ -1,7 +1,16 @@
 """Progress tracking for long-running operations"""
 
-from typing import Dict, Any, Optional
-from rich.progress import Progress, TaskID, SpinnerColumn, TextColumn, BarColumn, TimeRemainingColumn
+from typing import Any
+
+from rich.progress import (
+    BarColumn,
+    Progress,
+    SpinnerColumn,
+    TaskID,
+    TextColumn,
+    TimeRemainingColumn,
+)
+
 
 class ProgressTracker:
     """
@@ -19,7 +28,7 @@ class ProgressTracker:
             TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
             TimeRemainingColumn(),
         )
-        self._tasks: Dict[TaskID, Dict[str, Any]] = {}
+        self._tasks: dict[TaskID, dict[str, Any]] = {}
         self._started = False
 
     def add_task(self, description: str, total: float = 100.0) -> TaskID:
@@ -38,11 +47,7 @@ class ProgressTracker:
             self._started = True
 
         task_id = self._progress.add_task(description, total=total)
-        self._tasks[task_id] = {
-            "description": description,
-            "total": total,
-            "completed": 0.0
-        }
+        self._tasks[task_id] = {"description": description, "total": total, "completed": 0.0}
         return task_id
 
     def update(self, task_id: TaskID, advance: float = 1.0) -> None:
@@ -71,7 +76,7 @@ class ProgressTracker:
                 self._progress.update(task_id, advance=remaining)
             self._tasks[task_id]["completed"] = task_info["total"]
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """
         Get current tracker status
 
@@ -84,8 +89,9 @@ class ProgressTracker:
                     "description": info["description"],
                     "total": info["total"],
                     "completed": info["completed"],
-                    "percentage": (info["completed"] / info["total"] * 100)
-                    if info["total"] > 0 else 0
+                    "percentage": (
+                        (info["completed"] / info["total"] * 100) if info["total"] > 0 else 0
+                    ),
                 }
                 for task_id, info in self._tasks.items()
             }

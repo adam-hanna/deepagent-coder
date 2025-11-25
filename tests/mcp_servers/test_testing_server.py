@@ -1,11 +1,11 @@
 # tests/mcp_servers/test_testing_server.py
-import pytest
 from pathlib import Path
-from deepagent_claude.mcp_servers.testing_server import (
-    _run_pytest_impl as run_pytest,
-    _run_unittest_impl as run_unittest,
-    _get_coverage_impl as get_coverage
-)
+
+import pytest
+
+from deepagent_claude.mcp_servers.testing_server import _get_coverage_impl as get_coverage
+from deepagent_claude.mcp_servers.testing_server import _run_pytest_impl as run_pytest
+
 
 @pytest.fixture
 def test_project(tmp_path):
@@ -14,7 +14,8 @@ def test_project(tmp_path):
     src_dir = tmp_path / "src"
     src_dir.mkdir()
     (src_dir / "__init__.py").touch()
-    (src_dir / "calculator.py").write_text("""
+    (src_dir / "calculator.py").write_text(
+        """
 def add(a, b):
     return a + b
 
@@ -23,13 +24,15 @@ def subtract(a, b):
 
 def multiply(a, b):
     return a * b
-""")
+"""
+    )
 
     # Create test file
     tests_dir = tmp_path / "tests"
     tests_dir.mkdir()
     (tests_dir / "__init__.py").touch()
-    (tests_dir / "test_calculator.py").write_text("""
+    (tests_dir / "test_calculator.py").write_text(
+        """
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -47,9 +50,11 @@ def test_multiply():
 
 def test_failing():
     assert add(1, 1) == 3  # This will fail
-""")
+"""
+    )
 
     return str(tmp_path)
+
 
 @pytest.mark.asyncio
 async def test_run_pytest_executes_tests(test_project):
@@ -61,6 +66,7 @@ async def test_run_pytest_executes_tests(test_project):
     assert result["passed"] >= 2
     assert result["failed"] >= 1
 
+
 @pytest.mark.asyncio
 async def test_run_pytest_with_specific_file(test_project):
     """Test running pytest on specific file"""
@@ -70,12 +76,14 @@ async def test_run_pytest_with_specific_file(test_project):
     assert "error" not in result
     assert result["total_tests"] >= 3
 
+
 @pytest.mark.asyncio
 async def test_run_pytest_with_markers(test_project):
     """Test running pytest with markers"""
     # Add marked test
     test_file = Path(test_project) / "tests" / "test_marked.py"
-    test_file.write_text("""
+    test_file.write_text(
+        """
 import pytest
 
 @pytest.mark.slow
@@ -85,25 +93,25 @@ def test_slow_operation():
 @pytest.mark.fast
 def test_fast_operation():
     assert True
-""")
+"""
+    )
 
     result = await run_pytest(test_project, markers="fast")
 
     assert "error" not in result
     # Should only run fast tests
 
+
 @pytest.mark.asyncio
 async def test_get_coverage_reports_coverage(test_project):
     """Test coverage reporting"""
-    result = await get_coverage(
-        test_project,
-        source_dirs=["src"]
-    )
+    result = await get_coverage(test_project, source_dirs=["src"])
 
     assert "error" not in result
     assert "coverage_percent" in result
     assert result["coverage_percent"] >= 0
     assert result["coverage_percent"] <= 100
+
 
 @pytest.mark.asyncio
 async def test_run_pytest_handles_nonexistent_path():

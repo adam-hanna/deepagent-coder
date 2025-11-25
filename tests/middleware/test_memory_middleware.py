@@ -1,7 +1,9 @@
 # tests/middleware/test_memory_middleware.py
 import pytest
-from deepagent_claude.middleware.memory_middleware import create_memory_middleware
+
 from deepagent_claude.core.model_selector import ModelSelector
+from deepagent_claude.middleware.memory_middleware import create_memory_middleware
+
 
 @pytest.mark.asyncio
 async def test_memory_middleware_creation():
@@ -10,20 +12,18 @@ async def test_memory_middleware_creation():
     middleware = create_memory_middleware(selector)
     assert middleware is not None
 
+
 @pytest.mark.asyncio
 async def test_memory_middleware_doesnt_compact_small_context():
     """Test middleware skips compaction for small contexts"""
     selector = ModelSelector()
     middleware = create_memory_middleware(selector, threshold=10000)
 
-    state = {
-        "messages": [
-            {"role": "user", "content": "Hello"}
-        ]
-    }
+    state = {"messages": [{"role": "user", "content": "Hello"}]}
 
     result = await middleware(state)
     assert len(result["messages"]) == 1
+
 
 @pytest.mark.asyncio
 async def test_memory_middleware_compacts_large_context():
@@ -33,10 +33,7 @@ async def test_memory_middleware_compacts_large_context():
     middleware = create_memory_middleware(selector, threshold=100, keep_recent=2)
 
     # Create large message list
-    messages = [
-        {"role": "user", "content": "Message " + "x" * 100}
-        for _ in range(10)
-    ]
+    messages = [{"role": "user", "content": "Message " + "x" * 100} for _ in range(10)]
 
     state = {"messages": messages}
 
@@ -45,6 +42,7 @@ async def test_memory_middleware_compacts_large_context():
     # Should have compacted: 1 summary + 2 recent = 3 messages
     assert len(result["messages"]) <= 5  # Allow some flexibility
     assert "compaction_metadata" in result
+
 
 @pytest.mark.asyncio
 async def test_memory_middleware_handles_empty_messages():
@@ -56,6 +54,7 @@ async def test_memory_middleware_handles_empty_messages():
 
     result = await middleware(state)
     assert result["messages"] == []
+
 
 @pytest.mark.asyncio
 async def test_memory_middleware_handles_missing_messages():

@@ -21,7 +21,8 @@ Example:
 """
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Any
+
 from langchain_ollama import ChatOllama
 
 logger = logging.getLogger(__name__)
@@ -51,49 +52,49 @@ class ModelSelector:
         - test_writer: Test generation
         - refactorer: Code refactoring and optimization
         """
-        self.model_configs: Dict[str, Dict[str, Any]] = {
+        self.model_configs: dict[str, dict[str, Any]] = {
             "main_agent": {
                 "model": "qwen2.5-coder:latest",
                 "temperature": 0.3,
                 "num_ctx": 32768,
                 "num_gpu": 1,
-                "timeout": 300
+                "timeout": 300,
             },
             "code_generator": {
                 "model": "codellama:13b-code",
                 "temperature": 0.2,
                 "num_ctx": 16384,
                 "num_gpu": 1,
-                "timeout": 300
+                "timeout": 300,
             },
             "debugger": {
                 "model": "qwen2.5-coder:latest",
                 "temperature": 0.1,
                 "num_ctx": 16384,
                 "num_gpu": 1,
-                "timeout": 300
+                "timeout": 300,
             },
             "summarizer": {
                 "model": "llama3.1:8b",
                 "temperature": 0.4,
                 "num_ctx": 8192,
                 "num_gpu": 1,
-                "timeout": 180
+                "timeout": 180,
             },
             "test_writer": {
                 "model": "qwen2.5-coder:latest",
                 "temperature": 0.2,
                 "num_ctx": 16384,
                 "num_gpu": 1,
-                "timeout": 300
+                "timeout": 300,
             },
             "refactorer": {
                 "model": "qwen2.5-coder:latest",
                 "temperature": 0.2,
                 "num_ctx": 16384,
                 "num_gpu": 1,
-                "timeout": 300
-            }
+                "timeout": 300,
+            },
         }
         logger.debug(f"ModelSelector initialized with {len(self.model_configs)} default roles")
 
@@ -118,9 +119,7 @@ class ModelSelector:
         """
         if role not in self.model_configs:
             available_roles = ", ".join(self.model_configs.keys())
-            raise ValueError(
-                f"Unknown role: {role}. Available roles: {available_roles}"
-            )
+            raise ValueError(f"Unknown role: {role}. Available roles: {available_roles}")
 
         # Get base config for role
         config = self.model_configs[role].copy()
@@ -140,7 +139,7 @@ class ModelSelector:
         temperature: float = 0.3,
         num_ctx: int = 16384,
         num_gpu: int = 1,
-        timeout: int = 300
+        timeout: int = 300,
     ) -> None:
         """
         Add or update a custom role configuration.
@@ -166,11 +165,11 @@ class ModelSelector:
             "temperature": temperature,
             "num_ctx": num_ctx,
             "num_gpu": num_gpu,
-            "timeout": timeout
+            "timeout": timeout,
         }
         logger.info(f"Added custom role: {role_name} with model {model}")
 
-    def list_roles(self) -> Dict[str, str]:
+    def list_roles(self) -> dict[str, str]:
         """
         List all available roles and their associated models.
 
@@ -196,7 +195,7 @@ class ModelSelector:
             depending on the number of models and system resources.
         """
         logger.info("Preloading models for all roles...")
-        for role in self.model_configs.keys():
+        for role in self.model_configs:
             try:
                 model = self.get_model(role)
                 # Simple warmup invocation
@@ -208,7 +207,7 @@ class ModelSelector:
 
 
 # Global default instance
-_default_selector: Optional[ModelSelector] = None
+_default_selector: ModelSelector | None = None
 
 
 def get_default_selector() -> ModelSelector:

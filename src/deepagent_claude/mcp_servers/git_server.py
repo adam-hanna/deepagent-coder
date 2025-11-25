@@ -1,15 +1,16 @@
 # src/deepagent_claude/mcp_servers/git_server.py
 """Git operations MCP server - version control tools"""
 
-from fastmcp import FastMCP
 import asyncio
-from typing import Dict, Any, List, Optional
 from pathlib import Path
+from typing import Any
+
+from fastmcp import FastMCP
 
 mcp = FastMCP("Git Tools")
 
 
-async def _git_status_impl(repo_path: str) -> Dict[str, Any]:
+async def _git_status_impl(repo_path: str) -> dict[str, Any]:
     """
     Get git repository status
 
@@ -25,17 +26,11 @@ async def _git_status_impl(repo_path: str) -> Dict[str, Any]:
             return {"error": f"Repository not found: {repo_path}"}
 
         # Get current branch
-        branch_result = await _run_git_command(
-            ["git", "branch", "--show-current"],
-            cwd=path
-        )
+        branch_result = await _run_git_command(["git", "branch", "--show-current"], cwd=path)
         branch = branch_result["stdout"].strip() or "HEAD"
 
         # Get status
-        status_result = await _run_git_command(
-            ["git", "status", "--porcelain"],
-            cwd=path
-        )
+        status_result = await _run_git_command(["git", "status", "--porcelain"], cwd=path)
 
         if status_result["returncode"] != 0:
             return {"error": status_result["stderr"]}
@@ -51,13 +46,13 @@ async def _git_status_impl(repo_path: str) -> Dict[str, Any]:
             status_code = line[:2]
             file_path = line[3:].strip()
 
-            if status_code[0] in ['M', 'A', 'D', 'R', 'C']:
+            if status_code[0] in ["M", "A", "D", "R", "C"]:
                 staged.append({"file": file_path, "status": status_code[0]})
 
-            if status_code[1] in ['M', 'D']:
+            if status_code[1] in ["M", "D"]:
                 unstaged.append({"file": file_path, "status": status_code[1]})
 
-            if status_code == '??':
+            if status_code == "??":
                 untracked.append(file_path)
 
         return {
@@ -74,12 +69,12 @@ async def _git_status_impl(repo_path: str) -> Dict[str, Any]:
 
 
 @mcp.tool()
-async def git_status(repo_path: str) -> Dict[str, Any]:
+async def git_status(repo_path: str) -> dict[str, Any]:
     """MCP tool wrapper for git_status"""
     return await _git_status_impl(repo_path)
 
 
-async def _git_add_impl(repo_path: str, files: List[str]) -> Dict[str, Any]:
+async def _git_add_impl(repo_path: str, files: list[str]) -> dict[str, Any]:
     """
     Stage files for commit
 
@@ -92,35 +87,26 @@ async def _git_add_impl(repo_path: str, files: List[str]) -> Dict[str, Any]:
     """
     try:
         path = Path(repo_path)
-        result = await _run_git_command(
-            ["git", "add"] + files,
-            cwd=path
-        )
+        result = await _run_git_command(["git", "add"] + files, cwd=path)
 
         if result["returncode"] != 0:
             return {"error": result["stderr"]}
 
-        return {
-            "success": True,
-            "staged": files,
-            "message": f"Staged {len(files)} file(s)"
-        }
+        return {"success": True, "staged": files, "message": f"Staged {len(files)} file(s)"}
 
     except Exception as e:
         return {"error": f"Git add failed: {str(e)}"}
 
 
 @mcp.tool()
-async def git_add(repo_path: str, files: List[str]) -> Dict[str, Any]:
+async def git_add(repo_path: str, files: list[str]) -> dict[str, Any]:
     """MCP tool wrapper for git_add"""
     return await _git_add_impl(repo_path, files)
 
 
 async def _git_commit_impl(
-    repo_path: str,
-    message: str,
-    allow_empty: bool = False
-) -> Dict[str, Any]:
+    repo_path: str, message: str, allow_empty: bool = False
+) -> dict[str, Any]:
     """
     Create a git commit
 
@@ -147,22 +133,19 @@ async def _git_commit_impl(
                 return {
                     "success": False,
                     "message": "Nothing to commit",
-                    "output": result["stdout"]
+                    "output": result["stdout"],
                 }
             return {"error": result["stderr"] or result["stdout"]}
 
         # Extract commit hash
-        hash_result = await _run_git_command(
-            ["git", "rev-parse", "HEAD"],
-            cwd=path
-        )
+        hash_result = await _run_git_command(["git", "rev-parse", "HEAD"], cwd=path)
         commit_hash = hash_result["stdout"].strip()
 
         return {
             "success": True,
             "commit_hash": commit_hash,
             "message": message,
-            "output": result["stdout"]
+            "output": result["stdout"],
         }
 
     except Exception as e:
@@ -170,20 +153,14 @@ async def _git_commit_impl(
 
 
 @mcp.tool()
-async def git_commit(
-    repo_path: str,
-    message: str,
-    allow_empty: bool = False
-) -> Dict[str, Any]:
+async def git_commit(repo_path: str, message: str, allow_empty: bool = False) -> dict[str, Any]:
     """MCP tool wrapper for git_commit"""
     return await _git_commit_impl(repo_path, message, allow_empty)
 
 
 async def _git_diff_impl(
-    repo_path: str,
-    staged: bool = False,
-    file_path: Optional[str] = None
-) -> Dict[str, Any]:
+    repo_path: str, staged: bool = False, file_path: str | None = None
+) -> dict[str, Any]:
     """
     Get git diff
 
@@ -213,7 +190,7 @@ async def _git_diff_impl(
             "diff": result["stdout"],
             "staged": staged,
             "file": file_path,
-            "has_changes": bool(result["stdout"].strip())
+            "has_changes": bool(result["stdout"].strip()),
         }
 
     except Exception as e:
@@ -222,26 +199,22 @@ async def _git_diff_impl(
 
 @mcp.tool()
 async def git_diff(
-    repo_path: str,
-    staged: bool = False,
-    file_path: Optional[str] = None
-) -> Dict[str, Any]:
+    repo_path: str, staged: bool = False, file_path: str | None = None
+) -> dict[str, Any]:
     """MCP tool wrapper for git_diff"""
     return await _git_diff_impl(repo_path, staged, file_path)
 
 
 async def _git_log_impl(
-    repo_path: str,
-    max_count: int = 10,
-    format: str = "oneline"
-) -> Dict[str, Any]:
+    repo_path: str, max_count: int = 10, _format: str = "oneline"
+) -> dict[str, Any]:
     """
     Get git commit history
 
     Args:
         repo_path: Path to git repository
         max_count: Maximum number of commits to return
-        format: Log format (oneline, short, full)
+        _format: Log format (oneline, short, full) - reserved for future use
 
     Returns:
         List of commits
@@ -251,12 +224,8 @@ async def _git_log_impl(
 
         # Use custom format for parsing
         result = await _run_git_command(
-            [
-                "git", "log",
-                f"-{max_count}",
-                "--pretty=format:%H%n%an%n%ae%n%at%n%s%n%b%n---END---"
-            ],
-            cwd=path
+            ["git", "log", f"-{max_count}", "--pretty=format:%H%n%an%n%ae%n%at%n%s%n%b%n---END---"],
+            cwd=path,
         )
 
         if result["returncode"] != 0:
@@ -272,38 +241,30 @@ async def _git_log_impl(
 
                 lines = commit_text.strip().split("\n")
                 if len(lines) >= 5:
-                    commits.append({
-                        "hash": lines[0],
-                        "author": lines[1],
-                        "email": lines[2],
-                        "timestamp": int(lines[3]),
-                        "subject": lines[4],
-                        "body": "\n".join(lines[5:]).strip() if len(lines) > 5 else ""
-                    })
+                    commits.append(
+                        {
+                            "hash": lines[0],
+                            "author": lines[1],
+                            "email": lines[2],
+                            "timestamp": int(lines[3]),
+                            "subject": lines[4],
+                            "body": "\n".join(lines[5:]).strip() if len(lines) > 5 else "",
+                        }
+                    )
 
-        return {
-            "commits": commits,
-            "count": len(commits)
-        }
+        return {"commits": commits, "count": len(commits)}
 
     except Exception as e:
         return {"error": f"Git log failed: {str(e)}"}
 
 
 @mcp.tool()
-async def git_log(
-    repo_path: str,
-    max_count: int = 10,
-    format: str = "oneline"
-) -> Dict[str, Any]:
+async def git_log(repo_path: str, max_count: int = 10, format: str = "oneline") -> dict[str, Any]:
     """MCP tool wrapper for git_log"""
     return await _git_log_impl(repo_path, max_count, format)
 
 
-async def _git_branch_impl(
-    repo_path: str,
-    list_all: bool = False
-) -> Dict[str, Any]:
+async def _git_branch_impl(repo_path: str, list_all: bool = False) -> dict[str, Any]:
     """
     List git branches
 
@@ -337,30 +298,21 @@ async def _git_branch_impl(
             elif line:
                 branches.append({"name": line, "current": False})
 
-        return {
-            "branches": branches,
-            "current": current_branch,
-            "count": len(branches)
-        }
+        return {"branches": branches, "current": current_branch, "count": len(branches)}
 
     except Exception as e:
         return {"error": f"Git branch failed: {str(e)}"}
 
 
 @mcp.tool()
-async def git_branch(
-    repo_path: str,
-    list_all: bool = False
-) -> Dict[str, Any]:
+async def git_branch(repo_path: str, list_all: bool = False) -> dict[str, Any]:
     """MCP tool wrapper for git_branch"""
     return await _git_branch_impl(repo_path, list_all)
 
 
 async def _git_create_branch_impl(
-    repo_path: str,
-    branch_name: str,
-    checkout: bool = True
-) -> Dict[str, Any]:
+    repo_path: str, branch_name: str, checkout: bool = True
+) -> dict[str, Any]:
     """
     Create a new branch
 
@@ -376,29 +328,19 @@ async def _git_create_branch_impl(
         path = Path(repo_path)
 
         # Create branch
-        result = await _run_git_command(
-            ["git", "branch", branch_name],
-            cwd=path
-        )
+        result = await _run_git_command(["git", "branch", branch_name], cwd=path)
 
         if result["returncode"] != 0:
             return {"error": result["stderr"]}
 
         # Checkout if requested
         if checkout:
-            checkout_result = await _run_git_command(
-                ["git", "checkout", branch_name],
-                cwd=path
-            )
+            checkout_result = await _run_git_command(["git", "checkout", branch_name], cwd=path)
 
             if checkout_result["returncode"] != 0:
                 return {"error": checkout_result["stderr"]}
 
-        return {
-            "success": True,
-            "branch": branch_name,
-            "checked_out": checkout
-        }
+        return {"success": True, "branch": branch_name, "checked_out": checkout}
 
     except Exception as e:
         return {"error": f"Git create branch failed: {str(e)}"}
@@ -406,18 +348,13 @@ async def _git_create_branch_impl(
 
 @mcp.tool()
 async def git_create_branch(
-    repo_path: str,
-    branch_name: str,
-    checkout: bool = True
-) -> Dict[str, Any]:
+    repo_path: str, branch_name: str, checkout: bool = True
+) -> dict[str, Any]:
     """MCP tool wrapper for git_create_branch"""
     return await _git_create_branch_impl(repo_path, branch_name, checkout)
 
 
-async def _git_checkout_impl(
-    repo_path: str,
-    branch_name: str
-) -> Dict[str, Any]:
+async def _git_checkout_impl(repo_path: str, branch_name: str) -> dict[str, Any]:
     """
     Switch to a different branch
 
@@ -431,38 +368,24 @@ async def _git_checkout_impl(
     try:
         path = Path(repo_path)
 
-        result = await _run_git_command(
-            ["git", "checkout", branch_name],
-            cwd=path
-        )
+        result = await _run_git_command(["git", "checkout", branch_name], cwd=path)
 
         if result["returncode"] != 0:
             return {"error": result["stderr"]}
 
-        return {
-            "success": True,
-            "branch": branch_name,
-            "output": result["stdout"]
-        }
+        return {"success": True, "branch": branch_name, "output": result["stdout"]}
 
     except Exception as e:
         return {"error": f"Git checkout failed: {str(e)}"}
 
 
 @mcp.tool()
-async def git_checkout(
-    repo_path: str,
-    branch_name: str
-) -> Dict[str, Any]:
+async def git_checkout(repo_path: str, branch_name: str) -> dict[str, Any]:
     """MCP tool wrapper for git_checkout"""
     return await _git_checkout_impl(repo_path, branch_name)
 
 
-async def _run_git_command(
-    cmd: List[str],
-    cwd: Path,
-    timeout: int = 30
-) -> Dict[str, Any]:
+async def _run_git_command(cmd: list[str], cwd: Path, timeout: int = 30) -> dict[str, Any]:
     """Execute git command and return result"""
     try:
         process = await asyncio.create_subprocess_exec(
@@ -472,24 +395,21 @@ async def _run_git_command(
             stderr=asyncio.subprocess.PIPE,
         )
 
-        stdout, stderr = await asyncio.wait_for(
-            process.communicate(),
-            timeout=timeout
-        )
+        stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
 
         return {
             "stdout": stdout.decode("utf-8"),
             "stderr": stderr.decode("utf-8"),
-            "returncode": process.returncode
+            "returncode": process.returncode,
         }
 
-    except asyncio.TimeoutError:
+    except TimeoutError:
         process.kill()
         await process.wait()
         return {
             "stdout": "",
             "stderr": f"Command timed out after {timeout} seconds",
-            "returncode": -1
+            "returncode": -1,
         }
 
 

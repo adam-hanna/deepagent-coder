@@ -1,11 +1,13 @@
-import pytest
 from pathlib import Path
+
 from deepagent_claude.utils.file_organizer import FileOrganizer
+
 
 def test_file_organizer_initialization(tmp_path):
     organizer = FileOrganizer(base_path=str(tmp_path))
     assert organizer is not None
     assert Path(organizer.base_path).exists()
+
 
 def test_create_standard_structure(tmp_path):
     organizer = FileOrganizer(base_path=str(tmp_path))
@@ -14,6 +16,7 @@ def test_create_standard_structure(tmp_path):
     assert (Path(tmp_path) / "sessions").exists()
     assert (Path(tmp_path) / "decisions").exists()
     assert (Path(tmp_path) / "summaries").exists()
+
 
 def test_save_and_load_session_data(tmp_path):
     organizer = FileOrganizer(base_path=str(tmp_path))

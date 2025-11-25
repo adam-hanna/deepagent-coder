@@ -1,8 +1,9 @@
 """Tests for Debugger subagent."""
 
-import pytest
 import sys
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 
 def test_debugger_module_exists():
@@ -32,8 +33,8 @@ async def test_debugger_creation():
     sys.modules["deepagents.backend"] = mock_deepagents_backend
 
     try:
-        from deepagent_claude.subagents.debugger import create_debugger_agent
         from deepagent_claude.core.model_selector import ModelSelector
+        from deepagent_claude.subagents.debugger import create_debugger_agent
 
         selector = ModelSelector()
         agent = await create_debugger_agent(selector, [])
