@@ -69,7 +69,7 @@ def format_name(name: str) -> str:
 @pytest.mark.asyncio
 async def test_code_navigator_finds_api_endpoint(sample_codebase):
     """Test code navigator can find API endpoints"""
-    from deepagent_claude.mcp_servers.search_tools_server import grep
+    from deepagent_coder.mcp_servers.search_tools_server import grep
 
     # Test finding users API
     results = grep(
@@ -84,7 +84,7 @@ async def test_code_navigator_finds_api_endpoint(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_finds_database_calls(sample_codebase):
     """Test code navigator can find database queries"""
-    from deepagent_claude.mcp_servers.search_tools_server import grep
+    from deepagent_coder.mcp_servers.search_tools_server import grep
 
     results = grep(pattern="query.*filter", path=str(sample_codebase), regex=True, recursive=True)
 
@@ -96,7 +96,7 @@ async def test_code_navigator_finds_database_calls(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_finds_function_definition(sample_codebase):
     """Test code navigator can find function definitions"""
-    from deepagent_claude.mcp_servers.search_tools_server import grep
+    from deepagent_coder.mcp_servers.search_tools_server import grep
 
     results = grep(pattern="def validate_email", path=str(sample_codebase), recursive=True)
 
@@ -108,7 +108,7 @@ async def test_code_navigator_finds_function_definition(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_chains_find_and_grep(sample_codebase):
     """Test code navigator can chain find and grep operations"""
-    from deepagent_claude.mcp_servers.search_tools_server import find, grep
+    from deepagent_coder.mcp_servers.search_tools_server import find, grep
 
     # First find Python files
     py_files = find(path=str(sample_codebase), extension="py", type="f")
@@ -129,7 +129,7 @@ async def test_code_navigator_chains_find_and_grep(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_with_context_lines(sample_codebase):
     """Test code navigator returns context around matches"""
-    from deepagent_claude.mcp_servers.search_tools_server import grep
+    from deepagent_coder.mcp_servers.search_tools_server import grep
 
     results = grep(
         pattern="list_users",
@@ -148,7 +148,7 @@ async def test_code_navigator_with_context_lines(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_case_insensitive_search(sample_codebase):
     """Test code navigator can perform case-insensitive searches"""
-    from deepagent_claude.mcp_servers.search_tools_server import grep
+    from deepagent_coder.mcp_servers.search_tools_server import grep
 
     # Search for "USER" in various cases
     results = grep(pattern="USER", path=str(sample_codebase), ignore_case=True, recursive=True)
@@ -161,7 +161,7 @@ async def test_code_navigator_case_insensitive_search(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_find_by_file_pattern(sample_codebase):
     """Test code navigator can filter files by pattern"""
-    from deepagent_claude.mcp_servers.search_tools_server import grep
+    from deepagent_coder.mcp_servers.search_tools_server import grep
 
     # Only search in Python files
     results = grep(pattern="def", path=str(sample_codebase), file_pattern="*.py", recursive=True)
@@ -175,7 +175,7 @@ async def test_code_navigator_find_by_file_pattern(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_head_tool(sample_codebase):
     """Test code navigator can read first lines of files"""
-    from deepagent_claude.mcp_servers.search_tools_server import head
+    from deepagent_coder.mcp_servers.search_tools_server import head
 
     content = head(file_path=str(sample_codebase / "utils.py"), lines=3)
 
@@ -189,7 +189,7 @@ async def test_code_navigator_head_tool(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_tail_tool(sample_codebase):
     """Test code navigator can read last lines of files"""
-    from deepagent_claude.mcp_servers.search_tools_server import tail
+    from deepagent_coder.mcp_servers.search_tools_server import tail
 
     content = tail(file_path=str(sample_codebase / "utils.py"), lines=3)
 
@@ -201,7 +201,7 @@ async def test_code_navigator_tail_tool(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_wc_tool(sample_codebase):
     """Test code navigator can count lines in files"""
-    from deepagent_claude.mcp_servers.search_tools_server import wc
+    from deepagent_coder.mcp_servers.search_tools_server import wc
 
     result = wc(file_path=str(sample_codebase / "utils.py"), lines=True)
 
@@ -214,7 +214,7 @@ async def test_code_navigator_wc_tool(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_ls_tool(sample_codebase):
     """Test code navigator can list directory contents"""
-    from deepagent_claude.mcp_servers.search_tools_server import ls
+    from deepagent_coder.mcp_servers.search_tools_server import ls
 
     results = ls(path=str(sample_codebase))
 
@@ -229,7 +229,7 @@ async def test_code_navigator_ls_tool(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_find_tool(sample_codebase):
     """Test code navigator can find files by name"""
-    from deepagent_claude.mcp_servers.search_tools_server import find
+    from deepagent_coder.mcp_servers.search_tools_server import find
 
     results = find(path=str(sample_codebase), name="routes.py", type="f")
 
@@ -241,7 +241,7 @@ async def test_code_navigator_find_tool(sample_codebase):
 @pytest.mark.asyncio
 async def test_code_navigator_ripgrep_tool(sample_codebase):
     """Test code navigator can use ripgrep (or fallback to grep)"""
-    from deepagent_claude.mcp_servers.search_tools_server import ripgrep
+    from deepagent_coder.mcp_servers.search_tools_server import ripgrep
 
     results = ripgrep(pattern="def", path=str(sample_codebase))
 

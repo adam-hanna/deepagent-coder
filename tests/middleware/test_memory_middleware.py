@@ -1,8 +1,8 @@
 # tests/middleware/test_memory_middleware.py
 import pytest
 
-from deepagent_claude.core.model_selector import ModelSelector
-from deepagent_claude.middleware.memory_middleware import create_memory_middleware
+from deepagent_coder.core.model_selector import ModelSelector
+from deepagent_coder.middleware.memory_middleware import create_memory_middleware
 
 
 @pytest.mark.asyncio

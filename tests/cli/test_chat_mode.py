@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from deepagent_claude.cli.chat_mode import ChatMode
+from deepagent_coder.cli.chat_mode import ChatMode
 
 
 @pytest.mark.asyncio

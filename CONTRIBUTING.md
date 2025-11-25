@@ -149,7 +149,7 @@ We use **mypy** for static type checking:
 
 ```bash
 # Run type checker
-uv run mypy src/deepagent_claude
+uv run mypy src/deepagent_coder
 ```
 
 ### Pre-commit Hooks
@@ -186,7 +186,7 @@ uv run pre-commit run --all-files
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=src/deepagent_claude --cov-report=html
+uv run pytest --cov=src/deepagent_coder --cov-report=html
 
 # Run specific test file
 uv run pytest tests/core/test_model_selector.py -v
@@ -210,7 +210,7 @@ We follow **Test-Driven Development (TDD)**:
 
 ```python
 import pytest
-from deepagent_claude.core.model_selector import ModelSelector
+from deepagent_coder.core.model_selector import ModelSelector
 
 def test_model_selector_initialization():
     """Test that ModelSelector initializes with default models"""
@@ -251,12 +251,12 @@ tests/
    ```bash
    uv run ruff check src/ tests/
    uv run black --check src/ tests/
-   uv run mypy src/deepagent_claude
+   uv run mypy src/deepagent_coder
    ```
 
 3. **Verify coverage:**
    ```bash
-   uv run pytest --cov=src/deepagent_claude --cov-fail-under=80
+   uv run pytest --cov=src/deepagent_coder --cov-fail-under=80
    ```
 
 4. **Update documentation:**
@@ -356,30 +356,30 @@ refactor(core): improve error handling
 
 ```bash
 # Run with verbose logging
-uv run python -m deepagent_claude.main run --verbose "your request"
+uv run python -m deepagent_coder.main run --verbose "your request"
 
 # Run pytest with output
 uv run pytest -v -s
 
 # Use debugger
-uv run python -m pdb -m deepagent_claude.main
+uv run python -m pdb -m deepagent_coder.main
 ```
 
 ### Local Testing
 
 ```bash
 # Test agent locally
-uv run python -m deepagent_claude.main run --workspace /tmp/test "Create hello.txt"
+uv run python -m deepagent_coder.main run --workspace /tmp/test "Create hello.txt"
 
 # Test in interactive mode
-uv run python -m deepagent_claude.main chat
+uv run python -m deepagent_coder.main chat
 ```
 
 ### Performance Profiling
 
 ```bash
 # Profile code
-uv run python -m cProfile -o profile.stats -m deepagent_claude.main run "request"
+uv run python -m cProfile -o profile.stats -m deepagent_coder.main run "request"
 
 # View profile
 uv run python -c "import pstats; p = pstats.Stats('profile.stats'); p.sort_stats('time').print_stats(20)"

@@ -4,9 +4,9 @@ import asyncio
 
 import click
 
-from deepagent_claude.cli.chat_mode import ChatMode
-from deepagent_claude.cli.console import DeepAgentConsole
-from deepagent_claude.coding_agent import CodingDeepAgent
+from deepagent_coder.cli.chat_mode import ChatMode
+from deepagent_coder.cli.console import DeepAgentConsole
+from deepagent_coder.coding_agent import CodingDeepAgent
 
 console = DeepAgentConsole()
 

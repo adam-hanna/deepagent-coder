@@ -1,4 +1,4 @@
-# src/deepagent_claude/mcp_servers/testing_server.py
+# src/deepagent_coder/mcp_servers/testing_server.py
 """Testing tools MCP server - test execution and coverage"""
 
 import asyncio

@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from deepagent_claude.middleware.audit_middleware import create_audit_middleware
+from deepagent_coder.middleware.audit_middleware import create_audit_middleware
 
 
 @pytest.mark.asyncio

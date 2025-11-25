@@ -2,7 +2,7 @@
 from langchain_ollama import ChatOllama
 import pytest
 
-from deepagent_claude.core.model_selector import ModelSelector
+from deepagent_coder.core.model_selector import ModelSelector
 
 
 def test_model_selector_initialization():

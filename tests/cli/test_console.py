@@ -1,5 +1,5 @@
 # tests/cli/test_console.py
-from deepagent_claude.cli.console import DeepAgentConsole
+from deepagent_coder.cli.console import DeepAgentConsole
 
 
 def test_console_creation():

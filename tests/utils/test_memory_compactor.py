@@ -1,7 +1,7 @@
 import pytest
 
-from deepagent_claude.core.model_selector import ModelSelector
-from deepagent_claude.utils.memory_compactor import MemoryCompactor
+from deepagent_coder.core.model_selector import ModelSelector
+from deepagent_coder.utils.memory_compactor import MemoryCompactor
 
 
 def test_memory_compactor_initialization():

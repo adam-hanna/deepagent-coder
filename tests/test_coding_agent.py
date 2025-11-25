@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from deepagent_claude.coding_agent import CodingDeepAgent
+from deepagent_coder.coding_agent import CodingDeepAgent
 
 
 @pytest.mark.asyncio
@@ -20,10 +20,10 @@ async def test_coding_agent_initialization():
     with (
         patch("langchain_ollama.ChatOllama"),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            "deepagent_coder.coding_agent.CodingDeepAgent._create_subagents",
             new_callable=AsyncMock,
         ),
     ):
@@ -38,10 +38,10 @@ async def test_coding_agent_process_request():
     with (
         patch("langchain_ollama.ChatOllama"),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            "deepagent_coder.coding_agent.CodingDeepAgent._create_subagents",
             new_callable=AsyncMock,
         ),
     ):
@@ -58,7 +58,7 @@ async def test_coding_agent_process_request():
 
 def test_agent_state_includes_search_results():
     """Test AgentState has search_results field"""
-    from deepagent_claude.coding_agent import AgentState
+    from deepagent_coder.coding_agent import AgentState
 
     # AgentState should have search_results in its annotations
     assert "search_results" in AgentState.__annotations__
@@ -70,15 +70,15 @@ async def test_coding_agent_creates_code_navigator():
     with (
         patch("langchain_ollama.ChatOllama"),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
         patch(
-            "deepagent_claude.coding_agent.create_code_navigator", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.create_code_navigator", new_callable=AsyncMock
         ) as mock_nav,
-        patch("deepagent_claude.coding_agent.create_code_generator_agent", new_callable=AsyncMock),
-        patch("deepagent_claude.coding_agent.create_debugger_agent", new_callable=AsyncMock),
-        patch("deepagent_claude.coding_agent.create_test_writer_agent", new_callable=AsyncMock),
-        patch("deepagent_claude.coding_agent.create_refactorer_agent", new_callable=AsyncMock),
+        patch("deepagent_coder.coding_agent.create_code_generator_agent", new_callable=AsyncMock),
+        patch("deepagent_coder.coding_agent.create_debugger_agent", new_callable=AsyncMock),
+        patch("deepagent_coder.coding_agent.create_test_writer_agent", new_callable=AsyncMock),
+        patch("deepagent_coder.coding_agent.create_refactorer_agent", new_callable=AsyncMock),
     ):
         agent = CodingDeepAgent()
         await agent.initialize()
@@ -96,13 +96,13 @@ async def test_orchestrator_prompt_includes_code_navigator():
     with (
         patch("langchain_ollama.ChatOllama"),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            "deepagent_coder.coding_agent.CodingDeepAgent._create_subagents",
             new_callable=AsyncMock,
         ),
-        patch("deepagent_claude.coding_agent.MCPClientManager") as mock_mcp,
+        patch("deepagent_coder.coding_agent.MCPClientManager") as mock_mcp,
     ):
         # Mock the MCP client to return empty tools
         mock_client = AsyncMock()

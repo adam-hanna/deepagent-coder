@@ -1,7 +1,7 @@
 # tests/middleware/test_error_recovery_middleware.py
 import pytest
 
-from deepagent_claude.middleware.error_recovery_middleware import create_error_recovery_middleware
+from deepagent_coder.middleware.error_recovery_middleware import create_error_recovery_middleware
 
 
 @pytest.mark.asyncio

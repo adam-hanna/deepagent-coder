@@ -31,14 +31,14 @@ dev = [
 ]
 
 [project.scripts]
-deepagent-cli = "deepagent_claude.cli:cli"
+deepagent-cli = "deepagent_coder.cli:cli"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/deepagent_claude"]
+packages = ["src/deepagent_coder"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -49,7 +49,7 @@ markers = [
     "integration: marks tests as integration tests (require external services like MCP servers)",
 ]
 addopts = [
-    "--cov=src/deepagent_claude",
+    "--cov=src/deepagent_coder",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
@@ -86,11 +86,11 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 "tests/*" = ["ARG", "F841"]  # Allow unused arguments and variables in tests
-"src/deepagent_claude/cli/commands.py" = ["ARG002"]  # Allow unused args in command handlers
-"src/deepagent_claude/coding_agent.py" = ["E722"]  # Allow bare except for JSON parsing
+"src/deepagent_coder/cli/commands.py" = ["ARG002"]  # Allow unused args in command handlers
+"src/deepagent_coder/coding_agent.py" = ["E722"]  # Allow bare except for JSON parsing
 
 [tool.ruff.lint.isort]
-known-first-party = ["deepagent_claude"]
+known-first-party = ["deepagent_coder"]
 force-sort-within-sections = true
 
 [tool.mypy]
@@ -113,10 +113,10 @@ dev = [
 ]
 
 [tool.coverage.run]
-source = ["src/deepagent_claude"]
+source = ["src/deepagent_coder"]
 omit = [
     "tests/*",
-    "src/deepagent_claude/__init__.py",
+    "src/deepagent_coder/__init__.py",
 ]
 
 [tool.coverage.report]

@@ -13,8 +13,8 @@ The Code Generator specializes in:
 - Writing code that integrates well with existing codebases
 
 Example:
-    from deepagent_claude.core.model_selector import ModelSelector
-    from deepagent_claude.subagents.code_generator import create_code_generator_agent
+    from deepagent_coder.core.model_selector import ModelSelector
+    from deepagent_coder.subagents.code_generator import create_code_generator_agent
 
     selector = ModelSelector()
     agent = await create_code_generator_agent(selector, tools=[])
@@ -252,7 +252,7 @@ async def create_code_generator_agent(
         A configured DeepAgent instance specialized for code generation
 
     Example:
-        from deepagent_claude.core.model_selector import ModelSelector
+        from deepagent_coder.core.model_selector import ModelSelector
 
         selector = ModelSelector()
         agent = await create_code_generator_agent(selector, tools=[])

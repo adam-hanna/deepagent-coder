@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from deepagent_claude.utils.file_organizer import FileOrganizer
+from deepagent_coder.utils.file_organizer import FileOrganizer
 
 
 def test_file_organizer_initialization(tmp_path):

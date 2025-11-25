@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from deepagent_claude.core.mcp_client import MCPClientManager
+from deepagent_coder.core.mcp_client import MCPClientManager
 
 
 @pytest.mark.asyncio
@@ -18,7 +18,7 @@ async def test_mcp_client_initialization():
 @pytest.mark.asyncio
 async def test_mcp_client_gets_tools():
     """Test fetching tools from MCP servers"""
-    with patch("deepagent_claude.core.mcp_client.MultiServerMCPClient") as MockClient:
+    with patch("deepagent_coder.core.mcp_client.MultiServerMCPClient") as MockClient:
         # Create mock tools
         mock_tool1 = MagicMock()
         mock_tool1.name = "python_exec"
@@ -45,7 +45,7 @@ async def test_mcp_client_gets_tools():
 @pytest.mark.asyncio
 async def test_mcp_client_by_category():
     """Test getting tools by category"""
-    with patch("deepagent_claude.core.mcp_client.MultiServerMCPClient") as MockClient:
+    with patch("deepagent_coder.core.mcp_client.MultiServerMCPClient") as MockClient:
         # Create mock tools for python server
         mock_tool = MagicMock()
         mock_tool.name = "python_exec"
@@ -68,7 +68,7 @@ async def test_mcp_client_by_category():
 @pytest.mark.asyncio
 async def test_mcp_client_invalid_server():
     """Test error handling for invalid server name"""
-    with patch("deepagent_claude.core.mcp_client.MultiServerMCPClient"):
+    with patch("deepagent_coder.core.mcp_client.MultiServerMCPClient"):
         manager = MCPClientManager()
         await manager.initialize()
 

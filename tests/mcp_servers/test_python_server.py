@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 
-from deepagent_claude.mcp_servers.python_server import _analyze_code_impl as analyze_code
-from deepagent_claude.mcp_servers.python_server import _profile_code_impl as profile_code
-from deepagent_claude.mcp_servers.python_server import _run_python_impl as run_python
+from deepagent_coder.mcp_servers.python_server import _analyze_code_impl as analyze_code
+from deepagent_coder.mcp_servers.python_server import _profile_code_impl as profile_code
+from deepagent_coder.mcp_servers.python_server import _run_python_impl as run_python
 
 
 @pytest.mark.asyncio

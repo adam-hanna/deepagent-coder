@@ -8,7 +8,7 @@ import pytest
 
 def test_refactorer_module_exists():
     """Test that refactorer module can be imported."""
-    from deepagent_claude.subagents import refactorer
+    from deepagent_coder.subagents import refactorer
 
     assert refactorer is not None
 
@@ -33,8 +33,8 @@ async def test_refactorer_creation():
     sys.modules["deepagents.backend"] = mock_deepagents_backend
 
     try:
-        from deepagent_claude.core.model_selector import ModelSelector
-        from deepagent_claude.subagents.refactorer import create_refactorer_agent
+        from deepagent_coder.core.model_selector import ModelSelector
+        from deepagent_coder.subagents.refactorer import create_refactorer_agent
 
         selector = ModelSelector()
         agent = await create_refactorer_agent(selector, [])

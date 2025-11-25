@@ -13,8 +13,8 @@ The Debugger specializes in:
 - Preventing similar issues through defensive coding
 
 Example:
-    from deepagent_claude.core.model_selector import ModelSelector
-    from deepagent_claude.subagents.debugger import create_debugger_agent
+    from deepagent_coder.core.model_selector import ModelSelector
+    from deepagent_coder.subagents.debugger import create_debugger_agent
 
     selector = ModelSelector()
     agent = await create_debugger_agent(selector, tools=[])
@@ -133,7 +133,7 @@ async def create_debugger_agent(
         A configured DeepAgent instance specialized for debugging
 
     Example:
-        from deepagent_claude.core.model_selector import ModelSelector
+        from deepagent_coder.core.model_selector import ModelSelector
 
         selector = ModelSelector()
         agent = await create_debugger_agent(selector, tools=[])

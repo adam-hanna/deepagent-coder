@@ -4,7 +4,7 @@ from pathlib import Path
 
 def test_source_directory_structure():
     """Verify all required directories exist"""
-    base = Path("src/deepagent_claude")
+    base = Path("src/deepagent_coder")
 
     required_dirs = [
         base,

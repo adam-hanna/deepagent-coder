@@ -4,7 +4,7 @@ from collections.abc import Callable
 import logging
 from typing import Any
 
-from deepagent_claude.utils.memory_compactor import MemoryCompactor
+from deepagent_coder.utils.memory_compactor import MemoryCompactor
 
 logger = logging.getLogger(__name__)
 

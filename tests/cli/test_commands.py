@@ -1,7 +1,7 @@
 # tests/cli/test_commands.py
 import pytest
 
-from deepagent_claude.cli.commands import CommandHandler
+from deepagent_coder.cli.commands import CommandHandler
 
 
 @pytest.mark.asyncio

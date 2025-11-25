@@ -13,8 +13,8 @@ The Refactorer specializes in:
 - Making code more testable and modular
 
 Example:
-    from deepagent_claude.core.model_selector import ModelSelector
-    from deepagent_claude.subagents.refactorer import create_refactorer_agent
+    from deepagent_coder.core.model_selector import ModelSelector
+    from deepagent_coder.subagents.refactorer import create_refactorer_agent
 
     selector = ModelSelector()
     agent = await create_refactorer_agent(selector, tools=[])
@@ -290,7 +290,7 @@ async def create_refactorer_agent(
         A configured DeepAgent instance specialized for refactoring
 
     Example:
-        from deepagent_claude.core.model_selector import ModelSelector
+        from deepagent_coder.core.model_selector import ModelSelector
 
         selector = ModelSelector()
         agent = await create_refactorer_agent(selector, tools=[])

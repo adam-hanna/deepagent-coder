@@ -1,5 +1,5 @@
 # tests/cli/test_progress_tracker.py
-from deepagent_claude.cli.progress_tracker import ProgressTracker
+from deepagent_coder.cli.progress_tracker import ProgressTracker
 
 
 def test_progress_tracker_creation():

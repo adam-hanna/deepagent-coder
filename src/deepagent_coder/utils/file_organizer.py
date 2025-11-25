@@ -49,10 +49,10 @@ class FileOrganizer:
         Initialize FileOrganizer with base directory.
 
         Args:
-            base_path: Base directory path. If None, uses ~/.deepagent_claude
+            base_path: Base directory path. If None, uses ~/.deepagent_coder
         """
         if base_path is None:
-            base_path = str(Path.home() / ".deepagent_claude")
+            base_path = str(Path.home() / ".deepagent_coder")
 
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)

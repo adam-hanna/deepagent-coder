@@ -1,7 +1,7 @@
 # tests/middleware/test_git_safety_middleware.py
 import pytest
 
-from deepagent_claude.middleware.git_safety_middleware import create_git_safety_middleware
+from deepagent_coder.middleware.git_safety_middleware import create_git_safety_middleware
 
 
 @pytest.mark.asyncio

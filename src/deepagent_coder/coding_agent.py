@@ -4,20 +4,20 @@ import logging
 from pathlib import Path
 from typing import Any, TypedDict
 
-from deepagent_claude.core.mcp_client import MCPClientManager
-from deepagent_claude.core.model_selector import ModelSelector
-from deepagent_claude.middleware.audit_middleware import create_audit_middleware
-from deepagent_claude.middleware.error_recovery_middleware import create_error_recovery_middleware
-from deepagent_claude.middleware.git_safety_middleware import create_git_safety_middleware
-from deepagent_claude.middleware.logging_middleware import create_logging_middleware
-from deepagent_claude.middleware.memory_middleware import create_memory_middleware
-from deepagent_claude.subagents.code_generator import create_code_generator_agent
-from deepagent_claude.subagents.code_navigator import create_code_navigator
-from deepagent_claude.subagents.debugger import create_debugger_agent
-from deepagent_claude.subagents.refactorer import create_refactorer_agent
-from deepagent_claude.subagents.test_writer import create_test_writer_agent
-from deepagent_claude.utils.file_organizer import FileOrganizer
-from deepagent_claude.utils.session_manager import SessionManager
+from deepagent_coder.core.mcp_client import MCPClientManager
+from deepagent_coder.core.model_selector import ModelSelector
+from deepagent_coder.middleware.audit_middleware import create_audit_middleware
+from deepagent_coder.middleware.error_recovery_middleware import create_error_recovery_middleware
+from deepagent_coder.middleware.git_safety_middleware import create_git_safety_middleware
+from deepagent_coder.middleware.logging_middleware import create_logging_middleware
+from deepagent_coder.middleware.memory_middleware import create_memory_middleware
+from deepagent_coder.subagents.code_generator import create_code_generator_agent
+from deepagent_coder.subagents.code_navigator import create_code_navigator
+from deepagent_coder.subagents.debugger import create_debugger_agent
+from deepagent_coder.subagents.refactorer import create_refactorer_agent
+from deepagent_coder.subagents.test_writer import create_test_writer_agent
+from deepagent_coder.utils.file_organizer import FileOrganizer
+from deepagent_coder.utils.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
 

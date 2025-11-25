@@ -1,4 +1,4 @@
-# src/deepagent_claude/core/mcp_client.py
+# src/deepagent_coder/core/mcp_client.py
 """MCP Client management for tool integration"""
 
 import logging
@@ -58,7 +58,7 @@ class MCPClientManager:
                     str(
                         project_root
                         / "src"
-                        / "deepagent_claude"
+                        / "deepagent_coder"
                         / "mcp_servers"
                         / "python_server.py"
                     )
@@ -68,7 +68,7 @@ class MCPClientManager:
                 "transport": "stdio",
                 "command": sys.executable,
                 "args": [
-                    str(project_root / "src" / "deepagent_claude" / "mcp_servers" / "git_server.py")
+                    str(project_root / "src" / "deepagent_coder" / "mcp_servers" / "git_server.py")
                 ],
             },
             "testing": {
@@ -78,7 +78,7 @@ class MCPClientManager:
                     str(
                         project_root
                         / "src"
-                        / "deepagent_claude"
+                        / "deepagent_coder"
                         / "mcp_servers"
                         / "testing_server.py"
                     )
@@ -91,7 +91,7 @@ class MCPClientManager:
                     str(
                         project_root
                         / "src"
-                        / "deepagent_claude"
+                        / "deepagent_coder"
                         / "mcp_servers"
                         / "linting_server.py"
                     )

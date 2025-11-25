@@ -1,4 +1,4 @@
-# src/deepagent_claude/mcp_servers/git_server.py
+# src/deepagent_coder/mcp_servers/git_server.py
 """Git operations MCP server - version control tools"""
 
 import asyncio

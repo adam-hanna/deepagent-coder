@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from deepagent_claude.subagents.code_navigator import (
+from deepagent_coder.subagents.code_navigator import (
     create_code_navigator,
     get_code_navigator_prompt,
 )
@@ -15,8 +15,8 @@ async def test_create_code_navigator():
     mock_llm = MagicMock()
 
     with (
-        patch("deepagent_claude.subagents.code_navigator.create_react_agent") as mock_create,
-        patch("deepagent_claude.subagents.code_navigator.MultiServerMCPClient") as mock_mcp_class,
+        patch("deepagent_coder.subagents.code_navigator.create_react_agent") as mock_create,
+        patch("deepagent_coder.subagents.code_navigator.MultiServerMCPClient") as mock_mcp_class,
     ):
         # Setup mock client instance
         mock_client_instance = MagicMock()
@@ -53,8 +53,8 @@ async def test_code_navigator_with_mcp_client():
     mock_llm = MagicMock()
 
     with (
-        patch("deepagent_claude.subagents.code_navigator.create_react_agent") as mock_create,
-        patch("deepagent_claude.subagents.code_navigator.MultiServerMCPClient") as mock_mcp_class,
+        patch("deepagent_coder.subagents.code_navigator.create_react_agent") as mock_create,
+        patch("deepagent_coder.subagents.code_navigator.MultiServerMCPClient") as mock_mcp_class,
     ):
         # Setup mock client instance
         mock_client_instance = MagicMock()

@@ -8,7 +8,7 @@ import pytest
 
 def test_debugger_module_exists():
     """Test that debugger module can be imported."""
-    from deepagent_claude.subagents import debugger
+    from deepagent_coder.subagents import debugger
 
     assert debugger is not None
 
@@ -33,8 +33,8 @@ async def test_debugger_creation():
     sys.modules["deepagents.backend"] = mock_deepagents_backend
 
     try:
-        from deepagent_claude.core.model_selector import ModelSelector
-        from deepagent_claude.subagents.debugger import create_debugger_agent
+        from deepagent_coder.core.model_selector import ModelSelector
+        from deepagent_coder.subagents.debugger import create_debugger_agent
 
         selector = ModelSelector()
         agent = await create_debugger_agent(selector, [])

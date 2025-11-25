@@ -13,8 +13,8 @@ The Test Writer specializes in:
 - Writing clear, maintainable test code
 
 Example:
-    from deepagent_claude.core.model_selector import ModelSelector
-    from deepagent_claude.subagents.test_writer import create_test_writer_agent
+    from deepagent_coder.core.model_selector import ModelSelector
+    from deepagent_coder.subagents.test_writer import create_test_writer_agent
 
     selector = ModelSelector()
     agent = await create_test_writer_agent(selector, tools=[])
@@ -208,7 +208,7 @@ async def create_test_writer_agent(
         A configured DeepAgent instance specialized for test writing
 
     Example:
-        from deepagent_claude.core.model_selector import ModelSelector
+        from deepagent_coder.core.model_selector import ModelSelector
 
         selector = ModelSelector()
         agent = await create_test_writer_agent(selector, tools=[])

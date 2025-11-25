@@ -5,7 +5,7 @@ from typing import Any
 from langchain_core.language_models import BaseChatModel
 from langgraph.prebuilt import create_react_agent
 
-from deepagent_claude.core.mcp_client import MultiServerMCPClient
+from deepagent_coder.core.mcp_client import MultiServerMCPClient
 
 
 def get_code_navigator_prompt() -> str:
@@ -119,7 +119,7 @@ async def create_code_navigator(llm: BaseChatModel) -> Any:
             "search_tools": {
                 "transport": "stdio",
                 "command": "python",
-                "args": ["-m", "deepagent_claude.mcp_servers.search_tools_server"],
+                "args": ["-m", "deepagent_coder.mcp_servers.search_tools_server"],
             }
         }
     )

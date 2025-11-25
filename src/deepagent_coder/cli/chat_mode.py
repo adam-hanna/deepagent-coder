@@ -3,8 +3,8 @@
 import logging
 from typing import Any
 
-from deepagent_claude.cli.commands import CommandHandler
-from deepagent_claude.cli.console import DeepAgentConsole
+from deepagent_coder.cli.commands import CommandHandler
+from deepagent_coder.cli.console import DeepAgentConsole
 
 logger = logging.getLogger(__name__)
 
