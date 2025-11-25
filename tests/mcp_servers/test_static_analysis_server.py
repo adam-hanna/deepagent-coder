@@ -1,14 +1,14 @@
 # tests/mcp_servers/test_static_analysis_server.py
 """Tests for static analysis MCP server"""
 
+
 import pytest
-from pathlib import Path
 
 from deepagent_coder.mcp_servers.static_analysis_server import (
-    run_linter,
-    security_scan,
     check_type_coverage,
     documentation_coverage,
+    run_linter,
+    security_scan,
 )
 
 

@@ -93,6 +93,8 @@ ignore = [
 "tests/*" = ["ARG", "F841"]  # Allow unused arguments and variables in tests
 "src/deepagent_coder/cli/commands.py" = ["ARG002"]  # Allow unused args in command handlers
 "src/deepagent_coder/coding_agent.py" = ["E722"]  # Allow bare except for JSON parsing
+"src/deepagent_coder/subagents/code_generator.py" = ["ARG001"]  # Allow unused args for API compatibility
+"src/deepagent_coder/utils/tool_wrapper.py" = ["ARG001"]  # Allow unused args for API compatibility
 
 [tool.ruff.lint.isort]
 known-first-party = ["deepagent_coder"]

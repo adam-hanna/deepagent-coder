@@ -1,15 +1,15 @@
 # tests/mcp_servers/test_code_metrics_server.py
 """Tests for code metrics MCP server"""
 
+
 import pytest
-from pathlib import Path
 
 from deepagent_coder.mcp_servers.code_metrics_server import (
-    calculate_complexity,
-    measure_code_coverage,
-    detect_duplication,
-    calculate_maintainability,
     analyze_dependencies,
+    calculate_complexity,
+    calculate_maintainability,
+    detect_duplication,
+    measure_code_coverage,
 )
 
 

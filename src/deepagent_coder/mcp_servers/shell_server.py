@@ -67,7 +67,7 @@ async def run_command(
                 "returncode": process.returncode,
             }
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             process.kill()
             await process.wait()
             return {

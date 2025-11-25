@@ -3,8 +3,8 @@
 from pathlib import Path
 from typing import Any
 
-import yaml
 from fastmcp import FastMCP
+import yaml
 
 from .shell_server import run_command
 
@@ -196,7 +196,7 @@ async def read_yaml_file(file_path: str) -> dict[str, Any]:
                 "file": file_path,
             }
 
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         return {

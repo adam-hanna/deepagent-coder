@@ -1,7 +1,7 @@
 """Build tools MCP server - File analysis and code metrics"""
 
-import re
 from pathlib import Path
+import re
 from typing import Any
 
 from fastmcp import FastMCP
@@ -105,9 +105,9 @@ async def analyze_file_stats(file_path: str) -> dict[str, Any]:
                     {
                         "lines": len(lines),
                         "characters": len(content),
-                        "non_empty_lines": len([l for l in lines if l.strip()]),
+                        "non_empty_lines": len([line for line in lines if line.strip()]),
                         "avg_line_length": (
-                            sum(len(l) for l in lines) / len(lines) if lines else 0
+                            sum(len(line) for line in lines) / len(lines) if lines else 0
                         ),
                     }
                 )
@@ -188,7 +188,7 @@ async def count_pattern_occurrences(
     # Search files
     for file_path in files:
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             if is_regex:
@@ -231,7 +231,7 @@ async def extract_structure(
         - error: Error message if extraction failed
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             lines = f.readlines()
 
         structure = {"success": True, "file": file_path, "sections": [], "outline": []}
@@ -333,9 +333,9 @@ def _count_comment_lines(content: str, file_path: str) -> int:
 
     # Common comment patterns
     if ext in [".py", ".sh", ".yml", ".yaml", ".rb"]:
-        count = len([l for l in content.splitlines() if l.strip().startswith("#")])
+        count = len([line for line in content.splitlines() if line.strip().startswith("#")])
     elif ext in [".js", ".java", ".c", ".cpp", ".go", ".rs", ".ts", ".jsx", ".tsx"]:
-        count = len([l for l in content.splitlines() if l.strip().startswith("//")])
+        count = len([line for line in content.splitlines() if line.strip().startswith("//")])
         # Also count /* */ blocks
         count += content.count("/*")
     elif ext in [".html", ".xml"]:
@@ -351,11 +351,11 @@ def _count_import_lines(content: str, file_path: str) -> int:
     count = 0
 
     if ext == ".py":
-        count = len([l for l in lines if l.strip().startswith(("import ", "from "))])
+        count = len([line for line in lines if line.strip().startswith(("import ", "from "))])
     elif ext in [".js", ".ts", ".jsx", ".tsx"]:
-        count = len([l for l in lines if re.match(r"^\s*(import|require)", l)])
+        count = len([line for line in lines if re.match(r"^\s*(import|require)", line)])
     elif ext == ".java":
-        count = len([l for l in lines if l.strip().startswith("import ")])
+        count = len([line for line in lines if line.strip().startswith("import ")])
     elif ext == ".go":
         in_import = False
         for line in lines:
@@ -363,9 +363,7 @@ def _count_import_lines(content: str, file_path: str) -> int:
                 in_import = True
             elif in_import and line.strip() == ")":
                 in_import = False
-            elif line.strip().startswith("import "):
-                count += 1
-            elif in_import and line.strip():
+            elif line.strip().startswith("import ") or in_import and line.strip():
                 count += 1
 
     return count

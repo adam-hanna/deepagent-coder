@@ -4,9 +4,9 @@
 import pytest
 
 from deepagent_coder.mcp_servers.shell_server import (
-    run_command,
-    get_shell_info,
     check_command_exists,
+    get_shell_info,
+    run_command,
 )
 
 

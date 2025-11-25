@@ -7,9 +7,10 @@ This module provides wrappers around MCP tools to add features like:
 - Tool call logging and debugging
 """
 
+from collections.abc import Callable
 import logging
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 logger = logging.getLogger(__name__)
 

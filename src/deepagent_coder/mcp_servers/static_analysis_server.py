@@ -1,8 +1,8 @@
 """Static analysis MCP server - Linting, security scanning, type/doc coverage"""
 
 import ast
-import subprocess
 from pathlib import Path
+import subprocess
 from typing import Any
 
 from fastmcp import FastMCP
@@ -178,16 +178,10 @@ async def security_scan(
         if language is None:
             if path_obj.is_file():
                 suffix = path_obj.suffix
-                if suffix == ".py":
-                    language = "python"
-                else:
-                    language = "unknown"
+                language = "python" if suffix == ".py" else "unknown"
             else:
                 # For directories, assume Python if .py files exist
-                if list(path_obj.rglob("*.py")):
-                    language = "python"
-                else:
-                    language = "unknown"
+                language = "python" if list(path_obj.rglob("*.py")) else "unknown"
 
         vulnerabilities = []
 

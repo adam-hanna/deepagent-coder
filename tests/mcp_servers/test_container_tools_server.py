@@ -1,15 +1,16 @@
 # tests/mcp_servers/test_container_tools_server.py
 """Tests for container tools MCP server"""
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
 
 from deepagent_coder.mcp_servers.container_tools_server import (
     docker_command,
     docker_compose_command,
     kubectl_command,
-    terraform_command,
     read_yaml_file,
+    terraform_command,
     write_yaml_file,
 )
 

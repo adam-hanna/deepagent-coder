@@ -1,8 +1,9 @@
 """Code metrics MCP server - Complexity, coverage, duplication, maintainability analysis"""
 
 import ast
-import subprocess
+import contextlib
 from pathlib import Path
+import subprocess
 from typing import Any
 
 from fastmcp import FastMCP
@@ -132,12 +133,10 @@ async def measure_code_coverage(
                 # Try to find percentage value
                 for part in parts:
                     if "%" in part:
-                        try:
+                        with contextlib.suppress(ValueError):
                             coverage_percent = max(
                                 coverage_percent, float(part.rstrip("%"))
                             )
-                        except ValueError:
-                            pass
 
             # Extract totals from TOTAL line
             if "TOTAL" in line:
@@ -167,7 +166,7 @@ async def measure_code_coverage(
     except FileNotFoundError:
         return {
             "success": False,
-            "error": f"Test command not found in PATH",
+            "error": "Test command not found in PATH",
         }
     except Exception as e:
         return {

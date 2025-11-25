@@ -5,13 +5,12 @@ These tests verify that the DevOps and Code Review agents can be created,
 initialized, and integrated with the MCP tool ecosystem.
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from pathlib import Path
 
-from deepagent_coder.subagents.devops import SYSTEM_PROMPT as DEVOPS_SYSTEM_PROMPT
-from deepagent_coder.subagents.code_reviewer import SYSTEM_PROMPT as CODEREVIEW_SYSTEM_PROMPT
+import pytest
+
 from deepagent_coder.core.model_selector import ModelSelector
+from deepagent_coder.subagents.code_reviewer import SYSTEM_PROMPT as CODEREVIEW_SYSTEM_PROMPT
+from deepagent_coder.subagents.devops import SYSTEM_PROMPT as DEVOPS_SYSTEM_PROMPT
 
 
 @pytest.mark.integration
@@ -135,8 +134,9 @@ def test_code_review_prompt_has_output_format():
 @pytest.mark.asyncio
 async def test_devops_agent_function_signature():
     """Test DevOps agent creation function has correct signature"""
-    from deepagent_coder.subagents.devops import create_devops_agent
     import inspect
+
+    from deepagent_coder.subagents.devops import create_devops_agent
 
     sig = inspect.signature(create_devops_agent)
     params = list(sig.parameters.keys())
@@ -150,8 +150,9 @@ async def test_devops_agent_function_signature():
 @pytest.mark.asyncio
 async def test_code_review_agent_function_signature():
     """Test Code Review agent creation function has correct signature"""
-    from deepagent_coder.subagents.code_reviewer import create_code_review_agent
     import inspect
+
+    from deepagent_coder.subagents.code_reviewer import create_code_review_agent
 
     sig = inspect.signature(create_code_review_agent)
     params = list(sig.parameters.keys())

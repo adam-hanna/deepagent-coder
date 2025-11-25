@@ -1,14 +1,15 @@
 # tests/mcp_servers/test_build_tools_server.py
 """Tests for build tools MCP server"""
 
-import pytest
 from pathlib import Path
 
+import pytest
+
 from deepagent_coder.mcp_servers.build_tools_server import (
-    find_files_by_pattern,
     analyze_file_stats,
     count_pattern_occurrences,
     extract_structure,
+    find_files_by_pattern,
 )
 
 
@@ -197,7 +198,7 @@ async def test_count_pattern_occurrences_file_extensions(tmp_path):
 
     # Should only match in .py file
     assert result["files_with_matches"] == 1
-    assert any(".py" in str(f) for f in result["matches_by_file"].keys())
+    assert any(".py" in str(f) for f in result["matches_by_file"])
 
 
 @pytest.mark.asyncio
