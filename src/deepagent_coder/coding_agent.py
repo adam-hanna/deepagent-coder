@@ -33,6 +33,9 @@ class AgentState(TypedDict):
     search_results: dict  # Store search findings from code navigator
     deployment_state: dict  # Track deployment status
     test_results: dict  # Test results from tester agent
+    review_results: dict  # Code review results from reviewer agent
+    quality_score: float  # Overall quality score from review (0-10)
+    quality_gate_passed: bool  # Whether code meets quality threshold
 
 
 class CodingDeepAgent:
