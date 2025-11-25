@@ -16,7 +16,7 @@ class MCPClientManager:
     Manages MCP server connections and tool access.
 
     Provides centralized management of multiple MCP servers
-    for filesystem, git, python, testing, and linting operations.
+    for filesystem, git, python, testing, linting, and shell operations.
     """
 
     def __init__(
@@ -94,6 +94,19 @@ class MCPClientManager:
                         / "deepagent_coder"
                         / "mcp_servers"
                         / "linting_server.py"
+                    )
+                ],
+            },
+            "shell": {
+                "transport": "stdio",
+                "command": sys.executable,
+                "args": [
+                    str(
+                        project_root
+                        / "src"
+                        / "deepagent_coder"
+                        / "mcp_servers"
+                        / "shell_server.py"
                     )
                 ],
             },
