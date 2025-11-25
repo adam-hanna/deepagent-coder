@@ -29,7 +29,9 @@ class AgentState(TypedDict):
     current_file: str
     project_context: dict
     next_agent: str
-    search_results: dict  # NEW: Store search findings from code navigator
+    search_results: dict  # Store search findings from code navigator
+    deployment_state: dict  # Track deployment status
+    test_results: dict  # Test results from tester agent
 
 
 class CodingDeepAgent:
