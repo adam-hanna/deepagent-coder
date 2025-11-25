@@ -78,7 +78,7 @@ async def test_analyze_file_stats_basic(tmp_path):
 
     assert result["success"] is True
     assert result["size_bytes"] == len(content)
-    assert result["lines"] == 4  # 3 lines + empty line after final newline
+    assert result["lines"] == 3  # splitlines() returns 3 for this content
     assert result["is_file"] is True
     assert result["is_dir"] is False
 
