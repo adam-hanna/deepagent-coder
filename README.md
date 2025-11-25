@@ -1,6 +1,6 @@
 # DeepAgent Coding Assistant
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/deepagent-claude/releases/tag/v1.0.0)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/adam-hanna/deepagent-coder/releases/tag/v1.0.0)
 [![Python](https://img.shields.io/badge/python-3.13+-green.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-132%20passing-brightgreen.svg)](tests/)
@@ -32,8 +32,8 @@ A production-ready AI coding assistant that actually creates files on disk. Buil
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/deepagent-claude.git
-cd deepagent-claude
+git clone git@github.com:adam-hanna/deepagent-coder.git
+cd deepagent-coder
 
 # Install dependencies using uv
 pip install uv
@@ -49,22 +49,22 @@ ollama pull llama3.1:8b
 
 **Create a simple file:**
 ```bash
-uv run python -m deepagent_claude.main run "Create a file called hello.txt with content 'Hello World'"
+uv run python -m deepagent_coder.main run "Create a file called hello.txt with content 'Hello World'"
 ```
 
 **Build a complete Node.js project:**
 ```bash
-uv run python -m deepagent_claude.main run --workspace /tmp/my-api "Create a Node.js TODO REST API with Express. Include package.json, server.js with CRUD endpoints, and README.md"
+uv run python -m deepagent_coder.main run --workspace /tmp/my-api "Create a Node.js TODO REST API with Express. Include package.json, server.js with CRUD endpoints, and README.md"
 ```
 
 **Interactive chat mode:**
 ```bash
-uv run python -m deepagent_claude.main chat
+uv run python -m deepagent_coder.main chat
 ```
 
 **Specify custom workspace:**
 ```bash
-uv run python -m deepagent_claude.main run --workspace /path/to/project "Your request here"
+uv run python -m deepagent_coder.main run --workspace /path/to/project "Your request here"
 ```
 
 ## 📋 Verified Working Examples
@@ -73,7 +73,7 @@ The following examples have been verified to work end-to-end in v1.0.0:
 
 ### Example 1: Simple File Creation
 ```bash
-uv run python -m deepagent_claude.main run \
+uv run python -m deepagent_coder.main run \
   --workspace /tmp/test \
   "Create hello.txt with content 'Hello World'"
 ```
@@ -81,7 +81,7 @@ uv run python -m deepagent_claude.main run \
 
 ### Example 2: Complete Node.js REST API
 ```bash
-uv run python -m deepagent_claude.main run \
+uv run python -m deepagent_coder.main run \
   --workspace /tmp/nodejs-todo-api \
   "Create a Node.js TODO REST API with Express. Include:
    - package.json with express dependency
@@ -205,8 +205,8 @@ The agent uses two strategies to extract tool calls from Ollama model output:
 ### Project Structure
 
 ```
-deepagent-claude/
-├── src/deepagent_claude/
+deepagent-coder/
+├── src/deepagent_coder/
 │   ├── core/
 │   │   ├── model_selector.py      # Model configuration
 │   │   ├── mcp_client.py          # MCP client manager
@@ -234,7 +234,7 @@ deepagent-claude/
 
 ### Model Configuration
 
-Edit `src/deepagent_claude/core/model_selector.py`:
+Edit `src/deepagent_coder/core/model_selector.py`:
 
 ```python
 self.model_configs = {
@@ -262,7 +262,7 @@ self.model_configs = {
 
 **Custom workspace**:
 ```bash
-uv run python -m deepagent_claude.main run \
+uv run python -m deepagent_coder.main run \
   --workspace /path/to/workspace \
   "Your request"
 ```
@@ -276,7 +276,7 @@ uv run python -m deepagent_claude.main run \
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=src/deepagent_claude --cov-report=html
+uv run pytest --cov=src/deepagent_coder --cov-report=html
 
 # Run specific test file
 uv run pytest tests/core/test_session_manager.py -v
@@ -393,10 +393,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 📞 Support
 
-- 🐛 [Report a bug](https://github.com/yourusername/deepagent-claude/issues/new?labels=bug)
-- 💡 [Request a feature](https://github.com/yourusername/deepagent-claude/issues/new?labels=enhancement)
-- 📖 [Read the docs](https://github.com/yourusername/deepagent-claude/wiki)
-- 💬 [Join discussions](https://github.com/yourusername/deepagent-claude/discussions)
+- 🐛 [Report a bug](https://github.com/adam-hanna/deepagent-coder/issues/new?labels=bug)
+- 💡 [Request a feature](https://github.com/adam-hanna/deepagent-coder/issues/new?labels=enhancement)
+- 📖 [Read the docs](https://github.com/adam-hanna/deepagent-coder/wiki)
+- 💬 [Join discussions](https://github.com/adam-hanna/deepagent-coder/discussions)
 
 ---
 
