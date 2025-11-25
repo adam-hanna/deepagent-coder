@@ -19,6 +19,7 @@ async def test_create_code_navigator():
     ):
         # Setup mock client instance
         mock_client_instance = MagicMock()
+        mock_client_instance.initialize = AsyncMock()
         mock_client_instance.get_tools = AsyncMock(return_value=[])
         mock_mcp_class.return_value = mock_client_instance
 
@@ -56,6 +57,7 @@ async def test_code_navigator_with_mcp_client():
     ):
         # Setup mock client instance
         mock_client_instance = MagicMock()
+        mock_client_instance.initialize = AsyncMock()
         mock_client_instance.get_tools = AsyncMock(return_value=[])
         mock_mcp_class.return_value = mock_client_instance
 

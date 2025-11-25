@@ -122,7 +122,8 @@ async def create_code_navigator(llm: BaseChatModel) -> Any:
         }
     })
 
-    # Get tools from MCP server
+    # Initialize and get tools from MCP server
+    await client.initialize()
     tools = await client.get_tools()
 
     # Create agent with tools and specialized prompt
