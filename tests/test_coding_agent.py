@@ -79,6 +79,7 @@ async def test_coding_agent_creates_code_navigator():
         patch("deepagent_coder.coding_agent.create_debugger_agent", new_callable=AsyncMock),
         patch("deepagent_coder.coding_agent.create_test_writer_agent", new_callable=AsyncMock),
         patch("deepagent_coder.coding_agent.create_refactorer_agent", new_callable=AsyncMock),
+        patch("deepagent_coder.coding_agent.create_devops_agent", new_callable=AsyncMock),
     ):
         agent = CodingDeepAgent()
         await agent.initialize()
