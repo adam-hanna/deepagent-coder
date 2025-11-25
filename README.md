@@ -5,22 +5,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-266%20passing-brightgreen.svg)](tests/)
 
-A production-ready AI coding assistant that actually creates files on disk. Built with DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations.
-
-## 🎯 Key Features
-
-- ✅ **Full Ollama Integration**: Works with qwen2.5-coder, codellama, and llama3.1 models locally
-- 📁 **Real File Operations**: Creates, reads, and modifies files using MCP filesystem tools
-- 🔧 **JSON Tool Calling**: Custom parser for Ollama models that output JSON as text
-- 📦 **Multi-File Creation**: Generate complete projects in a single request
-- 🎯 **Path Normalization**: Automatic workspace path resolution (handles macOS symlinks)
-- 🏗️ **DeepAgent Architecture**: Specialized subagents for different coding tasks
-- 🔍 **Code Navigation**: Intelligent code search using grep, find, and ripgrep to locate APIs, functions, and database calls
-- 🚀 **DevOps Automation**: Container orchestration, Kubernetes deployment, and CI/CD pipeline management
-- 🔬 **Code Review Agent**: Automated quality assessment with metrics-based reviews and security scanning
-- 🔄 **Middleware Stack**: Logging, memory management, git safety, error recovery, and audit trails
-- 📊 **Session Management**: Track and manage agent sessions with persistent storage
-- ✨ **Comprehensive Testing**: 266+ passing tests with 73% coverage
+A production-ready AI coding assistant. Built with DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations.
 
 ## 🚀 Quick Start
 
@@ -45,55 +30,20 @@ uv sync
 ollama pull qwen2.5-coder:latest
 ollama pull codellama:13b-code
 ollama pull llama3.1:8b
+ollama serve
 ```
 
 ### Usage
-
-**Create a simple file:**
-```bash
-uv run python -m deepagent_coder.main run "Create a file called hello.txt with content 'Hello World'"
-```
-
-**Build a complete Node.js project:**
-```bash
-uv run python -m deepagent_coder.main run --workspace /tmp/my-api "Create a Node.js TODO REST API with Express. Include package.json, server.js with CRUD endpoints, and README.md"
-```
 
 **Interactive chat mode:**
 ```bash
 uv run python -m deepagent_coder.main chat
 ```
 
-**Specify custom workspace:**
+**Single command with workspace:**
 ```bash
-uv run python -m deepagent_coder.main run --workspace /path/to/project "Your request here"
+uv run python -m deepagent_coder.main run --workspace /tmp/my-api "Create a Node.js TODO REST API with Express. Include package.json, server.js with CRUD endpoints, and README.md"
 ```
-
-## 📋 Verified Working Examples
-
-The following examples have been verified to work end-to-end in v1.0.0:
-
-### Example 1: Simple File Creation
-```bash
-uv run python -m deepagent_coder.main run \
-  --workspace /tmp/test \
-  "Create hello.txt with content 'Hello World'"
-```
-**Result**: ✅ Creates `/tmp/test/hello.txt` with correct content
-
-### Example 2: Complete Node.js REST API
-```bash
-uv run python -m deepagent_coder.main run \
-  --workspace /tmp/nodejs-todo-api \
-  "Create a Node.js TODO REST API with Express. Include:
-   - package.json with express dependency
-   - server.js with GET/POST/PUT/DELETE endpoints for todos
-   - README.md with API documentation"
-```
-**Result**: ✅ Creates all 3 files with:
-- `package.json`: Proper dependencies and scripts
-- `server.js`: Complete Express server with CRUD endpoints
-- `README.md`: Installation and usage instructions
 
 ## 🏗️ Architecture
 
@@ -144,105 +94,6 @@ uv run python -m deepagent_coder.main run \
 
 ## 🔧 Technical Details
 
-### Code Navigation
-
-The Code Navigator subagent provides intelligent code search capabilities:
-
-**Features:**
-- Find API endpoints across Flask, FastAPI, Express, and other frameworks
-- Locate database queries (SQL, SQLAlchemy, MongoDB, etc.)
-- Discover function and class definitions
-- Search with context lines for better understanding
-- Chain multiple search operations for complex queries
-- Support for regex patterns and case-insensitive search
-
-**Search Tools:**
-- `grep`: Pattern search with regex support
-- `find`: File discovery by name, extension, or type
-- `ripgrep`: Fast search with automatic fallback to grep
-- `ls`: Directory listing with detailed information
-- `head/tail`: File inspection (first/last N lines)
-- `wc`: Line, word, and character counting
-
-**Example Usage:**
-```bash
-# Find user login endpoint
-"Find the user login API endpoint"
-
-# Locate database queries
-"Where do we query the users table?"
-
-# Discover function definitions
-"Find the validate_email function"
-```
-
-See [docs/code_navigator_usage.md](docs/code_navigator_usage.md) for comprehensive usage guide.
-
-### DevOps Automation
-
-The DevOps subagent automates deployment pipelines, containerization, and infrastructure management:
-
-**Capabilities:**
-- **Container Orchestration**: Docker, docker-compose operations
-- **Kubernetes**: Deployment manifest generation and management
-- **Infrastructure as Code**: Terraform configuration
-- **CI/CD Pipelines**: GitHub Actions and GitLab CI setup
-- **Safety-First**: Rollback planning and progressive deployments
-
-**Available Tools:**
-- `docker_command`: Execute Docker operations
-- `kubectl_command`: Kubernetes cluster management
-- `terraform_command`: Infrastructure provisioning
-- `read_yaml_file` / `write_yaml_file`: Configuration management
-
-**Example Usage:**
-```bash
-# Create Dockerfile and docker-compose
-"Create a Dockerfile for this Python application with multi-stage builds"
-
-# Generate Kubernetes manifests
-"Generate Kubernetes deployment and service files for this API"
-
-# Set up CI/CD pipeline
-"Create a GitHub Actions workflow with build, test, and deploy stages"
-```
-
-### Code Review Agent
-
-The Code Review subagent provides automated, metrics-based code quality assessment:
-
-**Review Criteria:**
-- **Correctness** (30%): Logic, edge cases, assumptions
-- **Maintainability** (25%): Readability, organization, naming
-- **Performance** (15%): Efficiency, bottlenecks, optimization
-- **Security** (15%): Input validation, vulnerabilities
-- **Testing** (15%): Coverage, edge cases, test quality
-
-**Metrics Analysis:**
-- Cyclomatic complexity (target: < 10 per function)
-- Test coverage (target: > 80%)
-- Code duplication (target: < 5%)
-- Maintainability index (target: > 65)
-- Security vulnerabilities and unsafe patterns
-
-**Quality Gates:**
-- Overall score >= 8.0/10
-- No critical security issues
-- Test coverage >= 80%
-- No complexity > 15
-
-**Example Usage:**
-```bash
-# Review a module
-"Review the user authentication module for quality and security issues"
-
-# Check test coverage
-"Analyze test coverage for the API endpoints and identify gaps"
-
-# Security scan
-"Scan this codebase for security vulnerabilities"
-```
-
 ### How It Works
 
 1. **Ollama Model Integration**: Uses local LLMs that don't natively support tool calling
@@ -289,9 +140,10 @@ deepagent-coder/
 │   │   └── file_organizer.py      # Workspace organization
 │   ├── coding_agent.py            # Main agent orchestration
 │   └── main.py                    # CLI entry point
-├── tests/                         # 132 passing tests
+├── tests/                         # 266 passing tests
 │   ├── core/
 │   ├── middleware/
+│   ├── subagents/
 │   └── utils/
 ├── CHANGELOG.md                   # Version history
 ├── pyproject.toml                 # Dependencies
