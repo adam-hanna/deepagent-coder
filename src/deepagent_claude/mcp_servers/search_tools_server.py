@@ -84,12 +84,14 @@ def grep(
                     line_num = parts[1]
                     text = parts[2] if len(parts) > 2 else ""
 
-                    matches.append({
-                        "file": file_path,
-                        "line": line_num,
-                        "text": text,
-                        "pattern": pattern,
-                    })
+                    matches.append(
+                        {
+                            "file": file_path,
+                            "line": line_num,
+                            "text": text,
+                            "pattern": pattern,
+                        }
+                    )
 
         return matches
     except subprocess.TimeoutExpired:
@@ -200,15 +202,17 @@ def ls(
                 if line:
                     parts = line.split(None, 8)
                     if len(parts) >= 9:
-                        files.append({
-                            "permissions": parts[0],
-                            "links": parts[1],
-                            "owner": parts[2],
-                            "group": parts[3],
-                            "size": parts[4],
-                            "date": f"{parts[5]} {parts[6]} {parts[7]}",
-                            "name": parts[8],
-                        })
+                        files.append(
+                            {
+                                "permissions": parts[0],
+                                "links": parts[1],
+                                "owner": parts[2],
+                                "group": parts[3],
+                                "size": parts[4],
+                                "date": f"{parts[5]} {parts[6]} {parts[7]}",
+                                "name": parts[8],
+                            }
+                        )
                     elif len(parts) >= 1:
                         # Simpler format for some systems
                         files.append({"name": " ".join(parts)})
@@ -237,7 +241,7 @@ def head(file_path: str, lines: int = 10) -> str:
         First N lines of file as string
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             head_lines = []
             for i, line in enumerate(f):
                 if i >= lines:
@@ -264,7 +268,7 @@ def tail(file_path: str, lines: int = 10) -> str:
         Last N lines of file as string
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             all_lines = f.readlines()
             tail_lines = all_lines[-lines:] if len(all_lines) > lines else all_lines
         return "".join(tail_lines).rstrip()
@@ -295,7 +299,7 @@ def wc(
         Dictionary with requested counts
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         result = {}
@@ -370,12 +374,14 @@ def ripgrep(
                     data = json.loads(line)
                     if data.get("type") == "match":
                         match_data = data["data"]
-                        matches.append({
-                            "file": match_data["path"]["text"],
-                            "line": match_data["line_number"],
-                            "text": match_data["lines"]["text"].strip(),
-                            "column": match_data.get("submatches", [{}])[0].get("start", 0),
-                        })
+                        matches.append(
+                            {
+                                "file": match_data["path"]["text"],
+                                "line": match_data["line_number"],
+                                "text": match_data["lines"]["text"].strip(),
+                                "column": match_data.get("submatches", [{}])[0].get("start", 0),
+                            }
+                        )
                 except json.JSONDecodeError:
                     # Skip malformed JSON lines
                     pass
@@ -383,7 +389,7 @@ def ripgrep(
         return matches if matches else []
     except subprocess.TimeoutExpired:
         return [{"error": "Ripgrep timed out after 60 seconds"}]
-    except Exception as e:
+    except Exception:
         # Fallback to grep on any error
         return grep(pattern=pattern, path=path, recursive=True, regex=True)
 

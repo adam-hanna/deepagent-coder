@@ -114,13 +114,15 @@ async def create_code_navigator(llm: BaseChatModel) -> Any:
         Code navigator agent with search capabilities
     """
     # Initialize MCP client with search tools server
-    client = MultiServerMCPClient({
-        "search_tools": {
-            "transport": "stdio",
-            "command": "python",
-            "args": ["-m", "deepagent_claude.mcp_servers.search_tools_server"],
+    client = MultiServerMCPClient(
+        {
+            "search_tools": {
+                "transport": "stdio",
+                "command": "python",
+                "args": ["-m", "deepagent_claude.mcp_servers.search_tools_server"],
+            }
         }
-    })
+    )
 
     # Initialize and get tools from MCP server
     await client.initialize()

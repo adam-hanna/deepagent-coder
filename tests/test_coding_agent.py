@@ -69,8 +69,12 @@ async def test_coding_agent_creates_code_navigator():
     """Test CodingDeepAgent creates code navigator subagent"""
     with (
         patch("langchain_ollama.ChatOllama"),
-        patch("deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock),
-        patch("deepagent_claude.coding_agent.create_code_navigator", new_callable=AsyncMock) as mock_nav,
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+        ),
+        patch(
+            "deepagent_claude.coding_agent.create_code_navigator", new_callable=AsyncMock
+        ) as mock_nav,
         patch("deepagent_claude.coding_agent.create_code_generator_agent", new_callable=AsyncMock),
         patch("deepagent_claude.coding_agent.create_debugger_agent", new_callable=AsyncMock),
         patch("deepagent_claude.coding_agent.create_test_writer_agent", new_callable=AsyncMock),
@@ -91,8 +95,13 @@ async def test_orchestrator_prompt_includes_code_navigator():
     """Test orchestrator system prompt includes code_navigator guidance"""
     with (
         patch("langchain_ollama.ChatOllama"),
-        patch("deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock),
-        patch("deepagent_claude.coding_agent.CodingDeepAgent._create_subagents", new_callable=AsyncMock),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+        ),
+        patch(
+            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            new_callable=AsyncMock,
+        ),
         patch("deepagent_claude.coding_agent.MCPClientManager") as mock_mcp,
     ):
         # Mock the MCP client to return empty tools
@@ -125,10 +134,10 @@ async def test_orchestrator_prompt_includes_code_navigator():
         agent.main_model = mock_model
 
         # Process the state (this will build the system prompt)
-        try:
+        import contextlib
+
+        with contextlib.suppress(Exception):
             await agent._agent_invoke(state)
-        except Exception:
-            pass  # We don't care if it fails, we just want to check the prompt
 
         # Check that ainvoke was called with messages including the system prompt
         if mock_model.ainvoke.called:

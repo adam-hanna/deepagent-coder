@@ -1,6 +1,7 @@
 # tests/subagents/test_code_navigator.py
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from deepagent_claude.subagents.code_navigator import (
     create_code_navigator,

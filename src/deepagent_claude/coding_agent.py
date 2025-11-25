@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 class AgentState(TypedDict):
     """State passed between agents in the graph"""
+
     messages: list
     current_file: str
     project_context: dict
@@ -131,13 +132,9 @@ class CodingDeepAgent:
         # Create all subagents
         # Note: code_navigator takes just llm, others need model_selector + tools
         self.subagents = {
-            "code_generator": await create_code_generator_agent(
-                self.model_selector, tools=tools
-            ),
+            "code_generator": await create_code_generator_agent(self.model_selector, tools=tools),
             "debugger": await create_debugger_agent(self.model_selector, tools=tools),
-            "test_writer": await create_test_writer_agent(
-                self.model_selector, tools=tools
-            ),
+            "test_writer": await create_test_writer_agent(self.model_selector, tools=tools),
             "refactorer": await create_refactorer_agent(self.model_selector, tools=tools),
             "code_navigator": await create_code_navigator(
                 self.model_selector.get_model("code_generator")
