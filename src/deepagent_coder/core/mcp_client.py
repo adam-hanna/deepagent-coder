@@ -103,11 +103,7 @@ class MCPClientManager:
                 "command": sys.executable,
                 "args": [
                     str(
-                        project_root
-                        / "src"
-                        / "deepagent_coder"
-                        / "mcp_servers"
-                        / "shell_server.py"
+                        project_root / "src" / "deepagent_coder" / "mcp_servers" / "shell_server.py"
                     )
                 ],
             },

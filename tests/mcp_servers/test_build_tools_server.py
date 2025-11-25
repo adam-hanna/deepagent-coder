@@ -49,7 +49,9 @@ async def test_find_files_by_pattern_file_type_filter(tmp_path):
     (tmp_path / "test.py").write_text("# test")
     (tmp_path / "dir").mkdir()
 
-    result = await find_files_by_pattern(pattern="*", path=str(tmp_path), recursive=False, file_type="f")
+    result = await find_files_by_pattern(
+        pattern="*", path=str(tmp_path), recursive=False, file_type="f"
+    )
 
     # Should only include files, not directories
     assert all(Path(f).is_file() for f in result)
@@ -62,7 +64,9 @@ async def test_find_files_by_pattern_directories_only(tmp_path):
     (tmp_path / "file.txt").write_text("text")
     (tmp_path / "testdir").mkdir()
 
-    result = await find_files_by_pattern(pattern="*", path=str(tmp_path), recursive=False, file_type="d")
+    result = await find_files_by_pattern(
+        pattern="*", path=str(tmp_path), recursive=False, file_type="d"
+    )
 
     # Should only include directories
     assert all(Path(f).is_dir() for f in result)
@@ -140,11 +144,7 @@ async def test_count_pattern_occurrences_simple(tmp_path):
     file2 = tmp_path / "test2.txt"
     file2.write_text("goodbye world")
 
-    result = await count_pattern_occurrences(
-        pattern="hello",
-        path=str(tmp_path),
-        is_regex=False
-    )
+    result = await count_pattern_occurrences(pattern="hello", path=str(tmp_path), is_regex=False)
 
     assert result["total_matches"] == 2
     assert result["files_with_matches"] == 1
@@ -158,9 +158,7 @@ async def test_count_pattern_occurrences_regex(tmp_path):
     file1.write_text("def func1():\n    pass\n\ndef func2():\n    pass")
 
     result = await count_pattern_occurrences(
-        pattern=r"def\s+\w+",
-        path=str(tmp_path),
-        is_regex=True
+        pattern=r"def\s+\w+", path=str(tmp_path), is_regex=True
     )
 
     assert result["total_matches"] == 2
@@ -174,10 +172,7 @@ async def test_count_pattern_occurrences_case_insensitive(tmp_path):
     file1.write_text("Hello HELLO hello")
 
     result = await count_pattern_occurrences(
-        pattern="hello",
-        path=str(tmp_path),
-        is_regex=False,
-        ignore_case=True
+        pattern="hello", path=str(tmp_path), is_regex=False, ignore_case=True
     )
 
     assert result["total_matches"] == 3
@@ -190,10 +185,7 @@ async def test_count_pattern_occurrences_file_extensions(tmp_path):
     (tmp_path / "test.txt").write_text("import os")
 
     result = await count_pattern_occurrences(
-        pattern="import",
-        path=str(tmp_path),
-        file_extensions=["py"],
-        is_regex=False
+        pattern="import", path=str(tmp_path), file_extensions=["py"], is_regex=False
     )
 
     # Should only match in .py file

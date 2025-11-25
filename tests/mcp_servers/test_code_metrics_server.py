@@ -101,28 +101,30 @@ async def test_measure_code_coverage_with_pytest(tmp_path):
     src_dir.mkdir()
     (src_dir / "__init__.py").write_text("")
     module_file = src_dir / "mymodule.py"
-    module_file.write_text("""def add(a, b):
+    module_file.write_text(
+        """def add(a, b):
     return a + b
 
 def subtract(a, b):
     return a - b
-""")
+"""
+    )
 
     # Create tests
     test_dir = tmp_path / "tests"
     test_dir.mkdir()
     (test_dir / "__init__.py").write_text("")
     test_file = test_dir / "test_mymodule.py"
-    test_file.write_text("""from src.mymodule import add
+    test_file.write_text(
+        """from src.mymodule import add
 
 def test_add():
     assert add(1, 2) == 3
-""")
+"""
+    )
 
     result = await measure_code_coverage(
-        test_command="pytest --cov=src",
-        source_dir=str(src_dir),
-        working_dir=str(tmp_path)
+        test_command="pytest --cov=src", source_dir=str(src_dir), working_dir=str(tmp_path)
     )
 
     assert result["success"] is True
@@ -139,9 +141,7 @@ async def test_measure_code_coverage_no_tests(tmp_path):
     (src_dir / "empty.py").write_text("# empty")
 
     result = await measure_code_coverage(
-        test_command="pytest",
-        source_dir=str(src_dir),
-        working_dir=str(tmp_path)
+        test_command="pytest", source_dir=str(src_dir), working_dir=str(tmp_path)
     )
 
     # Should handle gracefully
@@ -155,22 +155,26 @@ async def test_measure_code_coverage_no_tests(tmp_path):
 async def test_detect_duplication_exact_duplicates(tmp_path):
     """Test detecting exact duplicate code blocks"""
     file1 = tmp_path / "file1.py"
-    file1.write_text("""def process_data(data):
+    file1.write_text(
+        """def process_data(data):
     result = []
     for item in data:
         if item > 0:
             result.append(item * 2)
     return result
-""")
+"""
+    )
 
     file2 = tmp_path / "file2.py"
-    file2.write_text("""def handle_items(items):
+    file2.write_text(
+        """def handle_items(items):
     result = []
     for item in items:
         if item > 0:
             result.append(item * 2)
     return result
-""")
+"""
+    )
 
     result = await detect_duplication(path=str(tmp_path), threshold=50)
 
@@ -202,11 +206,13 @@ async def test_detect_duplication_no_duplicates(tmp_path):
 async def test_detect_duplication_custom_threshold(tmp_path):
     """Test detecting duplication with custom threshold"""
     file1 = tmp_path / "code.py"
-    file1.write_text("""def func():
+    file1.write_text(
+        """def func():
     x = 1
     y = 2
     return x + y
-""")
+"""
+    )
 
     result = await detect_duplication(path=str(tmp_path), threshold=10)
 
@@ -307,7 +313,10 @@ from .submodule import func
     assert result["success"] is True
     assert "imports" in result
     # Should identify relative imports
-    assert any("relative" in str(imp).lower() for imp in result["imports"]) or len(result["imports"]) > 0
+    assert (
+        any("relative" in str(imp).lower() for imp in result["imports"])
+        or len(result["imports"]) > 0
+    )
 
 
 @pytest.mark.asyncio

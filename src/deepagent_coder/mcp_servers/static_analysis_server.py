@@ -390,9 +390,7 @@ async def documentation_coverage(file_path: str) -> dict[str, Any]:
                     )
 
         # Calculate coverage
-        doc_coverage_percent = (
-            (documented_items / total_items * 100) if total_items > 0 else 0
-        )
+        doc_coverage_percent = (documented_items / total_items * 100) if total_items > 0 else 0
 
         return {
             "success": True,

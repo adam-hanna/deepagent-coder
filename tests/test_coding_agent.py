@@ -324,7 +324,9 @@ async def test_ensure_parent_directory_gracefully_handles_mkdir_errors():
             await agent._ensure_parent_directory_exists("./src/server.ts", tools)
             # Should not raise exception
         except Exception as e:
-            pytest.fail(f"_ensure_parent_directory_exists should handle errors gracefully, but raised: {e}")
+            pytest.fail(
+                f"_ensure_parent_directory_exists should handle errors gracefully, but raised: {e}"
+            )
 
 
 @pytest.mark.asyncio
@@ -357,7 +359,7 @@ async def test_edit_file_path_resolution():
         tool_args = {
             "file_path": "./src/server.ts",
             "old_text": "old content",
-            "new_text": "new content"
+            "new_text": "new content",
         }
 
         # Find the edit tool and invoke it (simulating what happens in _execute_tool_call)
@@ -411,10 +413,7 @@ async def test_write_file_with_auto_mkdir_integration():
 
         # Simulate tool execution for write_file with subdirectory
         tool_name = "write_file"
-        tool_args = {
-            "path": "./src/utils/helper.ts",
-            "content": "export const helper = () => {};"
-        }
+        tool_args = {"path": "./src/utils/helper.ts", "content": "export const helper = () => {};"}
 
         tools = [mock_mkdir_tool, mock_write_tool]
 

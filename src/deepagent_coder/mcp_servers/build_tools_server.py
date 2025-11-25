@@ -116,9 +116,7 @@ async def analyze_file_stats(file_path: str) -> dict[str, Any]:
                 result["code_metrics"] = {
                     "comment_lines": _count_comment_lines(content, file_path),
                     "import_lines": _count_import_lines(content, file_path),
-                    "function_definitions": _count_function_definitions(
-                        content, file_path
-                    ),
+                    "function_definitions": _count_function_definitions(content, file_path),
                 }
 
             except (UnicodeDecodeError, Exception):
@@ -212,9 +210,7 @@ async def count_pattern_occurrences(
     return results
 
 
-async def extract_structure(
-    file_path: str, max_depth: int = 3
-) -> dict[str, Any]:
+async def extract_structure(file_path: str, max_depth: int = 3) -> dict[str, Any]:
     """
     Extract structure from a text file using patterns and indentation
 
@@ -484,15 +480,11 @@ async def count_pattern(
         - files_with_matches: Number of files with matches
         - matches_by_file: Dictionary of file paths to match counts
     """
-    return await count_pattern_occurrences(
-        pattern, path, file_extensions, ignore_case, is_regex
-    )
+    return await count_pattern_occurrences(pattern, path, file_extensions, ignore_case, is_regex)
 
 
 @mcp.tool()
-async def extract_file_structure(
-    file_path: str, max_depth: int = 3
-) -> dict[str, Any]:
+async def extract_file_structure(file_path: str, max_depth: int = 3) -> dict[str, Any]:
     """
     Extract structure from a source code or text file
 

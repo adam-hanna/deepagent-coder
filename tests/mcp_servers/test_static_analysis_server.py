@@ -54,7 +54,10 @@ def badFunction(x,y):
     # Should detect various issues
     issue_types = [issue.get("type") for issue in result["issues"]]
     # Check for severity levels
-    assert any("warning" in str(issue).lower() or "convention" in str(issue).lower() for issue in result["issues"])
+    assert any(
+        "warning" in str(issue).lower() or "convention" in str(issue).lower()
+        for issue in result["issues"]
+    )
 
 
 @pytest.mark.asyncio
@@ -142,7 +145,10 @@ def execute(cmd):
     assert result["success"] is True
     assert len(result["vulnerabilities"]) > 0
     # Should detect security issues
-    assert any("pickle" in str(v).lower() or "subprocess" in str(v).lower() or "shell" in str(v).lower() for v in result["vulnerabilities"])
+    assert any(
+        "pickle" in str(v).lower() or "subprocess" in str(v).lower() or "shell" in str(v).lower()
+        for v in result["vulnerabilities"]
+    )
 
 
 @pytest.mark.asyncio

@@ -64,13 +64,18 @@ def create_error_recovery_middleware(
                 # Detect specific error patterns and provide targeted guidance
                 error_str = str(error).lower()
 
-                if "parent directory does not exist" in error_str or "no such file or directory" in error_str:
+                if (
+                    "parent directory does not exist" in error_str
+                    or "no such file or directory" in error_str
+                ):
                     # Extract directory path from error if possible
                     import re
-                    path_match = re.search(r'/[\w/\-\.]+', str(error))
+
+                    path_match = re.search(r"/[\w/\-\.]+", str(error))
                     if path_match:
                         failed_path = path_match.group(0)
                         import os
+
                         parent_dir = os.path.dirname(failed_path)
                         recovery_message += (
                             f"\n\n💡 TIP: The parent directory '{parent_dir}' doesn't exist. "
@@ -83,9 +88,7 @@ def create_error_recovery_middleware(
                         )
 
                 elif "access denied" in error_str or "permission denied" in error_str:
-                    recovery_message += (
-                        "\n\n💡 TIP: Check file permissions or verify the path is within the allowed workspace."
-                    )
+                    recovery_message += "\n\n💡 TIP: Check file permissions or verify the path is within the allowed workspace."
 
                 elif "outside allowed directories" in error_str:
                     recovery_message += (
@@ -94,7 +97,9 @@ def create_error_recovery_middleware(
                     )
 
                 else:
-                    recovery_message += f"Attempting recovery (attempt {retry_count}/{max_retries})..."
+                    recovery_message += (
+                        f"Attempting recovery (attempt {retry_count}/{max_retries})..."
+                    )
 
                 if add_recovery_message:
                     state["messages"].append(

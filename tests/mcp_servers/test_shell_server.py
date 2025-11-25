@@ -36,10 +36,7 @@ async def test_run_command_with_cwd(tmp_path):
 @pytest.mark.asyncio
 async def test_run_command_with_env():
     """Test running command with custom environment variables"""
-    result = await run_command(
-        "echo $MY_VAR",
-        env={"MY_VAR": "custom_value"}
-    )
+    result = await run_command("echo $MY_VAR", env={"MY_VAR": "custom_value"})
 
     assert result["returncode"] == 0
     assert "custom_value" in result["stdout"]

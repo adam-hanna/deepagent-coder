@@ -199,7 +199,7 @@ class CodingDeepAgent:
         parent_dir = original_path_obj.parent
 
         # Only create if parent is not current directory
-        if str(parent_dir) != '.' and parent_dir != Path('.'):
+        if str(parent_dir) != "." and parent_dir != Path("."):
             # Convert to workspace-relative path (remove ./ prefix if present)
             parent_str = str(parent_dir)
             if parent_str.startswith("./"):
@@ -208,11 +208,11 @@ class CodingDeepAgent:
             logger.info(f"[auto-mkdir] Creating parent directory: ./{parent_str}")
             # Find and call create_directory tool with ABSOLUTE workspace path
             for mkdir_tool in tools:
-                if 'create_directory' in mkdir_tool.name.lower():
+                if "create_directory" in mkdir_tool.name.lower():
                     try:
                         # Convert to absolute workspace path (same as path-fixing logic)
                         abs_parent_path = (self.workspace / parent_str).resolve()
-                        await mkdir_tool.ainvoke({'path': str(abs_parent_path)})
+                        await mkdir_tool.ainvoke({"path": str(abs_parent_path)})
                         logger.info(f"[auto-mkdir] ✓ Created: {abs_parent_path}")
                     except Exception as e:
                         logger.debug(f"[auto-mkdir] Note: {e}")
@@ -519,8 +519,8 @@ Be proactive and efficient - create directories AND files in ONE response!"""
 
                     try:
                         # AUTO-MKDIR: Create parent directory before write_file
-                        if 'write_file' in tool_name.lower():
-                            file_path = tool_args.get('path') or tool_args.get('file_path')
+                        if "write_file" in tool_name.lower():
+                            file_path = tool_args.get("path") or tool_args.get("file_path")
                             if file_path:
                                 await self._ensure_parent_directory_exists(file_path, tools)
 
@@ -644,8 +644,8 @@ Be proactive and efficient - create directories AND files in ONE response!"""
                     try:
                         # AUTO-MKDIR: Create parent directory before write_file
                         # MUST happen BEFORE path fixing, using the original relative path
-                        if 'write_file' in tool_name.lower():
-                            file_path = tool_args.get('path') or tool_args.get('file_path')
+                        if "write_file" in tool_name.lower():
+                            file_path = tool_args.get("path") or tool_args.get("file_path")
                             if file_path:
                                 await self._ensure_parent_directory_exists(file_path, tools)
 

@@ -5,7 +5,6 @@ These tests verify that the DevOps and Code Review agents can be created,
 initialized, and integrated with the MCP tool ecosystem.
 """
 
-
 import pytest
 
 from deepagent_coder.core.model_selector import ModelSelector

@@ -134,9 +134,7 @@ async def measure_code_coverage(
                 for part in parts:
                     if "%" in part:
                         with contextlib.suppress(ValueError):
-                            coverage_percent = max(
-                                coverage_percent, float(part.rstrip("%"))
-                            )
+                            coverage_percent = max(coverage_percent, float(part.rstrip("%")))
 
             # Extract totals from TOTAL line
             if "TOTAL" in line:
