@@ -15,6 +15,7 @@ A production-ready AI coding assistant that actually creates files on disk. Buil
 - 📦 **Multi-File Creation**: Generate complete projects in a single request
 - 🎯 **Path Normalization**: Automatic workspace path resolution (handles macOS symlinks)
 - 🏗️ **DeepAgent Architecture**: Specialized subagents for different coding tasks
+- 🔍 **Code Navigation**: Intelligent code search using grep, find, and ripgrep to locate APIs, functions, and database calls
 - 🔄 **Middleware Stack**: Logging, memory management, git safety, error recovery, and audit trails
 - 📊 **Session Management**: Track and manage agent sessions with persistent storage
 - ✨ **100% TDD**: Complete test suite with 132 passing tests
@@ -111,14 +112,14 @@ uv run python -m deepagent_claude.main run \
 │  • Multi-file creation loop         │
 └─────────────┬───────────────────────┘
               │
-        ┌─────┴─────┬─────────┬───────┐
-        ▼           ▼         ▼       ▼
-    ┌───────┐  ┌────────┐ ┌─────┐ ┌────────┐
-    │CodeGen│  │Debugger│ │Test │ │Refactor│
-    │       │  │        │ │     │ │        │
-    └───────┘  └────────┘ └─────┘ └────────┘
-        │           │         │       │
-        └───────────┴─────────┴───────┘
+        ┌─────┴─────┬─────────┬───────┬────────┐
+        ▼           ▼         ▼       ▼        ▼
+    ┌───────┐  ┌────────┐ ┌─────┐ ┌────────┐ ┌────────┐
+    │CodeGen│  │Debugger│ │Test │ │Refactor│ │CodeNav │
+    │       │  │        │ │     │ │        │ │        │
+    └───────┘  └────────┘ └─────┘ └────────┘ └────────┘
+        │           │         │       │          │
+        └───────────┴─────────┴───────┴──────────┘
                     │
                     ▼
         ┌───────────────────────┐
@@ -139,6 +140,40 @@ uv run python -m deepagent_claude.main run \
 ```
 
 ## 🔧 Technical Details
+
+### Code Navigation
+
+The Code Navigator subagent provides intelligent code search capabilities:
+
+**Features:**
+- Find API endpoints across Flask, FastAPI, Express, and other frameworks
+- Locate database queries (SQL, SQLAlchemy, MongoDB, etc.)
+- Discover function and class definitions
+- Search with context lines for better understanding
+- Chain multiple search operations for complex queries
+- Support for regex patterns and case-insensitive search
+
+**Search Tools:**
+- `grep`: Pattern search with regex support
+- `find`: File discovery by name, extension, or type
+- `ripgrep`: Fast search with automatic fallback to grep
+- `ls`: Directory listing with detailed information
+- `head/tail`: File inspection (first/last N lines)
+- `wc`: Line, word, and character counting
+
+**Example Usage:**
+```bash
+# Find user login endpoint
+"Find the user login API endpoint"
+
+# Locate database queries
+"Where do we query the users table?"
+
+# Discover function definitions
+"Find the validate_email function"
+```
+
+See [docs/code_navigator_usage.md](docs/code_navigator_usage.md) for comprehensive usage guide.
 
 ### How It Works
 

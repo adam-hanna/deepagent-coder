@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 from deepagent_claude.core.mcp_client import MCPClientManager
 from deepagent_claude.core.model_selector import ModelSelector
@@ -11,10 +11,25 @@ from deepagent_claude.middleware.error_recovery_middleware import create_error_r
 from deepagent_claude.middleware.git_safety_middleware import create_git_safety_middleware
 from deepagent_claude.middleware.logging_middleware import create_logging_middleware
 from deepagent_claude.middleware.memory_middleware import create_memory_middleware
+from deepagent_claude.subagents.code_generator import create_code_generator_agent
+from deepagent_claude.subagents.code_navigator import create_code_navigator
+from deepagent_claude.subagents.debugger import create_debugger_agent
+from deepagent_claude.subagents.refactorer import create_refactorer_agent
+from deepagent_claude.subagents.test_writer import create_test_writer_agent
 from deepagent_claude.utils.file_organizer import FileOrganizer
 from deepagent_claude.utils.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
+
+
+class AgentState(TypedDict):
+    """State passed between agents in the graph"""
+
+    messages: list
+    current_file: str
+    project_context: dict
+    next_agent: str
+    search_results: dict  # NEW: Store search findings from code navigator
 
 
 class CodingDeepAgent:
@@ -104,14 +119,29 @@ class CodingDeepAgent:
 
     async def _create_subagents(self) -> None:
         """Create specialized subagents"""
-        # Placeholder - would create actual DeepAgent subagents
+        logger.info("Creating subagents...")
+
+        # Get tools for subagents (if MCP client is set up)
+        tools = []
+        if self.mcp_client:
+            try:
+                tools = await self.mcp_client.get_all_tools()
+            except Exception as e:
+                logger.warning(f"Could not get MCP tools for subagents: {e}")
+
+        # Create all subagents
+        # Note: code_navigator takes just llm, others need model_selector + tools
         self.subagents = {
-            "code_generator": None,
-            "debugger": None,
-            "test_writer": None,
-            "refactorer": None,
+            "code_generator": await create_code_generator_agent(self.model_selector, tools=tools),
+            "debugger": await create_debugger_agent(self.model_selector, tools=tools),
+            "test_writer": await create_test_writer_agent(self.model_selector, tools=tools),
+            "refactorer": await create_refactorer_agent(self.model_selector, tools=tools),
+            "code_navigator": await create_code_navigator(
+                self.model_selector.get_model("code_generator")
+            ),
         }
-        logger.info("Subagents created")
+
+        logger.info(f"Created {len(self.subagents)} subagents")
 
     def _setup_middleware(self) -> None:
         """Setup middleware stack"""
@@ -162,12 +192,37 @@ class CodingDeepAgent:
         from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 
         # Add system prompt
-        system_prompt = f"""You are a coding assistant with access to filesystem and command-line tools.
+        system_prompt = f"""You are an orchestrator agent coordinating specialized subagents for coding tasks.
 
 Your workspace directory is: {self.workspace}
 
-When creating files:
-1. ALWAYS use the write_file tool to save code to disk
+Available subagents:
+- code_generator: Writes new code and creates files
+- debugger: Finds and fixes bugs
+- test_writer: Creates test cases
+- refactorer: Improves existing code
+- code_navigator: Searches codebase to find files, functions, APIs, database calls, etc.
+
+When to use code_navigator:
+- User asks "where is X?" or "find X" or "locate X"
+- Need to find API endpoints, functions, classes, or database queries
+- Before modifying code, to find the right file location
+- When other agents need to know where code is located
+- To understand project structure and organization
+
+Workflow with code_navigator:
+1. Route to code_navigator with search query (e.g., "find the user login endpoint")
+2. Code navigator returns findings in search_results with file paths and line numbers
+3. Use search_results to guide other agents (e.g., debugger knows which file to fix)
+
+Example workflow for "Fix the login bug":
+1. Route to code_navigator: "Find the login endpoint and authentication logic"
+2. Review search_results with file locations
+3. Route to debugger with specific file paths from search_results
+4. Debugger fixes the issue in the identified files
+
+When creating files (via code_generator or directly):
+1. Use the write_file tool to save code to disk
 2. Output ALL tool calls at once as a JSON array (multiple files in ONE response)
 3. File paths must be relative to workspace root (e.g., "./file.txt", "./src/app.js")
 4. Create ALL necessary files (package.json, source files, README, etc.) in a SINGLE response
