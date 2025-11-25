@@ -13,6 +13,7 @@ from deepagent_coder.middleware.logging_middleware import create_logging_middlew
 from deepagent_coder.middleware.memory_middleware import create_memory_middleware
 from deepagent_coder.subagents.code_generator import create_code_generator_agent
 from deepagent_coder.subagents.code_navigator import create_code_navigator
+from deepagent_coder.subagents.code_reviewer import create_code_review_agent
 from deepagent_coder.subagents.debugger import create_debugger_agent
 from deepagent_coder.subagents.devops import create_devops_agent
 from deepagent_coder.subagents.refactorer import create_refactorer_agent
@@ -143,6 +144,7 @@ class CodingDeepAgent:
             "test_writer": await create_test_writer_agent(self.model_selector, tools=tools),
             "refactorer": await create_refactorer_agent(self.model_selector, tools=tools),
             "devops": await create_devops_agent(self.model_selector, tools=tools),
+            "code_review": await create_code_review_agent(self.model_selector, tools=tools),
             "code_navigator": await create_code_navigator(
                 self.model_selector.get_model("code_generator")
             ),
@@ -209,6 +211,7 @@ Available subagents:
 - test_writer: Creates test cases
 - refactorer: Improves existing code
 - devops: Handles deployment, containerization (Docker, K8s), and infrastructure (Terraform)
+- code_review: Performs automated code quality reviews with metrics and scoring
 - code_navigator: Searches codebase to find files, functions, APIs, database calls, etc.
 
 When to use code_navigator:
@@ -249,6 +252,30 @@ Example workflow for "Deploy this application":
 3. Route to devops: "Create Docker configuration and Kubernetes manifests"
 4. DevOps generates Dockerfile, docker-compose.yml, and K8s manifests
 5. DevOps updates deployment_state with configuration details
+
+When to use code_review:
+- After code generation to ensure quality standards
+- Before deployment to check if code meets quality gates
+- User requests "review", "check quality", or "assess code"
+- To identify issues in existing code (complexity, security, coverage)
+- To ensure test coverage is adequate
+- To verify maintainability and best practices
+
+Workflow with code_review:
+1. Route to code_review with file paths or code to review
+2. Code reviewer analyzes metrics (complexity, coverage, security)
+3. Reviewer updates review_results with findings and issues
+4. Reviewer sets quality_score (0-10) and quality_gate_passed (true/false)
+5. If quality_gate_passed is false, route back to appropriate agent for fixes
+
+Example workflow for "Generate and review authentication module":
+1. Route to code_generator: "Create authentication module with login/logout"
+2. Code generator creates auth.py
+3. Route to code_review: "Review the newly created auth.py"
+4. Reviewer analyzes and sets review_results with score 7.5 (below threshold)
+5. Route back to code_generator with review feedback to address issues
+6. Route to code_review again to verify improvements
+7. Once quality_gate_passed is true, proceed to next step
 
 When creating files (via code_generator or directly):
 1. Use the write_file tool to save code to disk
