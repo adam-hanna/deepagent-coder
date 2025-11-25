@@ -4,7 +4,7 @@
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from deepagent_claude.mcp_servers.container_tools_server import (
+from deepagent_coder.mcp_servers.container_tools_server import (
     docker_command,
     docker_compose_command,
     kubectl_command,
@@ -17,7 +17,7 @@ from deepagent_claude.mcp_servers.container_tools_server import (
 @pytest.mark.asyncio
 async def test_docker_command_success():
     """Test successful docker command execution"""
-    with patch('deepagent_claude.mcp_servers.container_tools_server.run_command') as mock_run:
+    with patch('deepagent_coder.mcp_servers.container_tools_server.run_command') as mock_run:
         mock_run.return_value = {
             "stdout": "docker ps output",
             "stderr": "",
@@ -34,7 +34,7 @@ async def test_docker_command_success():
 @pytest.mark.asyncio
 async def test_docker_command_with_cwd():
     """Test docker command with custom working directory"""
-    with patch('deepagent_claude.mcp_servers.container_tools_server.run_command') as mock_run:
+    with patch('deepagent_coder.mcp_servers.container_tools_server.run_command') as mock_run:
         mock_run.return_value = {
             "stdout": "build output",
             "stderr": "",
@@ -50,7 +50,7 @@ async def test_docker_command_with_cwd():
 @pytest.mark.asyncio
 async def test_docker_command_failure():
     """Test docker command failure"""
-    with patch('deepagent_claude.mcp_servers.container_tools_server.run_command') as mock_run:
+    with patch('deepagent_coder.mcp_servers.container_tools_server.run_command') as mock_run:
         mock_run.return_value = {
             "stdout": "",
             "stderr": "Error: No such container",
@@ -66,7 +66,7 @@ async def test_docker_command_failure():
 @pytest.mark.asyncio
 async def test_docker_compose_command_up():
     """Test docker-compose up command"""
-    with patch('deepagent_claude.mcp_servers.container_tools_server.run_command') as mock_run:
+    with patch('deepagent_coder.mcp_servers.container_tools_server.run_command') as mock_run:
         mock_run.return_value = {
             "stdout": "Creating network... Creating container...",
             "stderr": "",
@@ -83,7 +83,7 @@ async def test_docker_compose_command_up():
 @pytest.mark.asyncio
 async def test_kubectl_command_get_pods():
     """Test kubectl get pods command"""
-    with patch('deepagent_claude.mcp_servers.container_tools_server.run_command') as mock_run:
+    with patch('deepagent_coder.mcp_servers.container_tools_server.run_command') as mock_run:
         mock_run.return_value = {
             "stdout": "NAME                     READY   STATUS",
             "stderr": "",
@@ -99,7 +99,7 @@ async def test_kubectl_command_get_pods():
 @pytest.mark.asyncio
 async def test_terraform_command_init():
     """Test terraform init command"""
-    with patch('deepagent_claude.mcp_servers.container_tools_server.run_command') as mock_run:
+    with patch('deepagent_coder.mcp_servers.container_tools_server.run_command') as mock_run:
         mock_run.return_value = {
             "stdout": "Initializing provider plugins...",
             "stderr": "",
