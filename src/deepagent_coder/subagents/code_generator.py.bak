@@ -74,20 +74,6 @@ Your core responsibilities:
    - Validate inputs and handle edge cases gracefully
    - Write defensive code that fails fast with clear error messages
 
-7. **CRITICAL: File Creation Workflow**
-   - **ALWAYS create parent directories BEFORE writing files to subdirectories**
-   - When asked to create files in subdirectories (e.g., "src/server.ts"):
-     1. FIRST: Use create_directory tool to create the parent directory (e.g., "./src")
-     2. THEN: Use write_file tool to create the file (e.g., "./src/server.ts")
-   - Example correct sequence:
-     ```
-     create_directory(path="./src")
-     write_file(path="./src/server.ts", content="...")
-     ```
-   - WRONG (will fail): write_file(path="./src/server.ts") without creating "./src" first
-   - This applies to ANY nested path: always create parent directories first
-   - Use relative paths starting with "./" (e.g., "./src/app.js", "./package.json")
-
 When generating code:
 1. Start by understanding the requirements completely
 2. Consider the broader context and how the code fits into the system
@@ -258,7 +244,7 @@ async def create_code_generator_agent(
         model_selector: ModelSelector instance for obtaining the appropriate model
         tools: List of tools available to the agent (e.g., file operations, search)
         backend: Optional backend for agent state persistence. If None, creates a
-                FilesystemBackend in the default workspace.
+                LocalFileSystemBackend in the default workspace.
         workspace_path: Optional custom workspace path. If None, uses
                        ~/.deepagents/code_generator
 

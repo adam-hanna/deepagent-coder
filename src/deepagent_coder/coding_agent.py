@@ -186,6 +186,38 @@ class CodingDeepAgent:
                 self.tools = []
         return self.tools
 
+    async def _ensure_parent_directory_exists(self, file_path: str, tools: list) -> None:
+        """
+        Automatically create parent directory for a file if it doesn't exist.
+
+        Args:
+            file_path: Path to the file (may be relative like "./src/server.ts")
+            tools: List of available tools (to find create_directory tool)
+        """
+        # Extract parent directory from ORIGINAL relative path
+        original_path_obj = Path(file_path)
+        parent_dir = original_path_obj.parent
+
+        # Only create if parent is not current directory
+        if str(parent_dir) != '.' and parent_dir != Path('.'):
+            # Convert to workspace-relative path (remove ./ prefix if present)
+            parent_str = str(parent_dir)
+            if parent_str.startswith("./"):
+                parent_str = parent_str[2:]
+
+            logger.info(f"[auto-mkdir] Creating parent directory: ./{parent_str}")
+            # Find and call create_directory tool with ABSOLUTE workspace path
+            for mkdir_tool in tools:
+                if 'create_directory' in mkdir_tool.name.lower():
+                    try:
+                        # Convert to absolute workspace path (same as path-fixing logic)
+                        abs_parent_path = (self.workspace / parent_str).resolve()
+                        await mkdir_tool.ainvoke({'path': str(abs_parent_path)})
+                        logger.info(f"[auto-mkdir] ✓ Created: {abs_parent_path}")
+                    except Exception as e:
+                        logger.debug(f"[auto-mkdir] Note: {e}")
+                    break
+
     async def _agent_invoke(self, state: dict[str, Any]) -> dict[str, Any]:
         """Agent invocation with LLM and tool calling"""
         import json
@@ -203,7 +235,21 @@ class CodingDeepAgent:
         # Add system prompt
         system_prompt = f"""You are an orchestrator agent coordinating specialized subagents for coding tasks.
 
+🚨 **CRITICAL FILE CREATION RULE - READ THIS FIRST** 🚨
+BEFORE writing ANY file to a subdirectory, you MUST create the parent directory first!
+Example: To create "src/server.ts", you MUST first call create_directory with path="./src"
+This is NOT optional. The write_file tool will FAIL if the parent directory doesn't exist.
+
 Your workspace directory is: {self.workspace}
+
+**CRITICAL WORKSPACE RULES:**
+1. ALL file operations MUST be within the workspace directory
+2. NEVER use absolute paths outside the workspace (e.g., /Users/..., /home/...)
+3. NEVER try to access files in the project source code directory
+4. Use RELATIVE paths starting with "./" (e.g., "./src/app.js", "./package.json")
+5. The MCP filesystem server restricts access to the workspace only - any attempts to access files outside will fail
+
+If you see errors like "Access denied - path outside allowed directories", it means you tried to access a file outside the workspace. Always use relative paths within the workspace.
 
 Available subagents:
 - code_generator: Writes new code and creates files
@@ -320,35 +366,104 @@ Please address these issues before deployment."
 Route to code_generator or debugger to fix issues.
 
 When creating files (via code_generator or directly):
-1. Use the write_file tool to save code to disk
-2. Output ALL tool calls at once as a JSON array (multiple files in ONE response)
-3. File paths must be relative to workspace root (e.g., "./file.txt", "./src/app.js")
-4. Create ALL necessary files (package.json, source files, README, etc.) in a SINGLE response
+1. **IMPORTANT**: If a file is in a subdirectory (e.g., "src/server.ts"), you MUST create the directory FIRST using create_directory
+2. Use the write_file tool to save code to disk
+3. Output ALL tool calls at once as a JSON array (multiple files in ONE response)
+4. File paths must be relative to workspace root (e.g., "./file.txt", "./src/app.js")
+5. Create ALL necessary files (package.json, source files, README, etc.) in a SINGLE response
 
 CRITICAL FORMAT: Output a JSON array of tool calls (one per line):
 [
+{{"name": "create_directory", "arguments": {{"path": "./src"}}}},
 {{"name": "write_file", "arguments": {{"path": "./package.json", "content": "..."}}}},
-{{"name": "write_file", "arguments": {{"path": "./server.js", "content": "..."}}}},
+{{"name": "write_file", "arguments": {{"path": "./src/server.js", "content": "..."}}}},
 {{"name": "write_file", "arguments": {{"path": "./README.md", "content": "..."}}}}
 ]
 
 IMPORTANT:
+- **ALWAYS create directories before files in subdirectories** (create_directory BEFORE write_file)
 - Use \\n for newlines in content, NOT actual newlines
 - All JSON must be valid (escape quotes, etc.)
 - Output ALL files the user requested in ONE response
+- All paths must be within the workspace (no absolute paths outside workspace)
 
-Example for "Create package.json and server.js":
+Example for "Create src/server.ts and package.json":
 [
+{{"name": "create_directory", "arguments": {{"path": "./src"}}}},
 {{"name": "write_file", "arguments": {{"path": "./package.json", "content": "{{\\"name\\":\\"my-app\\",\\"version\\":\\"1.0.0\\"}}"}}}}
-{{"name": "write_file", "arguments": {{"path": "./server.js", "content": "const express = require('express');\\nconst app = express();\\napp.listen(3000);"}}}}
+{{"name": "write_file", "arguments": {{"path": "./src/server.ts", "content": "import express from 'express';\\nconst app = express();\\napp.listen(3000);"}}}}
 ]
 
-Available tools:
-- write_file: Create or overwrite a file
-- read_file: Read a file
-- list_directory: List directory contents
+🚨 **CRITICAL EDITING RULE - READ THIS BEFORE MODIFYING FILES** 🚨
+When EDITING existing files, you MUST use the edit_file tool, NOT write_file!
+- write_file: Use ONLY for creating NEW files or completely replacing a file
+- edit_file: Use for modifying EXISTING files (fixes bugs, updates code, changes specific lines)
 
-Be proactive and efficient - create ALL files at once!"""
+HOW TO USE edit_file:
+The edit_file tool requires:
+1. path: The file to edit (relative path like "./src/server.ts")
+2. edits: An array of edit objects, where each edit has:
+   - oldText: The EXACT text to find and replace (must match exactly, including whitespace)
+   - newText: The replacement text
+
+Example: Fix a bug in existing code:
+{{"name": "edit_file", "arguments": {{
+  "path": "./src/server.ts",
+  "edits": [
+    {{
+      "oldText": "res.status(201).json({{ id: newTodo.id, description: newTodo.text, completed: newTodo.completed }})",
+      "newText": "res.status(201).json({{ id: newTodo.id, text: newTodo.text, completed: newTodo.completed }})"
+    }}
+  ]
+}}}}
+
+Example: Change multiple parts of a file:
+{{"name": "edit_file", "arguments": {{
+  "path": "./config.json",
+  "edits": [
+    {{
+      "oldText": "\\"port\\": 3000",
+      "newText": "\\"port\\": 8080"
+    }},
+    {{
+      "oldText": "\\"debug\\": false",
+      "newText": "\\"debug\\": true"
+    }}
+  ]
+}}}}
+
+CRITICAL edit_file RULES:
+1. oldText must match EXACTLY - every character, space, and newline
+2. Read the file first with read_file to see the exact text you need to match
+3. Copy the EXACT text from the file output (preserve indentation, quotes, etc.)
+4. If oldText doesn't match exactly, the edit will FAIL
+5. You can make multiple edits in one call by adding more objects to the edits array
+
+Example workflow for fixing a bug:
+1. Read the file: {{"name": "read_file", "arguments": {{"path": "./src/server.ts"}}}}
+2. Find the buggy line in the output (e.g., line 21)
+3. Copy the EXACT text of that line
+4. Create edit_file call with exact oldText and corrected newText
+
+Available tools:
+- create_directory: Create a directory (use BEFORE writing files to subdirectories)
+- write_file: Create or overwrite a file (ONLY for NEW files, not editing)
+- edit_file: Edit existing files by replacing exact text matches
+- read_file: Read a file (ALWAYS read before editing to get exact text)
+- list_directory: List directory contents
+- move_file: Move or rename files and directories
+- bash commands: For operations not covered by tools above (e.g., delete files with 'rm file.txt', search with 'grep', etc.)
+
+🚨 **FILE DELETION** 🚨
+There is NO delete_file tool. To delete files or directories, use bash commands:
+- Delete a file: Use bash with 'rm ./path/to/file.txt'
+- Delete a directory: Use bash with 'rm -rf ./path/to/directory'
+- Be CAREFUL with deletion - it's permanent!
+
+Example: Delete old test file
+{{"name": "bash", "arguments": {{"command": "rm ./old-test.js"}}}}
+
+Be proactive and efficient - create directories AND files in ONE response!"""
 
         lc_messages = [SystemMessage(content=system_prompt)]
 
@@ -403,6 +518,12 @@ Be proactive and efficient - create ALL files at once!"""
                     logger.info(f"Executing tool: {tool_name} with args: {tool_args}")
 
                     try:
+                        # AUTO-MKDIR: Create parent directory before write_file
+                        if 'write_file' in tool_name.lower():
+                            file_path = tool_args.get('path') or tool_args.get('file_path')
+                            if file_path:
+                                await self._ensure_parent_directory_exists(file_path, tools)
+
                         # Find and execute the tool
                         tool_result = None
                         for tool in tools:
@@ -521,13 +642,18 @@ Be proactive and efficient - create ALL files at once!"""
                     print(f"DEBUG: Args: {tool_args}")
 
                     try:
+                        # AUTO-MKDIR: Create parent directory before write_file
+                        # MUST happen BEFORE path fixing, using the original relative path
+                        if 'write_file' in tool_name.lower():
+                            file_path = tool_args.get('path') or tool_args.get('file_path')
+                            if file_path:
+                                await self._ensure_parent_directory_exists(file_path, tools)
+
                         # Fix paths for filesystem operations - convert to absolute workspace paths
                         if (
-                            tool_name in ["write_file", "read_file", "read_text_file"]
+                            tool_name in ["write_file", "read_file", "read_text_file", "edit_file"]
                             and "path" in tool_args
                         ):
-                            from pathlib import Path
-
                             original_path = tool_args["path"]
 
                             # Convert to absolute path within workspace

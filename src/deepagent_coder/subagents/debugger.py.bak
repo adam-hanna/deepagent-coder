@@ -125,7 +125,7 @@ async def create_debugger_agent(
         model_selector: ModelSelector instance for obtaining the appropriate model
         tools: List of tools available to the agent (e.g., file operations, execution)
         backend: Optional backend for agent state persistence. If None, creates a
-                FilesystemBackend in the default workspace.
+                LocalFileSystemBackend in the default workspace.
         workspace_path: Optional custom workspace path. If None, uses
                        ~/.deepagents/debugger
 
@@ -143,8 +143,8 @@ async def create_debugger_agent(
         )
     """
     # Import here to avoid import issues at module level
-    from deepagents import create_deep_agent
-    from deepagents.backends import FilesystemBackend
+    from deepagents import async_create_deep_agent
+    from deepagents.backend import LocalFileSystemBackend
 
     logger.info("Creating debugger subagent...")
 
@@ -155,11 +155,11 @@ async def create_debugger_agent(
     if backend is None:
         if workspace_path is None:
             workspace_path = str(Path.home() / ".deepagents" / "debugger")
-        backend = FilesystemBackend(root_dir=workspace_path)
+        backend = LocalFileSystemBackend(base_path=workspace_path)
         logger.debug(f"Using workspace: {workspace_path}")
 
     # Create the agent with specialized system prompt
-    agent = create_deep_agent(
+    agent = await async_create_deep_agent(
         model=model,
         tools=tools,
         backend=backend,

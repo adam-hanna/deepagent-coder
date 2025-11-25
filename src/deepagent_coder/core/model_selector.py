@@ -51,6 +51,8 @@ class ModelSelector:
         - summarizer: Documentation and summarization
         - test_writer: Test generation
         - refactorer: Code refactoring and optimization
+        - devops: Deployment and infrastructure automation
+        - code_review: Code quality assessment and review
         """
         self.model_configs: dict[str, dict[str, Any]] = {
             "main_agent": {
@@ -91,6 +93,20 @@ class ModelSelector:
             "refactorer": {
                 "model": "qwen2.5-coder:latest",
                 "temperature": 0.2,
+                "num_ctx": 16384,
+                "num_gpu": 1,
+                "timeout": 300,
+            },
+            "devops": {
+                "model": "qwen2.5-coder:latest",
+                "temperature": 0.2,
+                "num_ctx": 16384,
+                "num_gpu": 1,
+                "timeout": 300,
+            },
+            "code_review": {
+                "model": "qwen2.5-coder:latest",
+                "temperature": 0.1,
                 "num_ctx": 16384,
                 "num_gpu": 1,
                 "timeout": 300,
