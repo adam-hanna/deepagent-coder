@@ -1,6 +1,6 @@
 import pytest
 
-from deepagent_claude.mcp_servers.search_tools_server import find, grep, head, ls, ripgrep, tail, wc
+from deepagent_coder.mcp_servers.search_tools_server import find, grep, head, ls, ripgrep, tail, wc
 
 
 @pytest.fixture

@@ -1,4 +1,4 @@
-from deepagent_claude.utils.session_manager import SessionManager
+from deepagent_coder.utils.session_manager import SessionManager
 
 
 def test_session_manager_initialization():

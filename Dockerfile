@@ -19,5 +19,5 @@ RUN uv sync --frozen
 EXPOSE 8000
 
 # Set entrypoint
-ENTRYPOINT ["uv", "run", "python", "-m", "deepagent_claude.main"]
+ENTRYPOINT ["uv", "run", "python", "-m", "deepagent_coder.main"]
 CMD ["chat"]

@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from deepagent_claude.coding_agent import CodingDeepAgent
-from deepagent_claude.core.model_selector import ModelSelector
-from deepagent_claude.utils.memory_compactor import MemoryCompactor
+from deepagent_coder.coding_agent import CodingDeepAgent
+from deepagent_coder.core.model_selector import ModelSelector
+from deepagent_coder.utils.memory_compactor import MemoryCompactor
 
 
 @pytest.mark.asyncio
@@ -15,10 +15,10 @@ async def test_initialization_time(tmp_path):
     with (
         patch("langchain_ollama.ChatOllama"),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            "deepagent_coder.coding_agent.CodingDeepAgent._create_subagents",
             new_callable=AsyncMock,
         ),
     ):
@@ -54,7 +54,7 @@ async def test_memory_compaction_performance():
 
 def test_session_manager_performance(tmp_path):
     """Test session manager operations are fast"""
-    from deepagent_claude.utils.session_manager import SessionManager
+    from deepagent_coder.utils.session_manager import SessionManager
 
     manager = SessionManager(str(tmp_path))
 
@@ -77,7 +77,7 @@ def test_session_manager_performance(tmp_path):
 
 def test_file_organizer_performance(tmp_path):
     """Test file organizer operations are fast"""
-    from deepagent_claude.utils.file_organizer import FileOrganizer
+    from deepagent_coder.utils.file_organizer import FileOrganizer
 
     organizer = FileOrganizer(str(tmp_path))
 

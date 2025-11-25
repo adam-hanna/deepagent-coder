@@ -3,7 +3,7 @@ import logging
 
 import pytest
 
-from deepagent_claude.middleware.logging_middleware import create_logging_middleware
+from deepagent_coder.middleware.logging_middleware import create_logging_middleware
 
 
 @pytest.mark.asyncio

@@ -2,7 +2,7 @@
 
 import pytest
 
-from deepagent_claude.mcp_servers.linting_server import (
+from deepagent_coder.mcp_servers.linting_server import (
     format_code,
     lint_project,
     run_black,

@@ -3,13 +3,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from deepagent_claude.main import create_app, run_single_request
+from deepagent_coder.main import create_app, run_single_request
 
 
 @pytest.mark.asyncio
 async def test_create_app():
     """Test creating app instance"""
-    with patch("deepagent_claude.main.CodingDeepAgent") as MockAgent:
+    with patch("deepagent_coder.main.CodingDeepAgent") as MockAgent:
         mock_agent = AsyncMock()
         mock_agent.initialize = AsyncMock()
         # get_workspace_path is a regular method, not async
@@ -23,7 +23,7 @@ async def test_create_app():
 @pytest.mark.asyncio
 async def test_run_single_request():
     """Test running single request"""
-    with patch("deepagent_claude.main.CodingDeepAgent") as MockAgent:
+    with patch("deepagent_coder.main.CodingDeepAgent") as MockAgent:
         mock_agent = AsyncMock()
         mock_agent.initialize = AsyncMock()
         mock_agent.get_workspace_path = MagicMock(return_value="/tmp/workspace")

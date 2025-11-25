@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from deepagent_claude.mcp_servers.testing_server import _get_coverage_impl as get_coverage
-from deepagent_claude.mcp_servers.testing_server import _run_pytest_impl as run_pytest
+from deepagent_coder.mcp_servers.testing_server import _get_coverage_impl as get_coverage
+from deepagent_coder.mcp_servers.testing_server import _run_pytest_impl as run_pytest
 
 
 @pytest.fixture

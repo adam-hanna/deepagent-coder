@@ -4,14 +4,14 @@ import subprocess
 
 import pytest
 
-from deepagent_claude.mcp_servers.git_server import _git_add_impl as git_add
-from deepagent_claude.mcp_servers.git_server import _git_branch_impl as git_branch
-from deepagent_claude.mcp_servers.git_server import _git_checkout_impl as git_checkout
-from deepagent_claude.mcp_servers.git_server import _git_commit_impl as git_commit
-from deepagent_claude.mcp_servers.git_server import _git_create_branch_impl as git_create_branch
-from deepagent_claude.mcp_servers.git_server import _git_diff_impl as git_diff
-from deepagent_claude.mcp_servers.git_server import _git_log_impl as git_log
-from deepagent_claude.mcp_servers.git_server import _git_status_impl as git_status
+from deepagent_coder.mcp_servers.git_server import _git_add_impl as git_add
+from deepagent_coder.mcp_servers.git_server import _git_branch_impl as git_branch
+from deepagent_coder.mcp_servers.git_server import _git_checkout_impl as git_checkout
+from deepagent_coder.mcp_servers.git_server import _git_commit_impl as git_commit
+from deepagent_coder.mcp_servers.git_server import _git_create_branch_impl as git_create_branch
+from deepagent_coder.mcp_servers.git_server import _git_diff_impl as git_diff
+from deepagent_coder.mcp_servers.git_server import _git_log_impl as git_log
+from deepagent_coder.mcp_servers.git_server import _git_status_impl as git_status
 
 
 @pytest.fixture

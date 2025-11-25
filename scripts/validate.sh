@@ -24,11 +24,11 @@ uv run ruff check src/ || true
 
 # Check type hints
 echo "✓ Checking type hints..."
-uv run mypy src/deepagent_claude --ignore-missing-imports || true
+uv run mypy src/deepagent_coder --ignore-missing-imports || true
 
 # Verify directory structure
 echo "✓ Checking directory structure..."
-for dir in src/deepagent_claude/{cli,core,middleware,mcp_servers,subagents,utils}; do
+for dir in src/deepagent_coder/{cli,core,middleware,mcp_servers,subagents,utils}; do
     if [ -d "$dir" ]; then
         echo "  ✓ $dir"
     else

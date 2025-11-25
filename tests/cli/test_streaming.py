@@ -3,7 +3,7 @@ import asyncio
 
 import pytest
 
-from deepagent_claude.cli.streaming import StreamingHandler
+from deepagent_coder.cli.streaming import StreamingHandler
 
 
 @pytest.mark.asyncio

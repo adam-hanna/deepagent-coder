@@ -1,24 +1,11 @@
 # DeepAgent Coding Assistant
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/yourusername/deepagent-claude/releases/tag/v1.0.0)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/adam-hanna/deepagent-coder/releases/tag/v1.0.0)
 [![Python](https://img.shields.io/badge/python-3.13+-green.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-132%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-266%20passing-brightgreen.svg)](tests/)
 
-A production-ready AI coding assistant that actually creates files on disk. Built with DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations.
-
-## 🎯 Key Features
-
-- ✅ **Full Ollama Integration**: Works with qwen2.5-coder, codellama, and llama3.1 models locally
-- 📁 **Real File Operations**: Creates, reads, and modifies files using MCP filesystem tools
-- 🔧 **JSON Tool Calling**: Custom parser for Ollama models that output JSON as text
-- 📦 **Multi-File Creation**: Generate complete projects in a single request
-- 🎯 **Path Normalization**: Automatic workspace path resolution (handles macOS symlinks)
-- 🏗️ **DeepAgent Architecture**: Specialized subagents for different coding tasks
-- 🔍 **Code Navigation**: Intelligent code search using grep, find, and ripgrep to locate APIs, functions, and database calls
-- 🔄 **Middleware Stack**: Logging, memory management, git safety, error recovery, and audit trails
-- 📊 **Session Management**: Track and manage agent sessions with persistent storage
-- ✨ **100% TDD**: Complete test suite with 132 passing tests
+A production-ready AI coding assistant. Built with DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations.
 
 ## 🚀 Quick Start
 
@@ -32,8 +19,8 @@ A production-ready AI coding assistant that actually creates files on disk. Buil
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/deepagent-claude.git
-cd deepagent-claude
+git clone git@github.com:adam-hanna/deepagent-coder.git
+cd deepagent-coder
 
 # Install dependencies using uv
 pip install uv
@@ -43,55 +30,20 @@ uv sync
 ollama pull qwen2.5-coder:latest
 ollama pull codellama:13b-code
 ollama pull llama3.1:8b
+ollama serve
 ```
 
 ### Usage
 
-**Create a simple file:**
-```bash
-uv run python -m deepagent_claude.main run "Create a file called hello.txt with content 'Hello World'"
-```
-
-**Build a complete Node.js project:**
-```bash
-uv run python -m deepagent_claude.main run --workspace /tmp/my-api "Create a Node.js TODO REST API with Express. Include package.json, server.js with CRUD endpoints, and README.md"
-```
-
 **Interactive chat mode:**
 ```bash
-uv run python -m deepagent_claude.main chat
+uv run python -m deepagent_coder.main chat
 ```
 
-**Specify custom workspace:**
+**Single command with workspace:**
 ```bash
-uv run python -m deepagent_claude.main run --workspace /path/to/project "Your request here"
+uv run python -m deepagent_coder.main run --workspace /tmp/my-api "Create a Node.js TODO REST API with Express. Include package.json, server.js with CRUD endpoints, and README.md"
 ```
-
-## 📋 Verified Working Examples
-
-The following examples have been verified to work end-to-end in v1.0.0:
-
-### Example 1: Simple File Creation
-```bash
-uv run python -m deepagent_claude.main run \
-  --workspace /tmp/test \
-  "Create hello.txt with content 'Hello World'"
-```
-**Result**: ✅ Creates `/tmp/test/hello.txt` with correct content
-
-### Example 2: Complete Node.js REST API
-```bash
-uv run python -m deepagent_claude.main run \
-  --workspace /tmp/nodejs-todo-api \
-  "Create a Node.js TODO REST API with Express. Include:
-   - package.json with express dependency
-   - server.js with GET/POST/PUT/DELETE endpoints for todos
-   - README.md with API documentation"
-```
-**Result**: ✅ Creates all 3 files with:
-- `package.json`: Proper dependencies and scripts
-- `server.js`: Complete Express server with CRUD endpoints
-- `README.md`: Installation and usage instructions
 
 ## 🏗️ Architecture
 
@@ -112,14 +64,14 @@ uv run python -m deepagent_claude.main run \
 │  • Multi-file creation loop         │
 └─────────────┬───────────────────────┘
               │
-        ┌─────┴─────┬─────────┬───────┬────────┐
-        ▼           ▼         ▼       ▼        ▼
-    ┌───────┐  ┌────────┐ ┌─────┐ ┌────────┐ ┌────────┐
-    │CodeGen│  │Debugger│ │Test │ │Refactor│ │CodeNav │
-    │       │  │        │ │     │ │        │ │        │
-    └───────┘  └────────┘ └─────┘ └────────┘ └────────┘
-        │           │         │       │          │
-        └───────────┴─────────┴───────┴──────────┘
+        ┌─────┴─────┬─────────┬───────┬────────┬────────┬──────────┐
+        ▼           ▼         ▼       ▼        ▼        ▼          ▼
+    ┌───────┐  ┌────────┐ ┌─────┐ ┌────────┐ ┌──────┐ ┌──────┐ ┌────────┐
+    │CodeGen│  │Debugger│ │Test │ │Refactor│ │DevOps│ │Review│ │CodeNav │
+    │       │  │        │ │Writer│ │        │ │      │ │      │ │        │
+    └───────┘  └────────┘ └─────┘ └────────┘ └──────┘ └──────┘ └────────┘
+        │           │         │       │          │        │          │
+        └───────────┴─────────┴───────┴──────────┴────────┴──────────┘
                     │
                     ▼
         ┌───────────────────────┐
@@ -130,50 +82,17 @@ uv run python -m deepagent_claude.main run \
         │  • Logging & audit    │
         └───────────┬───────────┘
                     │
-                    ▼
-        ┌───────────────────────┐
-        │   MCP Filesystem      │
-        │  • write_file         │
-        │  • read_file          │
-        │  • list_directory     │
-        └───────────────────────┘
+              ┌─────┴─────┐
+              ▼           ▼
+     ┌──────────────┐  ┌───────────────┐
+     │MCP Filesystem│  │  MCP Servers  │
+     │• write_file  │  │• Container    │
+     │• read_file   │  │• Build Tools  │
+     │• directory   │  │• Code Metrics │
+     └──────────────┘  └───────────────┘
 ```
 
 ## 🔧 Technical Details
-
-### Code Navigation
-
-The Code Navigator subagent provides intelligent code search capabilities:
-
-**Features:**
-- Find API endpoints across Flask, FastAPI, Express, and other frameworks
-- Locate database queries (SQL, SQLAlchemy, MongoDB, etc.)
-- Discover function and class definitions
-- Search with context lines for better understanding
-- Chain multiple search operations for complex queries
-- Support for regex patterns and case-insensitive search
-
-**Search Tools:**
-- `grep`: Pattern search with regex support
-- `find`: File discovery by name, extension, or type
-- `ripgrep`: Fast search with automatic fallback to grep
-- `ls`: Directory listing with detailed information
-- `head/tail`: File inspection (first/last N lines)
-- `wc`: Line, word, and character counting
-
-**Example Usage:**
-```bash
-# Find user login endpoint
-"Find the user login API endpoint"
-
-# Locate database queries
-"Where do we query the users table?"
-
-# Discover function definitions
-"Find the validate_email function"
-```
-
-See [docs/code_navigator_usage.md](docs/code_navigator_usage.md) for comprehensive usage guide.
 
 ### How It Works
 
@@ -205,8 +124,8 @@ The agent uses two strategies to extract tool calls from Ollama model output:
 ### Project Structure
 
 ```
-deepagent-claude/
-├── src/deepagent_claude/
+deepagent-coder/
+├── src/deepagent_coder/
 │   ├── core/
 │   │   ├── model_selector.py      # Model configuration
 │   │   ├── mcp_client.py          # MCP client manager
@@ -221,9 +140,10 @@ deepagent-claude/
 │   │   └── file_organizer.py      # Workspace organization
 │   ├── coding_agent.py            # Main agent orchestration
 │   └── main.py                    # CLI entry point
-├── tests/                         # 132 passing tests
+├── tests/                         # 266 passing tests
 │   ├── core/
 │   ├── middleware/
+│   ├── subagents/
 │   └── utils/
 ├── CHANGELOG.md                   # Version history
 ├── pyproject.toml                 # Dependencies
@@ -234,7 +154,7 @@ deepagent-claude/
 
 ### Model Configuration
 
-Edit `src/deepagent_claude/core/model_selector.py`:
+Edit `src/deepagent_coder/core/model_selector.py`:
 
 ```python
 self.model_configs = {
@@ -262,7 +182,7 @@ self.model_configs = {
 
 **Custom workspace**:
 ```bash
-uv run python -m deepagent_claude.main run \
+uv run python -m deepagent_coder.main run \
   --workspace /path/to/workspace \
   "Your request"
 ```
@@ -276,7 +196,7 @@ uv run python -m deepagent_claude.main run \
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=src/deepagent_claude --cov-report=html
+uv run pytest --cov=src/deepagent_coder --cov-report=html
 
 # Run specific test file
 uv run pytest tests/core/test_session_manager.py -v
@@ -285,11 +205,13 @@ uv run pytest tests/core/test_session_manager.py -v
 uv run pytest -k "test_write_file"
 ```
 
-**Test Coverage**: 132 passing tests covering:
+**Test Coverage**: 266+ passing tests (73% coverage) covering:
 - Core components (model selector, MCP client, session manager)
 - Middleware stack (logging, memory, git safety, error recovery, audit)
-- Utilities (file organizer, session manager)
-- Integration tests (full agent workflows)
+- MCP servers (container tools, code metrics, static analysis, build tools)
+- Subagents (code generation, debugging, testing, refactoring, DevOps, code review, navigation)
+- Utilities (file organizer, memory compactor, session manager)
+- Integration tests (full agent workflows, DevOps and code review integration)
 
 ## 🐛 Troubleshooting
 
@@ -393,10 +315,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 📞 Support
 
-- 🐛 [Report a bug](https://github.com/yourusername/deepagent-claude/issues/new?labels=bug)
-- 💡 [Request a feature](https://github.com/yourusername/deepagent-claude/issues/new?labels=enhancement)
-- 📖 [Read the docs](https://github.com/yourusername/deepagent-claude/wiki)
-- 💬 [Join discussions](https://github.com/yourusername/deepagent-claude/discussions)
+- 🐛 [Report a bug](https://github.com/adam-hanna/deepagent-coder/issues/new?labels=bug)
+- 💡 [Request a feature](https://github.com/adam-hanna/deepagent-coder/issues/new?labels=enhancement)
+- 📖 [Read the docs](https://github.com/adam-hanna/deepagent-coder/wiki)
+- 💬 [Join discussions](https://github.com/adam-hanna/deepagent-coder/discussions)
 
 ---
 

@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from deepagent_claude.cli.chat_mode import ChatMode
-from deepagent_claude.coding_agent import CodingDeepAgent
+from deepagent_coder.cli.chat_mode import ChatMode
+from deepagent_coder.coding_agent import CodingDeepAgent
 
 
 @pytest.mark.integration
@@ -14,10 +14,10 @@ async def test_full_workflow(tmp_path):
     with (
         patch("langchain_ollama.ChatOllama"),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            "deepagent_coder.coding_agent.CodingDeepAgent._create_subagents",
             new_callable=AsyncMock,
         ),
     ):
@@ -48,10 +48,10 @@ async def test_middleware_integration(tmp_path):
     with (
         patch("langchain_ollama.ChatOllama"),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            "deepagent_coder.coding_agent.CodingDeepAgent._create_subagents",
             new_callable=AsyncMock,
         ),
     ):
@@ -76,10 +76,10 @@ async def test_session_persistence(tmp_path):
     with (
         patch("langchain_ollama.ChatOllama"),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            "deepagent_coder.coding_agent.CodingDeepAgent._create_subagents",
             new_callable=AsyncMock,
         ),
     ):
@@ -104,10 +104,10 @@ async def test_chat_mode_integration():
     with (
         patch("langchain_ollama.ChatOllama"),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
+            "deepagent_coder.coding_agent.CodingDeepAgent._setup_mcp_tools", new_callable=AsyncMock
         ),
         patch(
-            "deepagent_claude.coding_agent.CodingDeepAgent._create_subagents",
+            "deepagent_coder.coding_agent.CodingDeepAgent._create_subagents",
             new_callable=AsyncMock,
         ),
     ):
