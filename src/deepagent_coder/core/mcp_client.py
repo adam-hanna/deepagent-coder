@@ -17,7 +17,7 @@ class MCPClientManager:
 
     Provides centralized management of multiple MCP servers
     for filesystem, git, python, testing, linting, shell,
-    container_tools, and build_tools operations.
+    container_tools, build_tools, code_metrics, and static_analysis operations.
     """
 
     def __init__(
@@ -134,6 +134,32 @@ class MCPClientManager:
                         / "deepagent_coder"
                         / "mcp_servers"
                         / "build_tools_server.py"
+                    )
+                ],
+            },
+            "code_metrics": {
+                "transport": "stdio",
+                "command": sys.executable,
+                "args": [
+                    str(
+                        project_root
+                        / "src"
+                        / "deepagent_coder"
+                        / "mcp_servers"
+                        / "code_metrics_server.py"
+                    )
+                ],
+            },
+            "static_analysis": {
+                "transport": "stdio",
+                "command": sys.executable,
+                "args": [
+                    str(
+                        project_root
+                        / "src"
+                        / "deepagent_coder"
+                        / "mcp_servers"
+                        / "static_analysis_server.py"
                     )
                 ],
             },
