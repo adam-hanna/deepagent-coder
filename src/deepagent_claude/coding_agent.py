@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 from deepagent_claude.core.mcp_client import MCPClientManager
 from deepagent_claude.core.model_selector import ModelSelector
@@ -15,6 +15,15 @@ from deepagent_claude.utils.file_organizer import FileOrganizer
 from deepagent_claude.utils.session_manager import SessionManager
 
 logger = logging.getLogger(__name__)
+
+
+class AgentState(TypedDict):
+    """State passed between agents in the graph"""
+    messages: list
+    current_file: str
+    project_context: dict
+    next_agent: str
+    search_results: dict  # NEW: Store search findings from code navigator
 
 
 class CodingDeepAgent:

@@ -54,3 +54,11 @@ async def test_coding_agent_process_request():
 
         result = await agent.process_request("Test request")
         assert result is not None
+
+
+def test_agent_state_includes_search_results():
+    """Test AgentState has search_results field"""
+    from deepagent_claude.coding_agent import AgentState
+
+    # AgentState should have search_results in its annotations
+    assert "search_results" in AgentState.__annotations__
