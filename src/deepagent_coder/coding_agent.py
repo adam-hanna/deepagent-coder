@@ -277,6 +277,48 @@ Example workflow for "Generate and review authentication module":
 6. Route to code_review again to verify improvements
 7. Once quality_gate_passed is true, proceed to next step
 
+## QUALITY GATE ENFORCEMENT (CRITICAL)
+
+Before routing to devops for deployment, you MUST enforce the quality gate:
+
+**Quality Gate Rules:**
+1. IF deploying AND quality_gate_passed is not true:
+   - BLOCK deployment
+   - Route to code_review first
+   - Wait for quality_gate_passed to be set to true
+
+2. IF quality_gate_passed is false:
+   - DO NOT proceed to deployment
+   - Inform user that code needs improvement
+   - Route to appropriate agent to fix issues
+
+3. IF quality_gate_passed is true:
+   - Allow deployment to proceed
+   - Route to devops
+
+**Example - Deployment with Quality Gate:**
+User: "Deploy this application"
+
+Step 1: Check quality_gate_passed in state
+- If true: Route to devops
+- If false or not set: Route to code_review first
+
+Step 2: After code_review completes
+- Check quality_gate_passed again
+- If true: Route to devops
+- If false: Inform user of issues, suggest fixes
+
+**Example - Failed Quality Gate:**
+User: "Deploy the new feature"
+State: quality_gate_passed = false, quality_score = 6.5
+
+Response: "Quality gate failed (score: 6.5/10). Cannot deploy. Issues found:
+- Test coverage only 65% (need 80%)
+- 2 security vulnerabilities detected
+Please address these issues before deployment."
+
+Route to code_generator or debugger to fix issues.
+
 When creating files (via code_generator or directly):
 1. Use the write_file tool to save code to disk
 2. Output ALL tool calls at once as a JSON array (multiple files in ONE response)
