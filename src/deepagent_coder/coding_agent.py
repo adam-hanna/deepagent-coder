@@ -14,6 +14,7 @@ from deepagent_coder.middleware.memory_middleware import create_memory_middlewar
 from deepagent_coder.subagents.code_generator import create_code_generator_agent
 from deepagent_coder.subagents.code_navigator import create_code_navigator
 from deepagent_coder.subagents.debugger import create_debugger_agent
+from deepagent_coder.subagents.devops import create_devops_agent
 from deepagent_coder.subagents.refactorer import create_refactorer_agent
 from deepagent_coder.subagents.test_writer import create_test_writer_agent
 from deepagent_coder.utils.file_organizer import FileOrganizer
@@ -138,6 +139,7 @@ class CodingDeepAgent:
             "debugger": await create_debugger_agent(self.model_selector, tools=tools),
             "test_writer": await create_test_writer_agent(self.model_selector, tools=tools),
             "refactorer": await create_refactorer_agent(self.model_selector, tools=tools),
+            "devops": await create_devops_agent(self.model_selector, tools=tools),
             "code_navigator": await create_code_navigator(
                 self.model_selector.get_model("code_generator")
             ),
@@ -203,6 +205,7 @@ Available subagents:
 - debugger: Finds and fixes bugs
 - test_writer: Creates test cases
 - refactorer: Improves existing code
+- devops: Handles deployment, containerization (Docker, K8s), and infrastructure (Terraform)
 - code_navigator: Searches codebase to find files, functions, APIs, database calls, etc.
 
 When to use code_navigator:
@@ -222,6 +225,27 @@ Example workflow for "Fix the login bug":
 2. Review search_results with file locations
 3. Route to debugger with specific file paths from search_results
 4. Debugger fixes the issue in the identified files
+
+When to use devops:
+- User requests containerization (Docker, docker-compose)
+- Need to create Kubernetes deployment manifests
+- Infrastructure as code tasks (Terraform)
+- CI/CD pipeline setup (GitHub Actions, GitLab CI)
+- Deployment configurations and YAML management
+- Any task involving "deploy", "containerize", "kubernetes", "docker", "terraform"
+
+Workflow with devops:
+1. After code changes, route to tester first to ensure tests pass
+2. Then route to devops with deployment requirements
+3. DevOps creates/updates deployment configurations
+4. DevOps handles containerization and infrastructure setup
+
+Example workflow for "Deploy this application":
+1. Route to tester: "Run all tests for this application"
+2. Review test_results to ensure all pass
+3. Route to devops: "Create Docker configuration and Kubernetes manifests"
+4. DevOps generates Dockerfile, docker-compose.yml, and K8s manifests
+5. DevOps updates deployment_state with configuration details
 
 When creating files (via code_generator or directly):
 1. Use the write_file tool to save code to disk
