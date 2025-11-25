@@ -18,6 +18,10 @@ dependencies = [
     "aiofiles>=23.2.1",
     "watchfiles>=0.21.0",
     "tomli>=2.0.1",
+    "radon>=6.0.0",
+    "bandit>=1.7.0",
+    "vulture>=2.11",
+    "pylint>=3.0.0",
 ]
 
 [project.optional-dependencies]
