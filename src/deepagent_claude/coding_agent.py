@@ -11,6 +11,11 @@ from deepagent_claude.middleware.error_recovery_middleware import create_error_r
 from deepagent_claude.middleware.git_safety_middleware import create_git_safety_middleware
 from deepagent_claude.middleware.logging_middleware import create_logging_middleware
 from deepagent_claude.middleware.memory_middleware import create_memory_middleware
+from deepagent_claude.subagents.code_generator import create_code_generator_agent
+from deepagent_claude.subagents.code_navigator import create_code_navigator
+from deepagent_claude.subagents.debugger import create_debugger_agent
+from deepagent_claude.subagents.refactorer import create_refactorer_agent
+from deepagent_claude.subagents.test_writer import create_test_writer_agent
 from deepagent_claude.utils.file_organizer import FileOrganizer
 from deepagent_claude.utils.session_manager import SessionManager
 
@@ -113,14 +118,33 @@ class CodingDeepAgent:
 
     async def _create_subagents(self) -> None:
         """Create specialized subagents"""
-        # Placeholder - would create actual DeepAgent subagents
+        logger.info("Creating subagents...")
+
+        # Get tools for subagents (if MCP client is set up)
+        tools = []
+        if self.mcp_client:
+            try:
+                tools = await self.mcp_client.get_all_tools()
+            except Exception as e:
+                logger.warning(f"Could not get MCP tools for subagents: {e}")
+
+        # Create all subagents
+        # Note: code_navigator takes just llm, others need model_selector + tools
         self.subagents = {
-            "code_generator": None,
-            "debugger": None,
-            "test_writer": None,
-            "refactorer": None,
+            "code_generator": await create_code_generator_agent(
+                self.model_selector, tools=tools
+            ),
+            "debugger": await create_debugger_agent(self.model_selector, tools=tools),
+            "test_writer": await create_test_writer_agent(
+                self.model_selector, tools=tools
+            ),
+            "refactorer": await create_refactorer_agent(self.model_selector, tools=tools),
+            "code_navigator": await create_code_navigator(
+                self.model_selector.get_model("code_generator")
+            ),
         }
-        logger.info("Subagents created")
+
+        logger.info(f"Created {len(self.subagents)} subagents")
 
     def _setup_middleware(self) -> None:
         """Setup middleware stack"""
