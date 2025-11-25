@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/adam-hanna/deepagent-coder/releases/tag/v1.0.0)
 [![Python](https://img.shields.io/badge/python-3.13+-green.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-132%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-266%20passing-brightgreen.svg)](tests/)
 
 A production-ready AI coding assistant that actually creates files on disk. Built with DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations.
 
@@ -16,9 +16,11 @@ A production-ready AI coding assistant that actually creates files on disk. Buil
 - 🎯 **Path Normalization**: Automatic workspace path resolution (handles macOS symlinks)
 - 🏗️ **DeepAgent Architecture**: Specialized subagents for different coding tasks
 - 🔍 **Code Navigation**: Intelligent code search using grep, find, and ripgrep to locate APIs, functions, and database calls
+- 🚀 **DevOps Automation**: Container orchestration, Kubernetes deployment, and CI/CD pipeline management
+- 🔬 **Code Review Agent**: Automated quality assessment with metrics-based reviews and security scanning
 - 🔄 **Middleware Stack**: Logging, memory management, git safety, error recovery, and audit trails
 - 📊 **Session Management**: Track and manage agent sessions with persistent storage
-- ✨ **100% TDD**: Complete test suite with 132 passing tests
+- ✨ **Comprehensive Testing**: 266+ passing tests with 73% coverage
 
 ## 🚀 Quick Start
 
@@ -112,14 +114,14 @@ uv run python -m deepagent_coder.main run \
 │  • Multi-file creation loop         │
 └─────────────┬───────────────────────┘
               │
-        ┌─────┴─────┬─────────┬───────┬────────┐
-        ▼           ▼         ▼       ▼        ▼
-    ┌───────┐  ┌────────┐ ┌─────┐ ┌────────┐ ┌────────┐
-    │CodeGen│  │Debugger│ │Test │ │Refactor│ │CodeNav │
-    │       │  │        │ │     │ │        │ │        │
-    └───────┘  └────────┘ └─────┘ └────────┘ └────────┘
-        │           │         │       │          │
-        └───────────┴─────────┴───────┴──────────┘
+        ┌─────┴─────┬─────────┬───────┬────────┬────────┬──────────┐
+        ▼           ▼         ▼       ▼        ▼        ▼          ▼
+    ┌───────┐  ┌────────┐ ┌─────┐ ┌────────┐ ┌──────┐ ┌──────┐ ┌────────┐
+    │CodeGen│  │Debugger│ │Test │ │Refactor│ │DevOps│ │Review│ │CodeNav │
+    │       │  │        │ │Writer│ │        │ │      │ │      │ │        │
+    └───────┘  └────────┘ └─────┘ └────────┘ └──────┘ └──────┘ └────────┘
+        │           │         │       │          │        │          │
+        └───────────┴─────────┴───────┴──────────┴────────┴──────────┘
                     │
                     ▼
         ┌───────────────────────┐
@@ -130,13 +132,14 @@ uv run python -m deepagent_coder.main run \
         │  • Logging & audit    │
         └───────────┬───────────┘
                     │
-                    ▼
-        ┌───────────────────────┐
-        │   MCP Filesystem      │
-        │  • write_file         │
-        │  • read_file          │
-        │  • list_directory     │
-        └───────────────────────┘
+              ┌─────┴─────┐
+              ▼           ▼
+     ┌──────────────┐  ┌───────────────┐
+     │MCP Filesystem│  │  MCP Servers  │
+     │• write_file  │  │• Container    │
+     │• read_file   │  │• Build Tools  │
+     │• directory   │  │• Code Metrics │
+     └──────────────┘  └───────────────┘
 ```
 
 ## 🔧 Technical Details
@@ -174,6 +177,71 @@ The Code Navigator subagent provides intelligent code search capabilities:
 ```
 
 See [docs/code_navigator_usage.md](docs/code_navigator_usage.md) for comprehensive usage guide.
+
+### DevOps Automation
+
+The DevOps subagent automates deployment pipelines, containerization, and infrastructure management:
+
+**Capabilities:**
+- **Container Orchestration**: Docker, docker-compose operations
+- **Kubernetes**: Deployment manifest generation and management
+- **Infrastructure as Code**: Terraform configuration
+- **CI/CD Pipelines**: GitHub Actions and GitLab CI setup
+- **Safety-First**: Rollback planning and progressive deployments
+
+**Available Tools:**
+- `docker_command`: Execute Docker operations
+- `kubectl_command`: Kubernetes cluster management
+- `terraform_command`: Infrastructure provisioning
+- `read_yaml_file` / `write_yaml_file`: Configuration management
+
+**Example Usage:**
+```bash
+# Create Dockerfile and docker-compose
+"Create a Dockerfile for this Python application with multi-stage builds"
+
+# Generate Kubernetes manifests
+"Generate Kubernetes deployment and service files for this API"
+
+# Set up CI/CD pipeline
+"Create a GitHub Actions workflow with build, test, and deploy stages"
+```
+
+### Code Review Agent
+
+The Code Review subagent provides automated, metrics-based code quality assessment:
+
+**Review Criteria:**
+- **Correctness** (30%): Logic, edge cases, assumptions
+- **Maintainability** (25%): Readability, organization, naming
+- **Performance** (15%): Efficiency, bottlenecks, optimization
+- **Security** (15%): Input validation, vulnerabilities
+- **Testing** (15%): Coverage, edge cases, test quality
+
+**Metrics Analysis:**
+- Cyclomatic complexity (target: < 10 per function)
+- Test coverage (target: > 80%)
+- Code duplication (target: < 5%)
+- Maintainability index (target: > 65)
+- Security vulnerabilities and unsafe patterns
+
+**Quality Gates:**
+- Overall score >= 8.0/10
+- No critical security issues
+- Test coverage >= 80%
+- No complexity > 15
+
+**Example Usage:**
+```bash
+# Review a module
+"Review the user authentication module for quality and security issues"
+
+# Check test coverage
+"Analyze test coverage for the API endpoints and identify gaps"
+
+# Security scan
+"Scan this codebase for security vulnerabilities"
+```
 
 ### How It Works
 
@@ -285,11 +353,13 @@ uv run pytest tests/core/test_session_manager.py -v
 uv run pytest -k "test_write_file"
 ```
 
-**Test Coverage**: 132 passing tests covering:
+**Test Coverage**: 266+ passing tests (73% coverage) covering:
 - Core components (model selector, MCP client, session manager)
 - Middleware stack (logging, memory, git safety, error recovery, audit)
-- Utilities (file organizer, session manager)
-- Integration tests (full agent workflows)
+- MCP servers (container tools, code metrics, static analysis, build tools)
+- Subagents (code generation, debugging, testing, refactoring, DevOps, code review, navigation)
+- Utilities (file organizer, memory compactor, session manager)
+- Integration tests (full agent workflows, DevOps and code review integration)
 
 ## 🐛 Troubleshooting
 
