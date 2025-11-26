@@ -36,3 +36,4 @@ context_portal/
 # Node.js (not needed - project is 100% Python)
 package-lock.json
 node_modules/
+test_script.py
