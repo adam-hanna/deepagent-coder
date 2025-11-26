@@ -40,3 +40,4 @@ test_script.py
 
 # config
 config.yaml
+.deepagent.yaml
