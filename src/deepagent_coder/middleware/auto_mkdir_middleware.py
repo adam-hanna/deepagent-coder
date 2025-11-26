@@ -1,5 +1,6 @@
 """Auto-mkdir middleware - automatically creates parent directories before file writes"""
 
+from collections.abc import Callable, Coroutine
 import logging
 from pathlib import Path
 from typing import Any
@@ -7,7 +8,9 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
-def create_auto_mkdir_middleware(mcp_client: Any = None) -> callable:
+def create_auto_mkdir_middleware(
+    mcp_client: Any = None,
+) -> Callable[[dict[str, Any]], Coroutine[Any, Any, dict[str, Any]]]:
     """
     Create middleware that automatically creates parent directories before file writes.
 

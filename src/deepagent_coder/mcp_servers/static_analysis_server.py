@@ -3,6 +3,7 @@
 import ast
 from pathlib import Path
 import subprocess
+import sys
 from typing import Any
 
 from fastmcp import FastMCP
@@ -50,8 +51,9 @@ async def run_linter(
                     "error": f"No default linter for {path.suffix} files",
                 }
 
-        # Build command
-        cmd = [linter]
+        # Build command - always use Python module for Python-based tools
+        # (pylint, ruff, flake8, bandit are all Python modules)
+        cmd = [sys.executable, "-m", linter]
 
         # Add config file if provided
         if config_file and linter == "pylint":
@@ -187,8 +189,8 @@ async def security_scan(
 
         # Use appropriate security scanner
         if language == "python":
-            # Use bandit for Python
-            cmd = ["bandit", "-f", "json", "-r", str(path)]
+            # Use bandit for Python - always use as Python module
+            cmd = [sys.executable, "-m", "bandit", "-f", "json", "-r", str(path)]
 
             result = subprocess.run(
                 cmd,
@@ -373,7 +375,7 @@ async def documentation_coverage(file_path: str) -> dict[str, Any]:
 
         # Find all documentable items
         for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+            if isinstance(node, ast.FunctionDef | ast.ClassDef):
                 total_items += 1
 
                 docstring = ast.get_docstring(node)

@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 from typing import Any, TypedDict
 
+from deepagent_coder.core.config import Config
 from deepagent_coder.core.mcp_client import MCPClientManager
 from deepagent_coder.core.model_selector import ModelSelector
 from deepagent_coder.middleware.audit_middleware import create_audit_middleware
@@ -28,14 +29,14 @@ logger = logging.getLogger(__name__)
 class AgentState(TypedDict):
     """State passed between agents in the graph"""
 
-    messages: list
+    messages: list[Any]
     current_file: str
-    project_context: dict
+    project_context: dict[str, Any]
     next_agent: str
-    search_results: dict  # Store search findings from code navigator
-    deployment_state: dict  # Track deployment status
-    test_results: dict  # Test results from tester agent
-    review_results: dict  # Code review results from reviewer agent
+    search_results: dict[str, Any]  # Store search findings from code navigator
+    deployment_state: dict[str, Any]  # Track deployment status
+    test_results: dict[str, Any]  # Test results from tester agent
+    review_results: dict[str, Any]  # Code review results from reviewer agent
     quality_score: float  # Overall quality score from review (0-10)
     quality_gate_passed: bool  # Whether code meets quality threshold
 
@@ -48,35 +49,56 @@ class CodingDeepAgent:
     and file organization for a complete AI coding assistant.
     """
 
-    def __init__(self, model: str = "qwen2.5-coder:7b", workspace: str | None = None):
+    def __init__(
+        self,
+        model: str | None = None,
+        workspace: str | None = None,
+        config: Config | None = None,
+    ):
         """
         Initialize coding agent
 
         Args:
-            model: Ollama model name
-            workspace: Workspace directory path
+            model: Ollama model name (overrides config)
+            workspace: Workspace directory path (overrides config)
+            config: Configuration instance. If not provided, uses defaults.
         """
-        self.model_name = model
-        self.workspace = Path(workspace) if workspace else Path.home() / ".deepagents" / "workspace"
+        # Use provided config or create new one
+        self.config = config or Config()
+
+        # CLI args override config
+        if model:
+            self.config.set("agent.model", model)
+        if workspace:
+            self.config.set("workspace.path", workspace)
+
+        # Get effective values from config
+        self.model_name = self.config.get("agent.model", "qwen2.5-coder:latest")
+        workspace_path = self.config.get("workspace.path", "~/.deepagents/workspace")
+        self.workspace = Path(workspace_path).expanduser()
         self.workspace.mkdir(parents=True, exist_ok=True)
 
         # Core components
-        self.model_selector = ModelSelector()
-        self.mcp_client = None
+        self.model_selector = ModelSelector(config=self.config)
+        self.mcp_client: MCPClientManager | None = None
         self.file_organizer = FileOrganizer(str(self.workspace))
-        self.session_manager = SessionManager(str(self.workspace / "sessions"))
+
+        # Get sessions directory from config
+        sessions_dir = self.config.get("workspace.sessions_dir", "sessions")
+        self.session_manager = SessionManager(str(self.workspace / sessions_dir))
 
         # Agent and subagents
         self.agent = None
         self.subagents: dict[str, Any] = {}
 
         # Middleware
-        self.middleware = []
+        self.middleware: list[Any] = []
 
         # State
         self.initialized = False
 
-        logger.info(f"CodingDeepAgent created with model {model}")
+        logger.info(f"CodingDeepAgent created with model {self.model_name}")
+        logger.info(f"Workspace: {self.workspace}")
 
     async def initialize(self) -> None:
         """Initialize MCP tools, subagents, and agent"""
@@ -161,14 +183,38 @@ class CodingDeepAgent:
         logger.info(f"Created {len(self.subagents)} subagents")
 
     def _setup_middleware(self) -> None:
-        """Setup middleware stack"""
-        self.middleware = [
-            create_logging_middleware(log_file=str(self.workspace / "agent.log")),
-            create_memory_middleware(self.model_selector, threshold=6000),
-            create_git_safety_middleware(enforce=False),
-            create_error_recovery_middleware(max_retries=3),
-            create_audit_middleware(audit_file=str(self.workspace / "audit.jsonl")),
-        ]
+        """Setup middleware stack from configuration"""
+        self.middleware = []
+
+        # Logging middleware
+        if self.config.get("agent.logging.file"):
+            log_file = str(self.workspace / self.config.get("agent.logging.file"))
+            self.middleware.append(create_logging_middleware(log_file=log_file))
+
+        # Memory middleware
+        if self.config.get("middleware.memory.enabled", True):
+            threshold = self.config.get("middleware.memory.threshold", 6000)
+            self.middleware.append(
+                create_memory_middleware(self.model_selector, threshold=threshold)
+            )
+
+        # Git safety middleware
+        if self.config.get("middleware.git_safety.enabled", True):
+            enforce = self.config.get("middleware.git_safety.enforce", False)
+            self.middleware.append(create_git_safety_middleware(enforce=enforce))
+
+        # Error recovery middleware
+        if self.config.get("middleware.error_recovery.enabled", True):
+            max_retries = self.config.get("middleware.error_recovery.max_retries", 3)
+            self.middleware.append(create_error_recovery_middleware(max_retries=max_retries))
+
+        # Audit middleware
+        if self.config.get("middleware.audit.enabled", True):
+            audit_file = str(
+                self.workspace / self.config.get("middleware.audit.file", "audit.jsonl")
+            )
+            self.middleware.append(create_audit_middleware(audit_file=audit_file))
+
         logger.info(f"Middleware stack configured with {len(self.middleware)} components")
 
     def _create_main_agent(self) -> None:
@@ -177,13 +223,13 @@ class CodingDeepAgent:
         self.main_model = self.model_selector.get_model("main_agent")
 
         # Store tools reference (will be populated after MCP init)
-        self.tools = []
+        self.tools: list[Any] = []
 
         # Create agent structure
         self.agent = type("Agent", (), {"ainvoke": self._agent_invoke})()
         logger.info("Main agent created with model")
 
-    async def _get_tools(self):
+    async def _get_tools(self) -> list[Any]:
         """Get tools from MCP client"""
         if not self.tools and self.mcp_client:
             try:
@@ -194,7 +240,7 @@ class CodingDeepAgent:
                 self.tools = []
         return self.tools
 
-    async def _ensure_parent_directory_exists(self, file_path: str, tools: list) -> None:
+    async def _ensure_parent_directory_exists(self, file_path: str, tools: list[Any]) -> None:
         """
         Automatically create parent directory for a file if it doesn't exist.
 
@@ -238,7 +284,13 @@ class CodingDeepAgent:
         messages = state.get("messages", [])
 
         # Convert to LangChain format
-        from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+        from langchain_core.messages import (
+            AIMessage,
+            BaseMessage,
+            HumanMessage,
+            SystemMessage,
+            ToolMessage,
+        )
 
         # Add system prompt
         system_prompt = f"""You are an orchestrator agent coordinating specialized subagents for coding tasks.
@@ -473,7 +525,7 @@ Example: Delete old test file
 
 Be proactive and efficient - create directories AND files in ONE response!"""
 
-        lc_messages = [SystemMessage(content=system_prompt)]
+        lc_messages: list[BaseMessage] = [SystemMessage(content=system_prompt)]
 
         for msg in messages:
             role = msg.get("role", "user")
@@ -498,7 +550,7 @@ Be proactive and efficient - create directories AND files in ONE response!"""
             logger.warning("⚠ No tools available, using model without tools")
 
         # Agent loop - handle tool calling
-        max_iterations = 10
+        max_iterations = self.config.get("agent.max_iterations", 10)
         for iteration in range(max_iterations):
             logger.info(f"═══ Agent iteration {iteration + 1}/{max_iterations} ═══")
 
@@ -527,7 +579,7 @@ Be proactive and efficient - create directories AND files in ONE response!"""
 
                     try:
                         # AUTO-MKDIR: Create parent directory before write_file
-                        if "write_file" in tool_name.lower():
+                        if tool_name and "write_file" in tool_name.lower():
                             file_path = tool_args.get("path") or tool_args.get("file_path")
                             if file_path:
                                 await self._ensure_parent_directory_exists(file_path, tools)
@@ -562,7 +614,9 @@ Be proactive and efficient - create directories AND files in ONE response!"""
                 lc_messages.append(response)
 
                 # Try to extract JSON tool calls from content
-                content = response.content if hasattr(response, "content") else ""
+                raw_content = response.content if hasattr(response, "content") else ""
+                # Convert content to string if it's a list
+                content = str(raw_content)
                 print(f"DEBUG: Content length: {len(content)}")
                 print(f"DEBUG: Content preview: {content[:500]}")
 
@@ -642,9 +696,9 @@ Be proactive and efficient - create directories AND files in ONE response!"""
 
                 # Execute each tool call
                 tool_results = []
-                for tool_call in tool_calls:
-                    tool_name = tool_call.get("name")
-                    tool_args = tool_call.get("arguments", {})
+                for tool_call_dict in tool_calls:
+                    tool_name = tool_call_dict.get("name")
+                    tool_args = tool_call_dict.get("arguments", {})
 
                     print(f"DEBUG: Executing tool: {tool_name}")
                     print(f"DEBUG: Args: {tool_args}")
@@ -652,7 +706,7 @@ Be proactive and efficient - create directories AND files in ONE response!"""
                     try:
                         # AUTO-MKDIR: Create parent directory before write_file
                         # MUST happen BEFORE path fixing, using the original relative path
-                        if "write_file" in tool_name.lower():
+                        if tool_name and "write_file" in tool_name.lower():
                             file_path = tool_args.get("path") or tool_args.get("file_path")
                             if file_path:
                                 await self._ensure_parent_directory_exists(file_path, tools)
@@ -734,6 +788,8 @@ Be proactive and efficient - create directories AND files in ONE response!"""
         }
 
         # Process through agent
+        if self.agent is None:
+            raise RuntimeError("Agent not initialized properly")
         result = await self.agent.ainvoke(state)
 
         # Store in session

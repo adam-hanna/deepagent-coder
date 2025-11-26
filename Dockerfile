@@ -1,5 +1,5 @@
 # Dockerfile for DeepAgent Coding Assistant
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 # Install uv
 RUN pip install uv
@@ -11,6 +11,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 COPY src/ ./src/
 COPY README.md ./
+COPY config.example.yaml ./
 
 # Install dependencies
 RUN uv sync --frozen

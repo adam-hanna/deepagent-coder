@@ -17,41 +17,47 @@ repos:
       - id: debug-statements
       - id: mixed-line-ending
 
-  # Python code formatting with Black
-  - repo: https://github.com/psf/black
-    rev: 24.1.1
+  # Local hooks using uv environment
+  - repo: local
     hooks:
+      # Python code formatting with Black
       - id: black
-        language_version: python3.13
+        name: black
+        entry: uv run black
+        language: system
+        types: [python]
         args: ['--line-length=100']
 
-  # Import sorting with isort (compatible with Black)
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
+      # Import sorting with isort (compatible with Black)
       - id: isort
+        name: isort
+        entry: uv run isort
+        language: system
+        types: [python]
         args: ['--profile=black', '--line-length=100']
 
-  # Linting with Ruff (fast, modern alternative to flake8)
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
-    hooks:
+      # Linting with Ruff (fast, modern alternative to flake8)
       - id: ruff
+        name: ruff
+        entry: uv run ruff check
+        language: system
+        types: [python]
         args: [--fix, --exit-non-zero-on-fix]
 
-  # Security checks with bandit
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.6
-    hooks:
+      # Security checks with bandit
       - id: bandit
+        name: bandit
+        entry: uv run bandit
+        language: system
+        types: [python]
         args: ['-c', 'pyproject.toml']
-        additional_dependencies: ['bandit[toml]']
         exclude: ^tests/
 
-  # Type checking with mypy
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
+      # Type checking with mypy
       - id: mypy
+        name: mypy
+        entry: uv run mypy
+        language: system
+        types: [python]
         args: [--ignore-missing-imports, --no-strict-optional]
         exclude: ^tests/

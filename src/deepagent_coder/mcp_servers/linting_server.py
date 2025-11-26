@@ -13,6 +13,7 @@ import asyncio
 import json
 from pathlib import Path
 import re
+import sys
 
 
 async def _run_command(
@@ -71,7 +72,8 @@ async def run_ruff_impl(path: str, fix: bool = False, config: str | None = None)
     if not path_obj.exists():
         return {"error": f"Path not found: {path}"}
 
-    cmd = ["ruff", "check", str(path_obj), "--output-format=json"]
+    # Always use as Python module
+    cmd = [sys.executable, "-m", "ruff", "check", str(path_obj), "--output-format=json"]
 
     if fix:
         cmd.append("--fix")
@@ -130,7 +132,8 @@ async def run_mypy_impl(path: str, strict: bool = False, config: str | None = No
     if not path_obj.exists():
         return {"error": f"Path not found: {path}"}
 
-    cmd = ["mypy", str(path_obj)]
+    # Always use as Python module
+    cmd = [sys.executable, "-m", "mypy", str(path_obj)]
 
     if strict:
         cmd.append("--strict")
@@ -190,7 +193,8 @@ async def run_black_impl(path: str, check: bool = False, line_length: int | None
     if not path_obj.exists():
         return {"error": f"Path not found: {path}"}
 
-    cmd = ["black", str(path_obj)]
+    # Always use as Python module
+    cmd = [sys.executable, "-m", "black", str(path_obj)]
 
     if check:
         cmd.append("--check")

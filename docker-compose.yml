@@ -19,11 +19,41 @@ services:
       - OLLAMA_FLASH_ATTENTION=1
       - OLLAMA_KV_CACHE_TYPE=q8_0
       - OLLAMA_NUM_PARALLEL=4
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Init service to pull required models
+  model-puller:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        echo "Pulling required models..."
+        ollama pull qwen2.5:14b
+        ollama pull codellama:13b-code
+        ollama pull llama3.1:8b
+        echo "All models pulled successfully!"
+    restart: "no"
 
   deepagent:
     build: .
     depends_on:
-      - ollama
+      ollama:
+        condition: service_healthy
+      model-puller:
+        condition: service_completed_successfully
     volumes:
       - ./workspace:/workspace
       - deepagent_data:/root/.deepagents

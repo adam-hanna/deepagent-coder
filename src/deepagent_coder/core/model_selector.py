@@ -25,6 +25,8 @@ from typing import Any
 
 from langchain_ollama import ChatOllama
 
+from deepagent_coder.core.config import Config
+
 logger = logging.getLogger(__name__)
 
 
@@ -40,9 +42,12 @@ class ModelSelector:
         model_configs: Dictionary mapping role names to their configurations
     """
 
-    def __init__(self):
+    def __init__(self, config: Config | None = None):
         """
-        Initialize ModelSelector with default role configurations.
+        Initialize ModelSelector with role configurations from Config.
+
+        Args:
+            config: Optional Config instance. If not provided, uses defaults.
 
         Default roles:
         - main_agent: Primary reasoning and decision-making
@@ -54,65 +59,75 @@ class ModelSelector:
         - devops: Deployment and infrastructure automation
         - code_review: Code quality assessment and review
         """
-        self.model_configs: dict[str, dict[str, Any]] = {
-            "main_agent": {
-                "model": "qwen2.5-coder:latest",
-                "temperature": 0.3,
-                "num_ctx": 32768,
-                "num_gpu": 1,
-                "timeout": 300,
-            },
-            "code_generator": {
-                "model": "codellama:13b-code",
-                "temperature": 0.2,
-                "num_ctx": 16384,
-                "num_gpu": 1,
-                "timeout": 300,
-            },
-            "debugger": {
-                "model": "qwen2.5-coder:latest",
-                "temperature": 0.1,
-                "num_ctx": 16384,
-                "num_gpu": 1,
-                "timeout": 300,
-            },
-            "summarizer": {
-                "model": "llama3.1:8b",
-                "temperature": 0.4,
-                "num_ctx": 8192,
-                "num_gpu": 1,
-                "timeout": 180,
-            },
-            "test_writer": {
-                "model": "qwen2.5-coder:latest",
-                "temperature": 0.2,
-                "num_ctx": 16384,
-                "num_gpu": 1,
-                "timeout": 300,
-            },
-            "refactorer": {
-                "model": "qwen2.5-coder:latest",
-                "temperature": 0.2,
-                "num_ctx": 16384,
-                "num_gpu": 1,
-                "timeout": 300,
-            },
-            "devops": {
-                "model": "qwen2.5-coder:latest",
-                "temperature": 0.2,
-                "num_ctx": 16384,
-                "num_gpu": 1,
-                "timeout": 300,
-            },
-            "code_review": {
-                "model": "qwen2.5-coder:latest",
-                "temperature": 0.1,
-                "num_ctx": 16384,
-                "num_gpu": 1,
-                "timeout": 300,
-            },
-        }
-        logger.debug(f"ModelSelector initialized with {len(self.model_configs)} default roles")
+        self.config = config
+
+        # Load model configurations from config or use defaults
+        if config:
+            self.model_configs: dict[str, dict[str, Any]] = config.get_section("models")
+            logger.debug(
+                f"ModelSelector initialized from config with {len(self.model_configs)} roles"
+            )
+        else:
+            # Fallback to hard-coded defaults if no config provided
+            self.model_configs = {
+                "main_agent": {
+                    "model": "qwen2.5:14b",
+                    "temperature": 0.3,
+                    "num_ctx": 32768,
+                    "num_gpu": 1,
+                    "timeout": 300,
+                },
+                "code_generator": {
+                    "model": "codellama:13b-code",
+                    "temperature": 0.2,
+                    "num_ctx": 16384,
+                    "num_gpu": 1,
+                    "timeout": 300,
+                },
+                "debugger": {
+                    "model": "qwen2.5-coder:latest",
+                    "temperature": 0.1,
+                    "num_ctx": 16384,
+                    "num_gpu": 1,
+                    "timeout": 300,
+                },
+                "summarizer": {
+                    "model": "llama3.1:8b",
+                    "temperature": 0.4,
+                    "num_ctx": 8192,
+                    "num_gpu": 1,
+                    "timeout": 180,
+                },
+                "test_writer": {
+                    "model": "qwen2.5-coder:latest",
+                    "temperature": 0.2,
+                    "num_ctx": 16384,
+                    "num_gpu": 1,
+                    "timeout": 300,
+                },
+                "refactorer": {
+                    "model": "qwen2.5-coder:latest",
+                    "temperature": 0.2,
+                    "num_ctx": 16384,
+                    "num_gpu": 1,
+                    "timeout": 300,
+                },
+                "devops": {
+                    "model": "qwen2.5-coder:latest",
+                    "temperature": 0.2,
+                    "num_ctx": 16384,
+                    "num_gpu": 1,
+                    "timeout": 300,
+                },
+                "code_review": {
+                    "model": "qwen2.5-coder:latest",
+                    "temperature": 0.1,
+                    "num_ctx": 16384,
+                    "num_gpu": 1,
+                    "timeout": 300,
+                },
+            }
+            logger.debug(f"ModelSelector initialized with {len(self.model_configs)} default roles")
 
     def get_model(self, role: str, **override_params) -> ChatOllama:
         """

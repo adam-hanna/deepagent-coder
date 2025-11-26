@@ -37,3 +37,6 @@ context_portal/
 package-lock.json
 node_modules/
 test_script.py
+
+# config
+config.yaml

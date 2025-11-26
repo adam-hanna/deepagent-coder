@@ -119,4 +119,4 @@ class DeepAgentConsole:
         Args:
             title: Optional title for the rule
         """
-        self.console.rule(title)
+        self.console.rule(title if title is not None else "")

@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/adam-hanna/deepagent-coder/releases/tag/v1.0.0)
 [![Python](https://img.shields.io/badge/python-3.13+-green.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-266%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-315%20passing-brightgreen.svg)](tests/)
 
 A production-ready AI coding assistant built with 100% Python. Features DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations - no Node.js dependencies required.
 
@@ -26,9 +26,9 @@ pip install uv
 uv sync
 
 # Pull required Ollama models
-ollama pull qwen2.5-coder:latest
-ollama pull codellama:13b-code
-ollama pull llama3.1:8b
+ollama pull qwen2.5:14b          # Main agent (orchestration & conversation)
+ollama pull codellama:13b-code   # Code generation specialist
+ollama pull llama3.1:8b          # Summarization specialist
 ollama serve
 ```
 
@@ -43,6 +43,130 @@ uv run python -m deepagent_coder.main chat
 ```bash
 uv run python -m deepagent_coder.main run --workspace /tmp/my-api "Create a Node.js TODO REST API with Express. Include package.json, server.js with CRUD endpoints, and README.md"
 ```
+
+**With custom configuration:**
+```bash
+uv run python -m deepagent_coder.main run --config ./my-config.yaml "Your request"
+```
+
+### Docker Setup (Alternative)
+
+**Quick start with Docker Compose:**
+```bash
+# Clone the repository
+git clone git@github.com:adam-hanna/deepagent-coder.git
+cd deepagent-coder
+
+# Start services (automatically pulls required models)
+docker-compose up -d
+
+# Run commands
+docker-compose run deepagent run --workspace /workspace "Your request"
+
+# Interactive chat mode
+docker-compose run deepagent chat
+```
+
+**What happens on startup:**
+1. Ollama service starts with GPU support
+2. Required models are automatically pulled:
+   - `qwen2.5:14b` (main agent)
+   - `codellama:13b-code` (code generator)
+   - `llama3.1:8b` (summarizer)
+3. DeepAgent starts with models ready to use
+
+**Requirements:**
+- Docker and Docker Compose
+- NVIDIA GPU with drivers (for GPU acceleration)
+- Docker NVIDIA runtime configured
+
+**Note**: First startup may take 10-15 minutes to download models (~20GB total).
+
+## ⚙️ Configuration
+
+DeepAgent uses a flexible YAML-based configuration system with hierarchical priority:
+
+**Priority Order (highest to lowest):**
+1. CLI flags (`--model`, `--workspace`, `--config`)
+2. Environment variables (`DEEPAGENT_*`)
+3. Project config (`.deepagent.yaml` in current directory)
+4. User config (`~/.config/deepagent/config.yaml`)
+5. Built-in defaults
+
+### Quick Start with Configuration
+
+**Create a project-specific config:**
+```bash
+cp config.example.yaml .deepagent.yaml
+# Edit .deepagent.yaml with your preferences
+```
+
+**Create a user-level config:**
+```bash
+mkdir -p ~/.config/deepagent
+cp config.example.yaml ~/.config/deepagent/config.yaml
+# Edit ~/.config/deepagent/config.yaml
+```
+
+### Key Configuration Options
+
+**Models** - Configure all 8 agent roles:
+```yaml
+models:
+  # Main agent uses generalist model for better orchestration
+  main_agent:
+    model: "qwen2.5:14b"
+    temperature: 0.3
+    num_ctx: 32768
+  # Subagents use specialized coding models
+  code_generator:
+    model: "codellama:13b-code"
+    temperature: 0.2
+  # ... 6 more roles
+```
+
+**Middleware** - Control system behavior:
+```yaml
+middleware:
+  memory:
+    threshold: 6000  # Token threshold for memory management
+  git_safety:
+    enforce: false   # Warn or block unsafe git operations
+  error_recovery:
+    max_retries: 3   # Automatic retry attempts
+```
+
+**Quality Gates** - Enforce code quality:
+```yaml
+quality:
+  min_quality_score: 7.5           # 0-10 scale
+  test_coverage:
+    minimum_percentage: 80
+    enforce: true
+  complexity:
+    max_cyclomatic_complexity: 10
+```
+
+**Environment Variables:**
+```bash
+export DEEPAGENT_MODEL="your-model:latest"
+export DEEPAGENT_WORKSPACE="/custom/workspace"
+export DEEPAGENT_LOG_LEVEL="DEBUG"
+export DEEPAGENT_MAX_RETRIES=5
+```
+
+### Full Configuration Reference
+
+See [config.example.yaml](config.example.yaml) for a complete annotated configuration file with all available options including:
+
+- Workspace settings
+- Model configurations (8 agent roles)
+- Middleware stack settings
+- MCP server configuration
+- Code quality thresholds
+- Performance tuning
+- Chat mode settings
+- Feature flags
 
 ## 🏗️ Architecture
 
@@ -139,7 +263,7 @@ deepagent-coder/
 │   │   └── file_organizer.py      # Workspace organization
 │   ├── coding_agent.py            # Main agent orchestration
 │   └── main.py                    # CLI entry point
-├── tests/                         # 266 passing tests
+├── tests/                         # 315 passing tests
 │   ├── core/
 │   ├── middleware/
 │   ├── subagents/
@@ -204,8 +328,8 @@ uv run pytest tests/core/test_session_manager.py -v
 uv run pytest -k "test_write_file"
 ```
 
-**Test Coverage**: 266+ passing tests (73% coverage) covering:
-- Core components (model selector, MCP client, session manager)
+**Test Coverage**: 315+ passing tests (73% coverage) covering:
+- Core components (model selector, MCP client, session manager, configuration)
 - Middleware stack (logging, memory, git safety, error recovery, audit)
 - MCP servers (container tools, code metrics, static analysis, build tools)
 - Subagents (code generation, debugging, testing, refactoring, DevOps, code review, navigation)
