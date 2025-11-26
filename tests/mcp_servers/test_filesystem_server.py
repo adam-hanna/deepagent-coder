@@ -1,9 +1,6 @@
 # tests/mcp_servers/test_filesystem_server.py
 """Comprehensive tests for filesystem operations MCP server"""
 
-import os
-from pathlib import Path
-
 import pytest
 
 from deepagent_coder.mcp_servers.filesystem_server import (
