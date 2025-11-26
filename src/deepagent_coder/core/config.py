@@ -424,6 +424,3 @@ def reset_config() -> None:
     """Reset the global configuration instance."""
     global _global_config
     _global_config = None
-
-
-# Test comment
