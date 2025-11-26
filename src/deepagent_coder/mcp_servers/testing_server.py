@@ -4,6 +4,7 @@
 import asyncio
 from pathlib import Path
 import re
+import sys
 from typing import Any
 
 from fastmcp import FastMCP
@@ -48,8 +49,8 @@ async def _run_pytest_impl(
         if not path.exists():
             return {"error": f"Project path not found: {project_path}"}
 
-        # Build pytest command
-        cmd = ["pytest"]
+        # Build pytest command - always use as Python module
+        cmd = [sys.executable, "-m", "pytest"]
 
         if test_path:
             test_full_path = Path(test_path)
@@ -222,8 +223,8 @@ async def _get_coverage_impl(
         if not path.exists():
             return {"error": f"Project path not found: {project_path}"}
 
-        # Build coverage command
-        cmd = ["coverage", "run", "-m", "pytest"]
+        # Build coverage command - always use as Python module
+        cmd = [sys.executable, "-m", "coverage", "run", "-m", "pytest"]
 
         if test_path:
             cmd.append(test_path)
@@ -236,7 +237,8 @@ async def _get_coverage_impl(
         await _run_command(cmd, cwd=path, timeout=timeout)
 
         # Generate report
-        report_result = await _run_command(["coverage", "report"], cwd=path, timeout=30)
+        report_cmd = [sys.executable, "-m", "coverage", "report"]
+        report_result = await _run_command(report_cmd, cwd=path, timeout=30)
 
         # Parse coverage percentage
         output = report_result["stdout"]

@@ -1,0 +1,247 @@
+# DeepAgent Coding Assistant Configuration
+# Copy this file to one of the following locations to use it:
+#   1. Project-level: .deepagent.yaml (in your project directory)
+#   2. User-level: ~/.config/deepagent/config.yaml
+#
+# Configuration Priority (highest to lowest):
+#   1. CLI flags (--model, --workspace, --config)
+#   2. Environment variables (DEEPAGENT_*)
+#   3. Project config (.deepagent.yaml)
+#   4. User config (~/.config/deepagent/config.yaml)
+#   5. Built-in defaults
+
+# Workspace Settings
+workspace:
+  # Base workspace directory (can be overridden by --workspace CLI flag)
+  path: "~/.deepagents/workspace"
+
+  # Automatically create parent directories for files
+  auto_mkdir: true
+
+  # Directory for session storage
+  sessions_dir: "sessions"
+
+# Main Agent Configuration
+agent:
+  # Default model for main agent (can be overridden by --model CLI flag)
+  # RECOMMENDATION: Use a generalist model for better orchestration and conversation
+  # - qwen2.5:14b (recommended) - Best balance of intelligence and speed
+  # - llama3.1:8b - Faster, more conversational, lighter weight
+  # - qwen2.5:32b - Most capable but slower
+  model: "qwen2.5:14b"
+
+  # Maximum iterations for agent loop
+  max_iterations: 10
+
+  # Logging configuration
+  logging:
+    level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    file: "agent.log"  # Relative to workspace
+    console: true  # Also log to console
+
+# Model Configurations for Different Roles
+# Each role has: model, temperature, context window (num_ctx), GPU layers, timeout
+#
+# ARCHITECTURE NOTE:
+# - Main agent: Generalist model for orchestration, routing, and conversation
+# - Subagents: Specialized coding models for actual code generation and analysis
+#
+models:
+  # Main agent - orchestration, routing decisions, and user communication
+  # Uses generalist model for better understanding and conversation
+  main_agent:
+    model: "qwen2.5:14b"
+    temperature: 0.3
+    num_ctx: 32768  # Context window in tokens
+    num_gpu: 1
+    timeout: 300  # Request timeout in seconds
+
+  # Code generator - code generation and implementation
+  code_generator:
+    model: "codellama:13b-code"
+    temperature: 0.2
+    num_ctx: 16384
+    num_gpu: 1
+    timeout: 300
+
+  # Debugger - error analysis and debugging
+  debugger:
+    model: "qwen2.5-coder:latest"
+    temperature: 0.1
+    num_ctx: 16384
+    num_gpu: 1
+    timeout: 300
+
+  # Summarizer - documentation and summarization
+  summarizer:
+    model: "llama3.1:8b"
+    temperature: 0.4
+    num_ctx: 8192
+    num_gpu: 1
+    timeout: 180
+
+  # Test writer - test generation
+  test_writer:
+    model: "qwen2.5-coder:latest"
+    temperature: 0.2
+    num_ctx: 16384
+    num_gpu: 1
+    timeout: 300
+
+  # Refactorer - code refactoring and optimization
+  refactorer:
+    model: "qwen2.5-coder:latest"
+    temperature: 0.2
+    num_ctx: 16384
+    num_gpu: 1
+    timeout: 300
+
+  # DevOps - deployment and infrastructure automation
+  devops:
+    model: "qwen2.5-coder:latest"
+    temperature: 0.2
+    num_ctx: 16384
+    num_gpu: 1
+    timeout: 300
+
+  # Code review - code quality assessment
+  code_review:
+    model: "qwen2.5-coder:latest"
+    temperature: 0.1
+    num_ctx: 16384
+    num_gpu: 1
+    timeout: 300
+
+# Middleware Configuration
+middleware:
+  # Memory Management - manages context window size
+  memory:
+    enabled: true
+    threshold: 6000  # Token threshold for memory management
+    keep_recent_messages: 10
+
+  # Git Safety Checks - prevents dangerous git operations
+  git_safety:
+    enabled: true
+    enforce: false  # If false, only warn; if true, block unsafe operations
+
+  # Error Recovery - automatic retry with exponential backoff
+  error_recovery:
+    enabled: true
+    max_retries: 3
+    backoff_multiplier: 2.0  # Exponential backoff multiplier
+
+  # Audit Logging - logs all operations for debugging
+  audit:
+    enabled: true
+    file: "audit.jsonl"  # Relative to workspace
+    include_tool_calls: true
+    include_responses: true
+
+# MCP (Model Context Protocol) Configuration
+mcp:
+  # Filesystem server settings
+  filesystem:
+    enabled: true
+    restricted_to_workspace: true  # Security: only allow workspace access
+
+  # Shell command settings
+  shell:
+    enabled: true
+    timeout: 300
+    allow_sudo: false  # Security: block sudo commands
+
+  # Custom MCP servers (optional)
+  # Uncomment and configure as needed
+  custom_servers: {}
+    # example_server:
+    #   transport: "stdio"
+    #   command: "/path/to/server"
+    #   args: ["--port", "8080"]
+    #   env:
+    #     API_KEY: "your-api-key"
+
+# Code Quality Settings
+quality:
+  # Minimum quality score for deployment (0-10)
+  min_quality_score: 7.5
+
+  # Test coverage requirements
+  test_coverage:
+    minimum_percentage: 80
+    enforce: true
+
+  # Code complexity limits
+  complexity:
+    max_cyclomatic_complexity: 10
+    max_cognitive_complexity: 15
+
+  # Security checks
+  security:
+    scan_for_vulnerabilities: true
+    block_on_high_severity: true
+
+# Subagent Settings
+subagents:
+  # Enable/disable specific subagents
+  enabled:
+    code_generator: true
+    debugger: true
+    test_writer: true
+    refactorer: true
+    devops: true
+    code_review: true
+    code_navigator: true
+
+  # Code review specific settings
+  code_review:
+    auto_review_on_generate: true  # Automatically review generated code
+    quality_gate_required_for_deployment: true
+
+  # Test writer specific settings
+  test_writer:
+    auto_generate_tests: false  # Automatically generate tests for new code
+    test_framework: "pytest"  # Test framework to use (pytest, unittest, jest, etc.)
+
+# Chat Mode Settings
+chat:
+  # Interactive chat mode configuration
+  prompt: "> "
+  history_file: "~/.deepagent_history"
+  max_history: 1000
+
+  # Auto-save sessions
+  auto_save: true
+  save_interval: 300  # seconds
+
+# Performance Settings
+performance:
+  # Parallel execution of tool calls
+  parallel_tool_calls: true
+  max_parallel_calls: 5
+
+  # Caching
+  cache_enabled: true
+  cache_ttl: 3600  # Time to live in seconds
+
+  # Model preloading (speeds up first request)
+  preload_models: false  # Preload all models at startup
+  preload_roles: []  # Or specify specific roles: ["main_agent", "code_generator"]
+
+# API/Integration Settings (future feature)
+api:
+  enabled: false
+  host: "localhost"
+  port: 8000
+  auth_token: null  # Set via DEEPAGENT_API_TOKEN environment variable
+
+# Feature Flags
+features:
+  # Enable experimental features
+  experimental:
+    multi_agent_collaboration: false
+    vector_search: false
+    semantic_code_search: false
+
+  # Backward compatibility mode
+  legacy_mode: false

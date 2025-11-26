@@ -28,7 +28,7 @@ class ChatMode:
         self.console = DeepAgentConsole()
         self.command_handler = CommandHandler()
         self._exit = False
-        self.conversation_history = []
+        self.conversation_history: list[dict[str, str]] = []
 
     async def process_input(self, user_input: str) -> dict[str, Any] | None:
         """

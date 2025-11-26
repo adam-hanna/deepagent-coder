@@ -4,6 +4,7 @@ import ast
 import contextlib
 from pathlib import Path
 import subprocess
+import sys
 from typing import Any
 
 from fastmcp import FastMCP
@@ -103,6 +104,10 @@ async def measure_code_coverage(
     try:
         # Parse the test command to handle compound commands
         cmd_parts = test_command.split()
+
+        # If the command starts with pytest, use Python module execution
+        if cmd_parts[0] == "pytest":
+            cmd_parts = [sys.executable, "-m", "pytest"] + cmd_parts[1:]
 
         # Add coverage flags if not already present
         if "--cov" not in test_command:

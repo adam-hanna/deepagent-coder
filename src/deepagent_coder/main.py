@@ -1,32 +1,51 @@
 """Main entry point for DeepAgent coding assistant"""
 
 import asyncio
+from pathlib import Path
 
 import click
 
 from deepagent_coder.cli.chat_mode import ChatMode
 from deepagent_coder.cli.console import DeepAgentConsole
 from deepagent_coder.coding_agent import CodingDeepAgent
+from deepagent_coder.core.config import Config
 
 console = DeepAgentConsole()
 
 
 async def create_app(
-    model: str = "qwen2.5-coder:latest", workspace: str | None = None
+    model: str | None = None,
+    workspace: str | None = None,
+    config_file: str | None = None,
 ) -> CodingDeepAgent:
     """
     Create and initialize the coding agent
 
     Args:
-        model: Ollama model name
-        workspace: Workspace directory
+        model: Ollama model name (overrides config)
+        workspace: Workspace directory (overrides config)
+        config_file: Path to config file
 
     Returns:
         Initialized CodingDeepAgent
     """
     console.print_message("Initializing DeepAgent Coding Assistant...", style="cyan")
 
-    agent = CodingDeepAgent(model=model, workspace=workspace)
+    # Load configuration
+    cli_overrides = {}
+    if model:
+        cli_overrides["agent"] = {"model": model}
+    if workspace:
+        cli_overrides["workspace"] = {"path": workspace}
+
+    config = Config(
+        config_file=Path(config_file) if config_file else None, cli_overrides=cli_overrides
+    )
+
+    if config_file:
+        console.print_message(f"Using config file: {config_file}", style="dim")
+
+    agent = CodingDeepAgent(model=model, workspace=workspace, config=config)
 
     with console.status("Loading models and tools..."):
         await agent.initialize()
@@ -38,20 +57,24 @@ async def create_app(
 
 
 async def run_single_request(
-    request: str, model: str = "qwen2.5-coder:latest", workspace: str | None = None
+    request: str,
+    model: str | None = None,
+    workspace: str | None = None,
+    config_file: str | None = None,
 ) -> dict:
     """
     Run a single request and return result
 
     Args:
         request: User request
-        model: Model name
-        workspace: Workspace directory
+        model: Model name (overrides config)
+        workspace: Workspace directory (overrides config)
+        config_file: Path to config file
 
     Returns:
         Processing result
     """
-    agent = await create_app(model=model, workspace=workspace)
+    agent = await create_app(model=model, workspace=workspace, config_file=config_file)
 
     try:
         result = await agent.process_request(request)
@@ -60,15 +83,20 @@ async def run_single_request(
         await agent.cleanup()
 
 
-async def run_interactive_chat(model: str = "qwen2.5-coder:latest", workspace: str | None = None):
+async def run_interactive_chat(
+    model: str | None = None,
+    workspace: str | None = None,
+    config_file: str | None = None,
+):
     """
     Run interactive chat mode
 
     Args:
-        model: Model name
-        workspace: Workspace directory
+        model: Model name (overrides config)
+        workspace: Workspace directory (overrides config)
+        config_file: Path to config file
     """
-    agent = await create_app(model=model, workspace=workspace)
+    agent = await create_app(model=model, workspace=workspace, config_file=config_file)
     chat = ChatMode(agent=agent)
 
     console.rule("DeepAgent Coding Assistant")
@@ -120,11 +148,14 @@ def cli():
 
 @cli.command()
 @click.argument("request")
-@click.option("--model", default="qwen2.5-coder:latest", help="Ollama model to use")
-@click.option("--workspace", default=None, help="Workspace directory")
-def run(request: str, model: str, workspace: str | None):
+@click.option("--model", default=None, help="Ollama model to use (overrides config)")
+@click.option("--workspace", default=None, help="Workspace directory (overrides config)")
+@click.option("--config", "config_file", default=None, help="Path to config file")
+def run(request: str, model: str | None, workspace: str | None, config_file: str | None):
     """Execute a single request"""
-    result = asyncio.run(run_single_request(request, model=model, workspace=workspace))
+    result = asyncio.run(
+        run_single_request(request, model=model, workspace=workspace, config_file=config_file)
+    )
 
     # Display result
     if "messages" in result:
@@ -136,11 +167,12 @@ def run(request: str, model: str, workspace: str | None):
 
 
 @cli.command()
-@click.option("--model", default="qwen2.5-coder:latest", help="Ollama model to use")
-@click.option("--workspace", default=None, help="Workspace directory")
-def chat(model: str, workspace: str | None):
+@click.option("--model", default=None, help="Ollama model to use (overrides config)")
+@click.option("--workspace", default=None, help="Workspace directory (overrides config)")
+@click.option("--config", "config_file", default=None, help="Path to config file")
+def chat(model: str | None, workspace: str | None, config_file: str | None):
     """Start interactive chat mode"""
-    asyncio.run(run_interactive_chat(model=model, workspace=workspace))
+    asyncio.run(run_interactive_chat(model=model, workspace=workspace, config_file=config_file))
 
 
 @cli.command()
