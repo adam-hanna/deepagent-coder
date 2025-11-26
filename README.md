@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-266%20passing-brightgreen.svg)](tests/)
 
-A production-ready AI coding assistant. Built with DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations.
+A production-ready AI coding assistant built with 100% Python. Features DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations - no Node.js dependencies required.
 
 ## 🚀 Quick Start
 
@@ -13,7 +13,6 @@ A production-ready AI coding assistant. Built with DeepAgent architecture, Ollam
 
 - Python 3.13+
 - [Ollama](https://ollama.ai/) running locally
-- Node.js/npm (for MCP filesystem server)
 
 ### Installation
 
@@ -223,16 +222,15 @@ uv run pytest -k "test_write_file"
 
 ### Issue: "Failed to get MCP tools"
 
-**Cause**: MCP filesystem server not running or npx not available
+**Cause**: Python MCP filesystem server failed to start
 
 **Fix**:
 ```bash
-# Install Node.js and npm
-# Verify npx is available
-npx --version
+# Verify Python is available
+python --version
 
-# Test MCP server manually
-npx -y @modelcontextprotocol/server-filesystem /tmp/test
+# Test filesystem server manually
+python src/deepagent_coder/mcp_servers/filesystem_server.py
 ```
 
 ### Issue: "No tool calls found in content"
@@ -284,7 +282,7 @@ ollama pull qwen2.5-coder:latest  # Pull recommended model
 - `pytest-cov`: Coverage reporting
 
 **MCP Server:**
-- `@modelcontextprotocol/server-filesystem`: File operations via npx
+- `fastmcp`: Python MCP server framework for filesystem operations
 
 ## 📝 Changelog
 
