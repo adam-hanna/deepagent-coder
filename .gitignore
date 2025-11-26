@@ -32,3 +32,7 @@ htmlcov/
 *.tmp
 .agent_cache/
 context_portal/
+
+# Node.js (not needed - project is 100% Python)
+package-lock.json
+node_modules/

@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+import sys
 from typing import Any, TypedDict
 
 from deepagent_coder.core.mcp_client import MCPClientManager
@@ -110,12 +111,19 @@ class CodingDeepAgent:
         # Resolve workspace path to handle symlinks (e.g., /tmp -> /private/tmp on macOS)
         resolved_workspace = self.workspace.resolve()
 
-        # Use standard MCP servers that work reliably
+        # Get path to Python filesystem server
+        project_root = Path(__file__).parent.parent.parent
+        filesystem_server_path = (
+            project_root / "src" / "deepagent_coder" / "mcp_servers" / "filesystem_server.py"
+        )
+
+        # Use Python-based filesystem server (no Node.js required!)
         custom_config = {
             "filesystem": {
                 "transport": "stdio",
-                "command": "npx",
-                "args": ["-y", "@modelcontextprotocol/server-filesystem", str(resolved_workspace)],
+                "command": sys.executable,
+                "args": [str(filesystem_server_path)],
+                "env": {"WORKSPACE_PATH": str(resolved_workspace)},
             }
         }
 
