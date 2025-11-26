@@ -1,7 +1,6 @@
 # src/deepagent_coder/mcp_servers/filesystem_server.py
 """Filesystem operations MCP server - file and directory management tools"""
 
-import os
 from pathlib import Path
 import shutil
 from typing import Any
@@ -44,7 +43,7 @@ async def _write_file_impl(path: str, content: str) -> dict[str, Any]:
         return {"error": f"Failed to write file: {str(e)}"}
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def write_file(path: str, content: str) -> dict[str, Any]:
     """Write content to a file, creating directories if needed"""
     return await _write_file_impl(path, content)
@@ -88,7 +87,7 @@ async def _read_file_impl(path: str) -> dict[str, Any]:
         return {"error": f"Failed to read file: {str(e)}"}
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def read_file(path: str) -> dict[str, Any]:
     """Read content from a file"""
     return await _read_file_impl(path)
@@ -127,7 +126,7 @@ async def _list_directory_impl(path: str) -> dict[str, Any]:
             )
 
         # Sort: directories first, then files, alphabetically
-        entries.sort(key=lambda x: (x["type"] != "directory", x["name"].lower()))
+        entries.sort(key=lambda x: (x["type"] != "directory", str(x["name"]).lower()))
 
         return {"success": True, "path": str(dir_path), "entries": entries, "count": len(entries)}
 
@@ -137,7 +136,7 @@ async def _list_directory_impl(path: str) -> dict[str, Any]:
         return {"error": f"Failed to list directory: {str(e)}"}
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def list_directory(path: str) -> dict[str, Any]:
     """List contents of a directory"""
     return await _list_directory_impl(path)
@@ -180,7 +179,7 @@ async def _create_directory_impl(path: str) -> dict[str, Any]:
         return {"error": f"Failed to create directory: {str(e)}"}
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def create_directory(path: str) -> dict[str, Any]:
     """Create a directory, including parent directories if needed"""
     return await _create_directory_impl(path)
@@ -225,7 +224,7 @@ async def _move_file_impl(source: str, destination: str) -> dict[str, Any]:
         return {"error": f"Failed to move file: {str(e)}"}
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def move_file(source: str, destination: str) -> dict[str, Any]:
     """Move or rename a file or directory"""
     return await _move_file_impl(source, destination)
@@ -264,7 +263,7 @@ async def _delete_file_impl(path: str) -> dict[str, Any]:
         return {"error": f"Failed to delete file: {str(e)}"}
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def delete_file(path: str) -> dict[str, Any]:
     """Delete a file"""
     return await _delete_file_impl(path)
@@ -311,7 +310,7 @@ async def _delete_directory_impl(path: str, recursive: bool = False) -> dict[str
         return {"error": f"Failed to delete directory: {str(e)}"}
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def delete_directory(path: str, recursive: bool = False) -> dict[str, Any]:
     """Delete a directory (optionally recursive for non-empty directories)"""
     return await _delete_directory_impl(path, recursive)
@@ -357,13 +356,13 @@ async def _get_file_info_impl(path: str) -> dict[str, Any]:
         return {"error": f"Failed to get file info: {str(e)}"}
 
 
-@mcp.tool()
+@mcp.tool()  # type: ignore[misc]
 async def get_file_info(path: str) -> dict[str, Any]:
     """Get metadata for a file or directory"""
     return await _get_file_info_impl(path)
 
 
-def run_server():
+def run_server() -> None:
     """Run the Filesystem MCP server"""
     mcp.run(transport="stdio")
 
