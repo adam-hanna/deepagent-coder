@@ -303,7 +303,7 @@ async def _run_command(cmd: list[str], cwd: Path, timeout: int = 120) -> dict[st
 
 def run_server():
     """Run the Testing MCP server"""
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False, log_level="ERROR")
 
 
 if __name__ == "__main__":

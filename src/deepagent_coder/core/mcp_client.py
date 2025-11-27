@@ -2,6 +2,7 @@
 """MCP Client management for tool integration"""
 
 import logging
+import os
 from pathlib import Path
 import sys
 from typing import Any
@@ -10,13 +11,17 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 
 logger = logging.getLogger(__name__)
 
+# Suppress FastMCP banner and reduce logging noise
+os.environ["FASTMCP_LOG_LEVEL"] = "ERROR"
+logging.getLogger("fastmcp").setLevel(logging.ERROR)
+
 
 class MCPClientManager:
     """
     Manages MCP server connections and tool access.
 
     Provides centralized management of multiple MCP servers
-    for filesystem, git, python, testing, linting, shell,
+    for filesystem, git, python, testing, linting, shell, search_tools,
     container_tools, build_tools, code_metrics, and static_analysis operations.
     """
 
@@ -50,114 +55,64 @@ class MCPClientManager:
         """Get default MCP server configurations"""
         # Get the project root directory
         project_root = Path(__file__).parent.parent.parent.parent
+        mcp_servers_dir = project_root / "src" / "deepagent_coder" / "mcp_servers"
 
+        # All servers configured with banner and logging suppressed
         return {
+            "filesystem": {
+                "transport": "stdio",
+                "command": sys.executable,
+                "args": [str(mcp_servers_dir / "filesystem_server.py")],
+            },
             "python": {
                 "transport": "stdio",
                 "command": sys.executable,
-                "args": [
-                    str(
-                        project_root
-                        / "src"
-                        / "deepagent_coder"
-                        / "mcp_servers"
-                        / "python_server.py"
-                    )
-                ],
+                "args": [str(mcp_servers_dir / "python_server.py")],
             },
             "git": {
                 "transport": "stdio",
                 "command": sys.executable,
-                "args": [
-                    str(project_root / "src" / "deepagent_coder" / "mcp_servers" / "git_server.py")
-                ],
+                "args": [str(mcp_servers_dir / "git_server.py")],
             },
             "testing": {
                 "transport": "stdio",
                 "command": sys.executable,
-                "args": [
-                    str(
-                        project_root
-                        / "src"
-                        / "deepagent_coder"
-                        / "mcp_servers"
-                        / "testing_server.py"
-                    )
-                ],
+                "args": [str(mcp_servers_dir / "testing_server.py")],
             },
             "linting": {
                 "transport": "stdio",
                 "command": sys.executable,
-                "args": [
-                    str(
-                        project_root
-                        / "src"
-                        / "deepagent_coder"
-                        / "mcp_servers"
-                        / "linting_server.py"
-                    )
-                ],
+                "args": [str(mcp_servers_dir / "linting_server.py")],
             },
             "shell": {
                 "transport": "stdio",
                 "command": sys.executable,
-                "args": [
-                    str(
-                        project_root / "src" / "deepagent_coder" / "mcp_servers" / "shell_server.py"
-                    )
-                ],
+                "args": [str(mcp_servers_dir / "shell_server.py")],
+            },
+            "search_tools": {
+                "transport": "stdio",
+                "command": sys.executable,
+                "args": [str(mcp_servers_dir / "search_tools_server.py")],
             },
             "container_tools": {
                 "transport": "stdio",
                 "command": sys.executable,
-                "args": [
-                    str(
-                        project_root
-                        / "src"
-                        / "deepagent_coder"
-                        / "mcp_servers"
-                        / "container_tools_server.py"
-                    )
-                ],
+                "args": [str(mcp_servers_dir / "container_tools_server.py")],
             },
             "build_tools": {
                 "transport": "stdio",
                 "command": sys.executable,
-                "args": [
-                    str(
-                        project_root
-                        / "src"
-                        / "deepagent_coder"
-                        / "mcp_servers"
-                        / "build_tools_server.py"
-                    )
-                ],
+                "args": [str(mcp_servers_dir / "build_tools_server.py")],
             },
             "code_metrics": {
                 "transport": "stdio",
                 "command": sys.executable,
-                "args": [
-                    str(
-                        project_root
-                        / "src"
-                        / "deepagent_coder"
-                        / "mcp_servers"
-                        / "code_metrics_server.py"
-                    )
-                ],
+                "args": [str(mcp_servers_dir / "code_metrics_server.py")],
             },
             "static_analysis": {
                 "transport": "stdio",
                 "command": sys.executable,
-                "args": [
-                    str(
-                        project_root
-                        / "src"
-                        / "deepagent_coder"
-                        / "mcp_servers"
-                        / "static_analysis_server.py"
-                    )
-                ],
+                "args": [str(mcp_servers_dir / "static_analysis_server.py")],
             },
         }
 
