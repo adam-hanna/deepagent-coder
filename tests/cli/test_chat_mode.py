@@ -33,8 +33,11 @@ async def test_chat_mode_exit_command():
 async def test_chat_mode_handles_regular_input():
     """Test handling regular user input"""
     mock_agent = AsyncMock()
-    mock_agent.ainvoke.return_value = {"messages": [{"role": "assistant", "content": "Response"}]}
+    mock_agent.process_request.return_value = {
+        "messages": [{"role": "assistant", "content": "Response"}]
+    }
 
     chat = ChatMode(agent=mock_agent)
     result = await chat.process_input("Hello")
     assert result is not None
+    mock_agent.process_request.assert_called_once_with("Hello")

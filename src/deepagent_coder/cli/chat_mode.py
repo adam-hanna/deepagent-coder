@@ -26,7 +26,7 @@ class ChatMode:
         """
         self.agent = agent
         self.console = DeepAgentConsole()
-        self.command_handler = CommandHandler()
+        self.command_handler = CommandHandler(agent=agent)
         self._exit = False
         self.conversation_history: list[dict[str, str]] = []
 
@@ -82,8 +82,8 @@ class ChatMode:
         self.conversation_history.append({"role": "user", "content": message})
 
         try:
-            # Invoke agent
-            result = await self.agent.ainvoke({"messages": self.conversation_history})
+            # Invoke agent using process_request
+            result = await self.agent.process_request(message)
 
             # Extract response
             if "messages" in result:

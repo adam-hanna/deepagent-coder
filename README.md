@@ -420,9 +420,38 @@ Contributions welcome! Please:
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Write tests for your changes
 4. Ensure all tests pass (`uv run pytest`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+5. **Format and fix code** (see below for auto-fix options)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+### Code Quality & Auto-Fix
+
+**Pre-commit hooks are already configured with auto-fix enabled!** When you commit, the following tools will automatically fix issues:
+- **Black**: Auto-formats Python code
+- **isort**: Auto-sorts imports
+- **Ruff**: Auto-fixes linting issues
+
+**Manual formatting before commit:**
+```bash
+# Run all formatters and fixers
+./scripts/format.sh
+
+# Or run individually:
+uv run black src/ tests/ --line-length=100
+uv run isort src/ tests/ --profile=black --line-length=100
+uv run ruff check src/ tests/ --fix
+```
+
+**Verify everything passes:**
+```bash
+uv run pre-commit run --all-files
+```
+
+**Install pre-commit hooks** (if not already installed):
+```bash
+uv run pre-commit install
+```
 
 ## 📄 License
 

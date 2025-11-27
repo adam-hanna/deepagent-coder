@@ -512,16 +512,21 @@ Available tools:
 - read_file: Read a file (ALWAYS read before editing to get exact text)
 - list_directory: List directory contents
 - move_file: Move or rename files and directories
-- bash commands: For operations not covered by tools above (e.g., delete files with 'rm file.txt', search with 'grep', etc.)
+- delete_file: Delete a single file
+- delete_directory: Delete a directory (use recursive=true for non-empty directories)
+- run_shell_command: Execute shell commands for operations not covered by other tools (e.g., npm install, git commands, grep, etc.)
 
 🚨 **FILE DELETION** 🚨
-There is NO delete_file tool. To delete files or directories, use bash commands:
-- Delete a file: Use bash with 'rm ./path/to/file.txt'
-- Delete a directory: Use bash with 'rm -rf ./path/to/directory'
+Use the delete_file and delete_directory tools for file operations:
+- Delete a file: Use delete_file with path='./path/to/file.txt'
+- Delete a directory: Use delete_directory with path='./path/to/directory' and recursive=true
 - Be CAREFUL with deletion - it's permanent!
 
 Example: Delete old test file
-{{"name": "bash", "arguments": {{"command": "rm ./old-test.js"}}}}
+{{"name": "delete_file", "arguments": {{"path": "./old-test.js"}}}}
+
+Example: Run shell command
+{{"name": "run_shell_command", "arguments": {{"command": "npm install"}}}}
 
 Be proactive and efficient - create directories AND files in ONE response!"""
 
@@ -628,13 +633,21 @@ Be proactive and efficient - create directories AND files in ONE response!"""
                     if isinstance(parsed, list):
                         # It's an array of tool calls
                         for item in parsed:
-                            if isinstance(item, dict) and "name" in item and "arguments" in item:
-                                tool_calls.append(item)
-                                print(f"DEBUG: Found tool call from array: {item.get('name')}")
-                    elif isinstance(parsed, dict) and "name" in parsed and "arguments" in parsed:
+                            if isinstance(item, dict) and "name" in item:
+                                # Normalize: accept both "arguments" and "parameters"
+                                if "parameters" in item and "arguments" not in item:
+                                    item["arguments"] = item["parameters"]
+                                if "arguments" in item:
+                                    tool_calls.append(item)
+                                    print(f"DEBUG: Found tool call from array: {item.get('name')}")
+                    elif isinstance(parsed, dict) and "name" in parsed:
                         # It's a single tool call object
-                        tool_calls.append(parsed)
-                        print(f"DEBUG: Found single tool call: {parsed.get('name')}")
+                        # Normalize: accept both "arguments" and "parameters"
+                        if "parameters" in parsed and "arguments" not in parsed:
+                            parsed["arguments"] = parsed["parameters"]
+                        if "arguments" in parsed:
+                            tool_calls.append(parsed)
+                            print(f"DEBUG: Found single tool call: {parsed.get('name')}")
                 except json.JSONDecodeError:
                     print("DEBUG: Content is not valid JSON, trying individual object extraction")
                     pass
@@ -676,11 +689,18 @@ Be proactive and efficient - create directories AND files in ONE response!"""
                                             json_str = content[start : j + 1]
                                             try:
                                                 obj = json.loads(json_str)
-                                                if "name" in obj and "arguments" in obj:
-                                                    tool_calls.append(obj)
-                                                    print(
-                                                        f"DEBUG: Found tool call: {obj.get('name')}"
-                                                    )
+                                                if "name" in obj:
+                                                    # Normalize: accept both "arguments" and "parameters"
+                                                    if (
+                                                        "parameters" in obj
+                                                        and "arguments" not in obj
+                                                    ):
+                                                        obj["arguments"] = obj["parameters"]
+                                                    if "arguments" in obj:
+                                                        tool_calls.append(obj)
+                                                        print(
+                                                            f"DEBUG: Found tool call: {obj.get('name')}"
+                                                        )
                                             except:
                                                 pass
                                             i = j

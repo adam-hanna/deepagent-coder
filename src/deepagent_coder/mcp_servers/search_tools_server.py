@@ -400,7 +400,7 @@ mcp.tool()(ripgrep)
 
 def run_server():
     """Run the Search Tools MCP server"""
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False, log_level="ERROR")
 
 
 if __name__ == "__main__":

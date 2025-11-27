@@ -2,10 +2,12 @@
 
 from contextlib import contextmanager
 
+from rich.align import Align
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.syntax import Syntax
+from rich.text import Text
 
 
 class DeepAgentConsole:
@@ -120,3 +122,30 @@ class DeepAgentConsole:
             title: Optional title for the rule
         """
         self.console.rule(title if title is not None else "")
+
+    def print_banner(self) -> None:
+        """Print the DeepAgent banner (centered)"""
+        banner_text = "\n".join(
+            [
+                "╔═══════════════════════════════════════════════════════════════╗",
+                "║                                                               ║",
+                "║               ██████╗ ███████╗███████╗██████╗                 ║",
+                "║               ██╔══██╗██╔════╝██╔════╝██╔══██╗                ║",
+                "║               ██║  ██║█████╗  █████╗  ██████╔╝                ║",
+                "║               ██║  ██║██╔══╝  ██╔══╝  ██╔═══╝                 ║",
+                "║               ██████╔╝███████╗███████╗██║                     ║",
+                "║               ╚═════╝ ╚══════╝╚══════╝╚═╝                     ║",
+                "║                                                               ║",
+                "║            ╔═╗╔═╗╔═╗╔╗╔╔╦╗  ╔═╗╔═╗╔╦╗╔═╗╦═╗                   ║",
+                "║            ╠═╣║ ╦║╣ ║║║ ║   ║  ║ ║ ║║║╣ ╠╦╝                   ║",
+                "║            ╩ ╩╚═╝╚═╝╝╚╝ ╩   ╚═╝╚═╝═╩╝╚═╝╩╚═                   ║",
+                "║                                                               ║",
+                "║              AI-Powered Coding Assistant v0.1.0               ║",
+                "║                  with Ollama & Local Models                   ║",
+                "║                                                               ║",
+                "╚═══════════════════════════════════════════════════════════════╝",
+            ]
+        )
+        text = Text(banner_text, style="bold cyan")
+        centered = Align.center(text)
+        self.console.print(centered)

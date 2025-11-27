@@ -15,8 +15,14 @@ class CommandHandler:
     separate from agent processing.
     """
 
-    def __init__(self):
-        """Initialize command handler"""
+    def __init__(self, agent: Any | None = None):
+        """
+        Initialize command handler
+
+        Args:
+            agent: Optional agent instance for accessing configuration
+        """
+        self.agent = agent
         self.commands: dict[str, Callable] = {
             "/help": self._help,
             "/exit": self._exit,
@@ -71,8 +77,10 @@ Available Commands:
 
 Usage Tips:
 - Type your question or request to interact with the agent
+- Use ← → arrow keys to edit your input
+- Use ↑ ↓ arrow keys to navigate command history
 - Use commands for special operations
-- Press Ctrl+C to exit
+- Press Ctrl+C to exit (or use /exit)
 """
         return {"success": True, "help": help_text}
 
@@ -82,8 +90,11 @@ Usage Tips:
 
     async def _workspace(self, args: list) -> dict[str, Any]:
         """Show workspace path"""
-        # This would get the actual workspace path from configuration
-        return {"success": True, "workspace": "~/.deepagents/workspace"}
+        if self.agent and hasattr(self.agent, "get_workspace_path"):
+            workspace_path = str(self.agent.get_workspace_path())
+        else:
+            workspace_path = "~/.deepagents/workspace"  # Fallback default
+        return {"success": True, "workspace": workspace_path}
 
     async def _clear(self, args: list) -> dict[str, Any]:
         """Clear conversation history"""

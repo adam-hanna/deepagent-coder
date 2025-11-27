@@ -1,14 +1,24 @@
 """Main entry point for DeepAgent coding assistant"""
 
 import asyncio
+import logging
+import os
 from pathlib import Path
 
-import click
+# Suppress FastMCP banner and logs BEFORE any imports that might spawn MCP servers
+os.environ["FASTMCP_LOG_LEVEL"] = "ERROR"
 
-from deepagent_coder.cli.chat_mode import ChatMode
-from deepagent_coder.cli.console import DeepAgentConsole
-from deepagent_coder.coding_agent import CodingDeepAgent
-from deepagent_coder.core.config import Config
+# Configure logging to suppress FastMCP INFO messages
+logging.getLogger("fastmcp").setLevel(logging.ERROR)
+
+import click  # noqa: E402
+from prompt_toolkit import PromptSession  # noqa: E402
+from prompt_toolkit.history import FileHistory  # noqa: E402
+
+from deepagent_coder.cli.chat_mode import ChatMode  # noqa: E402
+from deepagent_coder.cli.console import DeepAgentConsole  # noqa: E402
+from deepagent_coder.coding_agent import CodingDeepAgent  # noqa: E402
+from deepagent_coder.core.config import Config  # noqa: E402
 
 console = DeepAgentConsole()
 
@@ -96,18 +106,25 @@ async def run_interactive_chat(
         workspace: Workspace directory (overrides config)
         config_file: Path to config file
     """
+    # Show banner first
+    console.print_banner()
+    console.print_message("")  # Add blank line
+
     agent = await create_app(model=model, workspace=workspace, config_file=config_file)
     chat = ChatMode(agent=agent)
 
-    console.rule("DeepAgent Coding Assistant")
+    # Setup prompt session with history
+    history_file = Path.home() / ".deepagent_history"
+    session: PromptSession[str] = PromptSession(history=FileHistory(str(history_file)))
+
     console.print_message("Type your question or /help for commands", style="dim")
     console.rule()
 
     try:
         while not chat.should_exit():
             try:
-                # Get user input
-                user_input = input("\n> ")
+                # Get user input with readline support
+                user_input = await session.prompt_async("\n> ")
 
                 if not user_input.strip():
                     continue
@@ -122,6 +139,10 @@ async def run_interactive_chat(
                         console.print_error(result["error"])
                     elif "help" in result:
                         console.print_message(result["help"])
+                    elif "workspace" in result:
+                        console.print_message(f"Workspace: {result['workspace']}", style="cyan")
+                    elif "message" in result:
+                        console.print_message(result["message"])
                     elif "messages" in result:
                         messages = result["messages"]
                         if messages:

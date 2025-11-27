@@ -415,7 +415,7 @@ async def _run_git_command(cmd: list[str], cwd: Path, timeout: int = 30) -> dict
 
 def run_server():
     """Run the Git MCP server"""
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False, log_level="ERROR")
 
 
 if __name__ == "__main__":

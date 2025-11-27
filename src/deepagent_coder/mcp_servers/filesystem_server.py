@@ -364,7 +364,7 @@ async def get_file_info(path: str) -> dict[str, Any]:
 
 def run_server() -> None:
     """Run the Filesystem MCP server"""
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False, log_level="ERROR")
 
 
 if __name__ == "__main__":
