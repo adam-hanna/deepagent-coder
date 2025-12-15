@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-315%20passing-brightgreen.svg)](tests/)
 
-A production-ready AI coding assistant built with 100% Python. Features DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations - no Node.js dependencies required.
+An AI coding assistant built with 100% Python. Features DeepAgent architecture, Ollama local LLMs, and Model Context Protocol (MCP) for filesystem operations - no Node.js dependencies required.
 
 ## 🚀 Quick Start
 
